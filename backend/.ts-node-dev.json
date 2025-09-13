@@ -1,0 +1,6 @@
+{
+  "ignore": ["dist", ".git", "node_modules"],
+  "extensions": ["ts"],
+  "respawn": true,
+  "transpileOnly": true
+}
