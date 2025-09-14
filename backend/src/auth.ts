@@ -1,18 +1,7 @@
 import { Router } from "express";
 import { pool } from "./db";
-
+import generateId from "./utils/generateId";
 export const authRouter = Router();
-
-// Función para generar un código aleatorio de 6 chars
-function generateUserCode(): string {
-  const chars =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  let result = "";
-  for (let i = 0; i < 6; i++) {
-    result += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return result;
-}
 
 /**
  * POST /api/auth/create
@@ -34,7 +23,7 @@ authRouter.post("/create", async (req, res) => {
 
     // Generar hasta encontrar un código no existente
     do {
-      code = generateUserCode();
+      code = generateId();
       const [rows] = await pool.query(
         "SELECT user_code FROM users WHERE user_code = ? LIMIT 1",
         [code]
@@ -57,7 +46,6 @@ authRouter.post("/create", async (req, res) => {
       user: insertedUser,
     });
   } catch (err: any) {
-    console.error('paco', err);
     return res.json({
       success: false,
       errorMessage: err.message,

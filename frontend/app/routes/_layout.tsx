@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Outlet } from "react-router";
+import Footer from "~/components/Footer";
 import LoginDialog from "~/components/LoginDialog";
 import { useAuth } from "~/hooks/useAuth";
 
@@ -31,6 +32,7 @@ export default function Layout() {
       {/* <Header /> */}
       <LoginDialog isOpen={showLoginDialog} closeDialog={() => setShowLoginDialog(false)} />
       <Outlet />
+      <Footer />
     </>
   );
 }

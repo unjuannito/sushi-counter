@@ -1,10 +1,12 @@
 import axios from "axios";
+import { io, Socket } from "socket.io-client";  // Importamos socket.io-client
 import type { AxiosInstance, AxiosResponse } from "axios";
 
 export class ApiService {
     protected baseUrl: string;
     protected axiosInstance: AxiosInstance;
     private static token: string | null = null;
+    public socket: Socket | null = null;
 
     constructor() {
         this.baseUrl = import.meta.env.DEV ? 'http://192.168.1.200:4000/api' : '/api';
@@ -45,6 +47,28 @@ export class ApiService {
             },
             (error) => Promise.reject(error)
         );
+    }
+
+    // WebSocket: Establecer conexión
+    public connectWebSocket() {
+        const SOCKET_URL = import.meta.env.DEV ? 'http://192.168.1.200:4000' : '/';
+
+        this.socket = io(SOCKET_URL);
+
+        // Aquí puedes escuchar cualquier evento que el backend emita
+        this.socket.on('update', (message: string) => {
+            console.log('Mensaje de WebSocket recibido: ', message);
+            // Aquí podrías manejar la actualización en la UI o en el estado global
+            // alert(message);  // Por ejemplo, mostrar un alerta con el mensaje
+        });
+    }
+
+    // WebSocket: Desconectar
+    public disconnectWebSocket() {
+        if (this.socket) {
+            this.socket.disconnect();
+            console.log('WebSocket desconectado');
+        }
     }
 
     protected static setToken(token: string | null) {

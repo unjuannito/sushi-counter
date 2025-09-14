@@ -4,18 +4,21 @@ import upArrow from '../assets/up.svg'
 import downArrow from '../assets/down.svg'
 import niamNiam from '../assets/niam-niam.png'
 // import animatedNiamNiam from '../assets/niam-niam.gif'
+import { useUserTournaments } from "~/hooks/useUserTournaments";
 import LoginDialog from "../components/LoginDialog";
 import "../styles/index.css"
+
 export function meta({ }: Route.MetaArgs) {
   return [
-    { title: "New React Router App" },
-    { name: "description", content: "Welcome to React Router!" },
+    { title: "Sushi Counter" },
+    { name: "description", content: "Count how many sushi dou you eat!" },
   ];
 }
 
 export default function Index() {
   const [count, setCount] = useState<number>(0)
   // const [isMoving, setIsMoving] = useState<boolean>(false);
+  const { isAnyTournamentActive, updateSushiCount } = useUserTournaments();
 
   useEffect(() => {
     const oldCounter: number = parseInt(localStorage.getItem('sushiCounter') || '0');
@@ -29,6 +32,9 @@ export default function Index() {
     const newCounter: number = count + mod;
     setCount(newCounter);
     localStorage.setItem('sushiCounter', newCounter.toString());
+    if (isAnyTournamentActive()) {
+      updateSushiCount(newCounter)
+    }
     // if (mod != 1) return;
     // setIsMoving(true)
     // setTimeout(() => {

@@ -4,11 +4,10 @@ main {
   align-items: center;
   justify-content: center;
   gap: 2rem;
-  padding: 2rem;
-    padding-top: 0;
-
+  padding: 4rem 2rem 2rem 2rem;
   box-sizing: border-box;
   width: 100%;
+  flex: 1;
   max-width: 600px;
 }
 
@@ -27,4 +26,8 @@ main {
 .niam-niam {
   width: 65%;
   height: auto;
+}
+
+footer{
+  background-color: #242424;
 }

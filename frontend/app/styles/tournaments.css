@@ -1,0 +1,31 @@
+main article {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+main article  article {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    border: 1px solid white;
+    padding: 2rem 3rem;
+    border-radius: 1rem;
+
+}
+
+footer {
+    position: fixed;
+    background-color: #242424;
+    bottom: 0;
+    width: 90%;
+    border-top: 1px solid #333;
+    box-sizing: content-box;
+}
+
+.participant {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    gap: 3rem;
+}
