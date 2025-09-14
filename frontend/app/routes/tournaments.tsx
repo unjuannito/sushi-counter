@@ -15,7 +15,7 @@ export default function Tournaments() {
     const handleCopy = async (id: string) => {
         const hostname = window.location.hostname;
         const port = window.location.port ? `:${window.location.port}` : ''; // Verifica si hay puerto y lo agrega
-        const url = `${hostname}${port}/tournament/join/${id}`;
+        const url = `${hostname}${port}/sushi-counter/tournament/join/${id}`;
         console.log(url); // Para ver cómo se construye la URL
 
         try {

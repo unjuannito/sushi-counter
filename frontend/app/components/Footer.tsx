@@ -8,19 +8,19 @@ export default function Footer() {
     return (
         <footer>
             <nav>
-                <a href="/calendar">
+                <a href="/sushi-counter/calendar">
                     <img src={calendarImg} alt="Calendar" />
                 </a>
-                <a href="/tournaments">
+                <a href="/sushi-counter/tournaments">
                     <img src={tournamentsImg} alt="Tournaments" />
                 </a>
-                <a href="/">
+                <a href="/sushi-counter/">
                     <img src={homeImg} alt="Home" />
                 </a>
-                <a href="/statistics">
+                <a href="/sushi-counter/statistics">
                     <img src={statisticsImg} alt="Statistics" />
                 </a>
-                <a href="/user">
+                <a href="/sushi-counter/user">
                     <img src={userImg} alt="User" />
                 </a>
             </nav>

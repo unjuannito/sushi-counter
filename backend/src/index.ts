@@ -26,8 +26,8 @@ app.get('/', (req, res) => {
 });
 
 app.use(express.json());
-app.use("/api/auth", authRouter);
-app.use("/api/tournaments", tournamentsRouter);
+app.use("/auth", authRouter);
+app.use("/tournaments", tournamentsRouter);
 
 // Ruta para enviar una notificación de "actualización de datos"
 app.get('/actualizar-datos', (req, res) => {

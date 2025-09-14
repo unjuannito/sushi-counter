@@ -7,7 +7,7 @@ export class ApiService {
     private static token: string | null = null;
 
     constructor() {
-        this.baseUrl = import.meta.env.DEV ? 'http://192.168.1.200:4000/api' : '/api';
+        this.baseUrl = import.meta.env.DEV ? 'http://192.168.1.200:4000/' : '/api/';
         // alert("API URL: " + this.baseUrl);
 
         this.axiosInstance = axios.create({
