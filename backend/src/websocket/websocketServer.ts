@@ -1,33 +1,56 @@
 import { Server } from "socket.io";
-import http from "http";
+import { randomUUID } from "crypto";
+import * as http from "http";
 
-// Crear la instancia de Socket.IO a nivel global
-let io: Server;
+// Esta variable mantendrá las conexiones activas
+const clients: Map<string, import("socket.io").Socket> = new Map();
 
-// Esta función inicializa el servidor WebSocket
-export const initWebSocket = (httpServer: http.Server) => {
-  io = new Server(httpServer, {
+// Inicialización del servidor WebSocket
+export function initWebSocket(server: http.Server) {
+  const io = new Server(server, {
     cors: {
-      origin: "http://localhost:5173", // La URL de tu frontend
+      origin: "*",  // Permite conexiones desde cualquier origen
       methods: ["GET", "POST"],
-      allowedHeaders: ["Content-Type"],
-      credentials: true, // Si necesitas cookies o encabezados de autenticación
     },
   });
 
-  io.on('connection', (socket) => {
-    console.log('Nuevo cliente conectado');
+  io.on("connection", (socket) => {
+    console.log("Nuevo cliente conectado", socket.id);
 
-    // Escuchar la desconexión de los clientes
-    socket.on('disconnect', () => {
-      console.log('Cliente desconectado');
+    // Verificar si el cliente trae un wsToken desde la conexión
+    let wsToken = socket.handshake.query.wsToken as string;
+
+    if (!wsToken) {
+      // Si no hay wsToken, se genera uno nuevo
+      wsToken = randomUUID();
+    }
+
+    clients.set(wsToken, socket);
+
+    console.log(`Nuevo cliente conectado con wsToken: ${wsToken}`);
+
+    // Envía el wsToken al cliente
+    socket.emit("connected", { wsToken });
+
+    socket.on("disconnect", () => {
+      // Elimina la conexión cuando el cliente se desconecta
+      clients.delete(wsToken);
+      console.log(`Cliente desconectado con wsToken: ${wsToken}`);
+    });
+
+    // Escucha mensajes personalizados
+    socket.on("send_message", (message: string) => {
+      console.log(`Mensaje recibido: ${message}`);
+      socket.emit("message_received", { message: `Tu mensaje fue recibido: ${message}` });
     });
   });
-};
+}
 
-// Función para enviar un mensaje a todos los clientes conectados
-export const notifyClients = (message: string) => {
-  if (io) {
-    io.emit('update', message); // 'update' es el evento que los clientes escuchan
-  }
-};
+// Función para enviar una notificación a todos los clientes conectados
+export function notifyClients(message: string) {
+  console.log("Notificando a todos los clientes: ", message);
+  clients.forEach((clientSocket, wsToken) => {
+    clientSocket.emit("update", message);
+    console.log(`Notificación enviada al cliente ${wsToken}`);
+  });
+}

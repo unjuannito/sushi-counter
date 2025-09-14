@@ -184,6 +184,38 @@ tournamentsRouter.get("/user/:userCode", async (req, res) => {
 });
 
 // Cambiar puntuación de un participante en todos sus torneos activos
+tournamentsRouter.post("/update-status", async (req, res) => {
+  const { id, status } = req.body;
+
+  if (!id || !status) {
+    return res.json({
+      success: false,
+      errorMessage: "Faltan datos necesarios (usuario, torneo o puntuación)",
+    });
+  }
+
+  try {
+    // Actualizar la puntuación del usuario en el torneo
+    await pool.query(
+      "UPDATE tournaments SET status = ? WHERE id = ?",
+      [status, id]
+    );
+
+    notifyClients('update');
+
+    return res.json({
+      success: true,
+      tournamentId: id
+    });
+  } catch (err: any) {
+    return res.json({
+      success: false,
+      errorMessage: err.message,
+    });
+  }
+});
+
+// Cambiar puntuación de un participante en todos sus torneos activos
 tournamentsRouter.post("/update-count", async (req, res) => {
   const { userCode, sushiCount } = req.body;
 
@@ -195,22 +227,15 @@ tournamentsRouter.post("/update-count", async (req, res) => {
   }
 
   try {
-    // sacar todos los torneos del usuario
-    const [participantRows] = await pool.query<RowDataPacket[]>(
-      "SELECT * FROM participants WHERE finished = 0 AND user = ?",
-      [userCode]
-    );
-
-    if (participantRows.length === 0) {
-      return res.json({
-        success: false,
-        errorMessage: "Error when updating 2",
-      });
-    }
-
     // Actualizar la puntuación del usuario en el torneo
-    await pool.query(
-      "UPDATE participants SET sushi_count = ? WHERE user = ?",
+    await pool.query(`
+      UPDATE participants
+      SET sushi_count = ?
+      WHERE user = ?
+      AND tournament IN (
+        SELECT id FROM tournaments WHERE status = 'open'
+      );
+      `,
       [sushiCount, userCode]
     );
 
@@ -226,4 +251,38 @@ tournamentsRouter.post("/update-count", async (req, res) => {
       errorMessage: err.message,
     });
   }
+});
+
+tournamentsRouter.get("/has-active-tournament:userCode", async (req, res) => {
+  const { userCode } = req.params;
+  try {
+    // Obtener todos los torneos donde participa el usuario
+    const [tournamentsIds] = await pool.query<RowDataPacket[]>(`
+      SELECT t.id
+      FROM tournaments t
+      WHERE t.id IN (
+        SELECT p.tournament
+        FROM participants p
+        WHERE p.user = ?
+      ) AND status= 'open'
+    `, [userCode]);
+
+    if (tournamentsIds.length === 0) {
+      return res.json({
+        success: false,
+        errorMessage: "There is no tournaments",
+      });
+    }
+
+    return res.json({
+      success: true,
+      tournamentsIds,
+    });
+  } catch (err: any) {
+    return res.json({
+      success: false,
+      errorMessage: err.message,
+    });
+  }
+
 });

@@ -27,5 +27,11 @@ footer {
     display: flex;
     flex-direction: row;
     justify-content: center;
-    gap: 3rem;
+    gap: 2rem;
+    padding: 1rem 1rem ;
+}
+
+button img{
+    height: 3rem;
+    width: auto;
 }

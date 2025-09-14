@@ -18,7 +18,6 @@ const JoinTournament = () => {
     <main>
       <h2>Joining tournament...</h2>
       <p>{error}</p>
-      {/* Puedes mostrar un spinner o mensaje mientras se procesa */}
     </main>
   );
 };

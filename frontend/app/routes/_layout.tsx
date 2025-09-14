@@ -3,6 +3,7 @@ import { Outlet } from "react-router";
 import Footer from "~/components/Footer";
 import LoginDialog from "~/components/LoginDialog";
 import { useAuth } from "~/hooks/useAuth";
+import WebSocketService from '~/services/webSocketService'; // Importar WebSocketService
 
 // This is the main layout for most pages
 export default function Layout() {
@@ -16,6 +17,8 @@ export default function Layout() {
       const response = verifyUser(localUserCode);
       response.then((res) => {
         if (res.success) {
+          const webSocketService = WebSocketService.getInstance();
+          webSocketService.connect();
           return;
         }
         setShowLoginDialog(true);
@@ -23,7 +26,7 @@ export default function Layout() {
         setShowLoginDialog(true);
       });
     }
-    if (localUserCode) return;
+    if (localUserCode) return
     setShowLoginDialog(true);
   }, [showLoginDialog])
 

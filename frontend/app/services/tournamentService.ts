@@ -1,8 +1,11 @@
 import { ApiService } from './apiService';
 import type { Tournament } from '~/types/tournamentType';
 import type { Response } from '~/types/responseType';
+import WebSocketService from '~/services/webSocketService';  // Importa el singleton WS
 
 export class TournamentService extends ApiService {
+  private webSocketService = WebSocketService.getInstance();
+
   public async createTournament(userCode: string): Promise<{ success: boolean; tournamentId?: string; errorMessage?: string }> {
     try {
       const response: Response = await this.post(`/tournaments/create`, { userCode });
@@ -25,6 +28,7 @@ export class TournamentService extends ApiService {
         userCode,
       });
       if (response.success) {
+        this.webSocketService.sendMessage('update', { type: 'joinTournament', data: { userCode, tournamentId } });
         return { success: true, tournamentId: response.tournamentId as string };
       } else {
         return { success: false, errorMessage: response.errorMessage };
@@ -72,8 +76,29 @@ export class TournamentService extends ApiService {
         userCode,
         sushiCount,
       });
+      if (response.success) {
+        this.webSocketService.sendMessage('update', { type: 'updateSushiCount', data: { userCode, sushiCount } });
+        return { success: true, tournamentId: response.tournamentId as string };
+      } else {
+        return { success: false, errorMessage: response.errorMessage };
+      }
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Error desconocido al unirse al torneo';
+      return { success: false, errorMessage };
+    }
+  }
+
+  public async updateStatus(id: string, status: string): Promise<{ success: boolean; tournamentId?: string; errorMessage?: string }> {
+    try {
+      const response: Response = await this.post(`/tournaments/update-status`, {
+        id,
+        status,
+      });
+      console.log(status)
       console.log(response)
       if (response.success) {
+        this.webSocketService.sendMessage('update', { type: 'updateStatus', data: { id, status } });
         return { success: true, tournamentId: response.tournamentId as string };
       } else {
         return { success: false, errorMessage: response.errorMessage };

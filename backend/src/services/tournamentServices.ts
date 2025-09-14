@@ -24,7 +24,7 @@ async function getFormatedTournamentsByIds(idList: string[]): Promise<Response> 
     try {
         // Obtener los participantes
         const [participants] = await pool.query<RowDataPacket[]>(
-            "SELECT user, tournament, sushi_count, finished FROM participants WHERE tournament IN (?)",
+            "SELECT user, tournament, sushi_count FROM participants WHERE tournament IN (?)",
             [idList]
         );
 
@@ -41,7 +41,6 @@ async function getFormatedTournamentsByIds(idList: string[]): Promise<Response> 
                     formatedParticipants.push({
                         name: res.name,
                         sushiCount: participant.sushi_count,
-                        finished: participant.finished,
                         tournament: participant.tournament
                     });
                 }
@@ -70,6 +69,7 @@ async function getFormatedTournamentsByIds(idList: string[]): Promise<Response> 
                     formatedTournaments.push({
                         id: tournament.id,
                         creator: res.name,
+                        status: tournament.status,
                         createdAt: tournament.created_at,
                         participants: currentParticipants
                     });

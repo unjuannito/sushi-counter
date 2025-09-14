@@ -1,9 +1,9 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import type { Tournament } from '~/types/tournamentType';
 import { TournamentService } from "~/services/tournamentService";
 import { useAuth } from "./useAuth";
 import { useNavigate } from "react-router";
-import { ApiService } from '~/services/apiService'; // Importa ApiService
+import WebSocketService from '~/services/webSocketService'; // Importa tu servicio WebSocket
 
 export function useUserTournaments() {
     const { user } = useAuth();
@@ -12,36 +12,8 @@ export function useUserTournaments() {
 
     const [tournaments, setTournaments] = useState<Tournament[]>([]);
     const [loading, setLoading] = useState(true);
-    const [reloading, setReloading] = useState(false);
+    const [reloading, setReloading] = useState(0);
     const [error, setError] = useState<string | null>(null);
-
-    useEffect(() => {
-        if (!user) return;
-        
-        // Conectamos el WebSocket para escuchar las notificaciones de actualización
-        const apiService = new ApiService();
-        apiService.connectWebSocket();
-
-        // Escuchar eventos del WebSocket
-        apiService.socket?.on('update', (message: string) => {
-            // Aquí recibimos el mensaje y ponemos reloading a true
-            setReloading(true);
-            console.log('Mensaje WebSocket recibido:', message);
-
-            // Puedes manejar la lógica de recarga si lo deseas
-            // Por ejemplo, volver a cargar los torneos después de un tiempo
-            setTimeout(() => {
-                setReloading(false);
-            }, 2000);  // Puedes ajustar el tiempo de recarga
-
-        });
-
-        return () => {
-            // Desconectamos el WebSocket cuando el componente se desmonta
-            apiService.disconnectWebSocket();
-        };
-
-    }, [user]);  // Esta dependencia solo ejecutará el useEffect cuando el `user` cambie
 
     useEffect(() => {
         if (!user) return;
@@ -49,7 +21,6 @@ export function useUserTournaments() {
         setLoading(true);
         service.getUserTournaments(user.userCode)
             .then((response) => {
-                console.log(response);
                 if (!response.success) {
                     setError(response.errorMessage || 'Error fetching tournaments');
                     setLoading(false);
@@ -62,42 +33,62 @@ export function useUserTournaments() {
                 setError(err.message || 'Error fetching tournaments');
                 setLoading(false);
             });
-    }, [user, reloading]);  // Usamos `reloading` para que se recarguen los torneos cuando cambie
+        if(reloading > 0) setReloading(reloading-1);
+    }, [user, reloading]);
+
+    // ** Nuevo useEffect para WebSocket **
+    useEffect(() => {
+        if (!user) return;
+
+        const webSocketService = WebSocketService.getInstance();
+
+        // Conectamos (si no está conectado)
+        webSocketService.connect();
+
+        // Listener para el evento 'update' (o el evento que mande el WS)
+        const handleUpdateMessage = (message: any) => {
+            console.log('Mensaje WS recibido:', message);
+            setReloading(reloading+1);
+        };
+
+        webSocketService.listenToEvent('update', handleUpdateMessage);
+
+        // Cleanup: quitar el listener al desmontar
+        return () => {
+            webSocketService.disconnect();
+        };
+    }, [user]);
 
     const createTournament = () => {
-        setReloading(true);
+        setReloading(1);
         setError(null);
         if (!user) return { success: false, errorMessage: "User not authenticated" };
         service.createTournament(user.userCode)
             .then((response) => {
                 if (!response.success) {
                     setError(response.errorMessage || 'Error creating tournament');
-                    setReloading(false);
+                    setReloading(0);
                 } else {
-                    setReloading(false);
+                    setReloading(0);
                     navigate(`/tournament/${response.tournamentId}`);
                 }
-
             });
-        return;
     };
 
     const joinTournament = (tournamentId: string) => {
-        setReloading(true);
+        setReloading(0);
         setError(null);
         if (!user) return { success: false, errorMessage: "User not authenticated" };
         service.joinTournament(tournamentId, user.userCode)
             .then((response) => {
                 if (!response.success) {
                     setError(response.errorMessage || 'Error joining tournament');
-                    setReloading(false);
+                    setReloading(0);
                 } else {
-                    setReloading(false);
+                    setReloading(0);
                     navigate(`/tournament/${response.tournamentId}`);
                 }
-
             });
-        return;
     };
 
     const getTournamentById = (id: string) => {
@@ -105,14 +96,33 @@ export function useUserTournaments() {
     };
 
     const updateSushiCount = (newCounter: number) => {
+        console.log("sd")
         if (!user) return { success: false, errorMessage: "User not authenticated" };
-        service.updateSushiCount(user.userCode, newCounter);
+        service.updateSushiCount(user.userCode, newCounter)
+        .then((response) => {
+            console.log(response)
+        })
     };
 
     const isAnyTournamentActive = () => {
         return true
-        // return tournaments.some(tournament => tournament.status === "active");
     };
 
-    return { tournaments, loading, error, createTournament, joinTournament, getTournamentById, updateSushiCount, isAnyTournamentActive, reloading };
+    const updateStatus = (id: string, status: string) => {
+        if (!user) return { success: false, errorMessage: "User not authenticated" };
+        service.updateStatus(id, status);
+    };
+
+    return {
+        tournaments,
+        loading,
+        error,
+        createTournament,
+        joinTournament,
+        getTournamentById,
+        updateSushiCount,
+        isAnyTournamentActive,
+        reloading,
+        updateStatus
+    };
 }
