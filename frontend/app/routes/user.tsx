@@ -1,3 +1,13 @@
+import type { Route } from "./+types";
+
+export function meta({ }: Route.MetaArgs) {
+  return [
+    { title: "User - Sushi Counter" },
+    { name: "description", content: "Your profile sushi eater" },
+  ];
+}
+
+
 export default function User() {
     return (
         <main>

@@ -8,6 +8,15 @@ import trash from "~/assets/trash.svg"
 import check from "~/assets/check.svg"
 import redo from "~/assets/rotate-right.svg"
 import { useAuth } from '~/hooks/useAuth';
+import type { Route } from './+types';
+
+export function meta({ }: Route.MetaArgs) {
+  return [
+    { title: "Tournament - Sushi Counter" },
+    { name: "description", content: "Compete in how many sushi dou you eat!" },
+  ];
+}
+
 
 function Tournament() {
   // Accede al parámetro 'id' desde la URL

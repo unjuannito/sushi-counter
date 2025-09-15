@@ -3,6 +3,15 @@ import { useUserTournaments } from "~/hooks/useUserTournaments";
 import { formatDateTime } from "~/utils/formatDateTime";
 import "../styles/tournaments.css"
 import { useNavigate } from "react-router";
+import type { Route } from "./+types";
+
+export function meta({ }: Route.MetaArgs) {
+  return [
+    { title: "Tournaments - Sushi Counter" },
+    { name: "description", content: "Compete in how many sushi dou you eat!" },
+  ];
+}
+
 
 export default function Tournaments() {
     const { tournaments, loading, error, createTournament } = useUserTournaments();

@@ -2,6 +2,14 @@ import React, { useEffect } from 'react';
 import { useParams } from 'react-router';
 import { useUserTournaments } from "~/hooks/useUserTournaments";
 import { useAuth } from "~/hooks/useAuth";
+import type { Route } from './+types';
+
+export function meta({ }: Route.MetaArgs) {
+  return [
+    { title: "Joining tournament - Sushi Counter" },
+    { name: "description", content: "Compete in how many sushi dou you eat!" },
+  ];
+}
 
 
 const JoinTournament = () => {
