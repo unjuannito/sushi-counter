@@ -47,7 +47,6 @@ export function useUserTournaments() {
 
         // Listener para el evento 'update' (o el evento que mande el WS)
         const handleUpdateMessage = (message: any) => {
-            console.log('Mensaje WS recibido:', message);
             setReloading(reloading+1);
         };
 
@@ -96,12 +95,11 @@ export function useUserTournaments() {
     };
 
     const updateSushiCount = (newCounter: number) => {
-        console.log("sd")
         if (!user) return { success: false, errorMessage: "User not authenticated" };
-        service.updateSushiCount(user.userCode, newCounter)
-        .then((response) => {
-            console.log(response)
-        })
+        service.updateSushiCount(user.userCode, newCounter);
+        // .then((response) => {
+        //     console.log(response)
+        // })
     };
 
     const isAnyTournamentActive = () => {
@@ -113,6 +111,21 @@ export function useUserTournaments() {
         service.updateStatus(id, status);
     };
 
+    const isOwner = (tournament : Tournament) => {
+        if (tournament.creator == user?.name) return true 
+    }
+
+    const deleteTournament = (id : string) => {
+        service.deleteTournament(id)
+        .then(response => {
+            if (response.success) {
+                navigate("/tournaments/")
+            } else {
+                setError(response.errorMessage || 'Error when deleting tournament')
+            }
+        })
+    }
+
     return {
         tournaments,
         loading,
@@ -123,6 +136,8 @@ export function useUserTournaments() {
         updateSushiCount,
         isAnyTournamentActive,
         reloading,
-        updateStatus
+        updateStatus,
+        isOwner,
+        deleteTournament
     };
 }

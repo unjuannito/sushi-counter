@@ -52,7 +52,6 @@ tournamentsRouter.post("/create", async (req, res) => {
 // Unirse a torneo
 tournamentsRouter.post("/join", async (req, res) => {
   const { userCode, tournamentId } = req.body;
-  console.log(tournamentId)
   if (!userCode || !tournamentId) {
     return res.json({
       success: false,
@@ -277,6 +276,29 @@ tournamentsRouter.get("/has-active-tournament:userCode", async (req, res) => {
     return res.json({
       success: true,
       tournamentsIds,
+    });
+  } catch (err: any) {
+    return res.json({
+      success: false,
+      errorMessage: err.message,
+    });
+  }
+
+});
+
+//delete tournament
+tournamentsRouter.delete("/delete-tournament/:id", async (req, res) => {
+    const { id } = req.params;
+    try {
+    // Obtener todos los torneos donde participa el usuario
+    const [result] = await pool.query<RowDataPacket[]>(`
+      DELETE FROM tournaments
+      WHERE id = ? AND status = 'open'
+    `, [id]);
+
+    return res.json({
+      success: true,
+      tournamentId: id,
     });
   } catch (err: any) {
     return res.json({
