@@ -95,8 +95,6 @@ export class TournamentService extends ApiService {
         id,
         status,
       });
-      console.log(status)
-      console.log(response)
       if (response.success) {
         this.webSocketService.sendMessage('update', { type: 'updateStatus', data: { id, status } });
         return { success: true, tournamentId: response.tournamentId as string };
@@ -109,4 +107,22 @@ export class TournamentService extends ApiService {
       return { success: false, errorMessage };
     }
   }
+
+  public async deleteTournament(id: string): Promise<{ success: boolean; tournamentId?: string; errorMessage?: string }> {
+    try {
+      const response: Response = await this.delete(`/tournaments/delete-tournament/${id}`);
+      if (response.success) {
+        this.webSocketService.sendMessage('update', { type: 'deleteTournament', data: { id } });
+        return { success: true, tournamentId: response.tournamentId as string };
+      } else {
+        return { success: false, errorMessage: response.errorMessage };
+      }
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Error desconocido al unirse al torneo';
+      return { success: false, errorMessage };
+    }
+  }
+
+
 }

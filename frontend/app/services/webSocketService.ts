@@ -28,7 +28,7 @@ class WebSocketService {
 
         const SOCKET_URL = import.meta.env.DEV ? 'http://192.168.1.200:4000' : '/';
         let wsToken = sessionStorage.getItem('wsToken');
-        
+
         // Si no hay token en sessionStorage, nos conectamos sin él y luego el servidor nos enviará uno.
         const queryParams: any = {};
         if (wsToken) {
@@ -46,12 +46,12 @@ class WebSocketService {
 
         // Cuando nos conectamos, el servidor nos envía un nuevo wsToken
         this.socket.on('connected', (data: { wsToken: string }) => {
-            console.log('Conexión exitosa, wsToken:', data.wsToken);
+            // console.log('Conexión exitosa, wsToken:', data.wsToken);
             sessionStorage.setItem('wsToken', data.wsToken);  // Guardamos el wsToken en sessionStorage
         });
 
         this.socket.on('connect', () => {
-            console.log('Conectado a WebSocket');
+            // console.log('Conectado a WebSocket');
             this.isConnected = true;
         });
 
