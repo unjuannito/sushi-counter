@@ -6,10 +6,10 @@ import { useNavigate } from "react-router";
 import type { Route } from "./+types";
 
 export function meta({ }: Route.MetaArgs) {
-  return [
-    { title: "Tournaments - Sushi Counter" },
-    { name: "description", content: "Compete in how many sushi dou you eat!" },
-  ];
+    return [
+        { title: "Tournaments - Sushi Counter" },
+        { name: "description", content: "Compete in how many sushi dou you eat!" },
+    ];
 }
 
 
@@ -17,7 +17,6 @@ export default function Tournaments() {
     const { tournaments, loading, error, createTournament } = useUserTournaments();
     const navigate = useNavigate()
     const handleCreateTournament = () => {
-        console.log("Handle create tournament");
         createTournament();
     };
 
@@ -25,15 +24,14 @@ export default function Tournaments() {
         const hostname = window.location.hostname;
         const port = window.location.port ? `:${window.location.port}` : ''; // Verifica si hay puerto y lo agrega
         const url = `${hostname}${port}/sushi-counter/tournament/join/${id}`;
-        console.log(url); // Para ver cómo se construye la URL
 
         try {
             // Copia el enlace al portapapeles
             await navigator.clipboard.writeText(url);
-            alert('¡Enlace copiado al portapapeles!');
+            alert('Link copied to clipboard!');
         } catch (error) {
-            console.error('Error al copiar al portapapeles:', error);
-            alert('No se pudo copiar el enlace. Intenta nuevamente.');
+            console.error('Error during copy to clipboard:', error);
+            alert('Error during copy to clipboard: ' + error);
         }
     }
 
@@ -52,7 +50,7 @@ export default function Tournaments() {
                     tournaments.map((tournament) => (
                         <article key={tournament.id} onClick={() => { navigate(`/tournament/${tournament.id}`) }}>
                             <h2>{formatDateTime(tournament.createdAt)}</h2>
-                            <span>Owner: {tournament.creator}</span>
+                            <span>Owner: {tournament.ownerName}</span>
                             <button onClick={(ev) => { ev.stopPropagation(); handleCopy(tournament.id) }}>Copy link</button>
                         </article>
                     ))

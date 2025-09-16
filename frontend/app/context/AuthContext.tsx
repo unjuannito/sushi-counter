@@ -10,15 +10,12 @@ const authService = new AuthService();
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUser] = useState<User | null>(null);
 
-    useEffect(() => {
-    }, []);
-
     const verifyUser = async (userCode: string): Promise<{ success: boolean, errorMessage?: string }> => {
         try {
             const response = await authService.verifyUser(userCode);
             if (response.success) {
                 setUser(response.user ? response.user : null);
-                localStorage.setItem('userCode', response.user?.userCode || '');
+                localStorage.setItem('userCode', response.user?.code);
                 return { success: true };
             } else {
                 setUser(null);
@@ -33,9 +30,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const createUser = async (name: string): Promise<{ success: boolean, user?: User, errorMessage?: string }> => {
         try {
             const response = await authService.createUser(name);
-            if (response.success) {
+            if (response.success && response.user) {
                 setUser(response.user ? response.user : null);
-                localStorage.setItem('userCode', response.user?.userCode || '');
+                localStorage.setItem('userCode', response.user.code);
                 return { success: true, user: response.user as User };
             } else {
                 setUser(null);

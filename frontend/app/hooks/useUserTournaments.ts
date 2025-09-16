@@ -11,15 +11,15 @@ export function useUserTournaments() {
     const navigate = useNavigate();
 
     const [tournaments, setTournaments] = useState<Tournament[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [currentTournament, setCurrentTournament] = useState<Tournament | null>(null);
+    const [loading, setLoading] = useState(false);
     const [reloading, setReloading] = useState(0);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        if (!user) return;
-
         setLoading(true);
-        service.getUserTournaments(user.userCode)
+        if (!user) return;
+        service.getUserTournaments(user.code)
             .then((response) => {
                 if (!response.success) {
                     setError(response.errorMessage || 'Error fetching tournaments');
@@ -33,7 +33,7 @@ export function useUserTournaments() {
                 setError(err.message || 'Error fetching tournaments');
                 setLoading(false);
             });
-        if(reloading > 0) setReloading(reloading-1);
+        if (reloading > 0) setReloading(reloading - 1);
     }, [user, reloading]);
 
     // ** Nuevo useEffect para WebSocket **
@@ -47,7 +47,7 @@ export function useUserTournaments() {
 
         // Listener para el evento 'update' (o el evento que mande el WS)
         const handleUpdateMessage = (message: any) => {
-            setReloading(reloading+1);
+            setReloading(reloading + 1);
         };
 
         webSocketService.listenToEvent('update', handleUpdateMessage);
@@ -62,7 +62,7 @@ export function useUserTournaments() {
         setReloading(1);
         setError(null);
         if (!user) return { success: false, errorMessage: "User not authenticated" };
-        service.createTournament(user.userCode)
+        service.createTournament(user.code)
             .then((response) => {
                 if (!response.success) {
                     setError(response.errorMessage || 'Error creating tournament');
@@ -75,20 +75,31 @@ export function useUserTournaments() {
     };
 
     const joinTournament = (tournamentId: string) => {
-        setReloading(0);
+        setLoading(true);
         setError(null);
         if (!user) return { success: false, errorMessage: "User not authenticated" };
-        service.joinTournament(tournamentId, user.userCode)
+        service.joinTournament(tournamentId, user.code)
             .then((response) => {
                 if (!response.success) {
                     setError(response.errorMessage || 'Error joining tournament');
-                    setReloading(0);
+                    setLoading(false);
+                    setTimeout(() => {
+                        navigate(`/tournaments`);
+                    }, 700);
                 } else {
-                    setReloading(0);
-                    navigate(`/tournament/${response.tournamentId}`);
+                    setLoading(false);
+                    setTimeout(() => {
+                        navigate(`/tournament/${response.tournamentId}`);
+                    }, 700);
                 }
             });
     };
+
+    const assignCurrentTournament = (id: string) => {
+        const newTournament = tournaments.find(t => (t.id == id));
+        if (newTournament) setCurrentTournament(newTournament);
+        else if (currentTournament !== null) navigate("/tournaments")
+    }
 
     const getTournamentById = (id: string) => {
         return tournaments.find(t => t.id === id);
@@ -96,7 +107,7 @@ export function useUserTournaments() {
 
     const updateSushiCount = (newCounter: number) => {
         if (!user) return { success: false, errorMessage: "User not authenticated" };
-        service.updateSushiCount(user.userCode, newCounter);
+        service.updateSushiCount(user.code, newCounter)
         // .then((response) => {
         //     console.log(response)
         // })
@@ -106,36 +117,40 @@ export function useUserTournaments() {
         return true
     };
 
-    const updateStatus = (id: string, status: string) => {
+    const updateStatus = (tournamentId: string, status: string) => {
         if (!user) return { success: false, errorMessage: "User not authenticated" };
-        service.updateStatus(id, status);
+        service.updateStatus(tournamentId, status);
     };
 
-    const isOwner = (tournament : Tournament) => {
-        if (tournament.creator == user?.name) return true 
+    const isOwner = () => {
+        if (currentTournament?.ownerId == user?.id) return true
+        else return false
     }
 
-    const deleteTournament = (id : string) => {
-        service.deleteTournament(id)
-        .then(response => {
-            if (response.success) {
-                navigate("/tournaments/")
-            } else {
-                setError(response.errorMessage || 'Error when deleting tournament')
-            }
-        })
+    const deleteTournament = (tournamentId: string) => {
+        if (!user) return
+        service.deleteTournament(tournamentId, user.code)
+            .then(response => {
+                if (response.success) {
+                    navigate("/tournaments/")
+                } else {
+                    setError(response.errorMessage || 'Error when deleting tournament')
+                }
+            })
     }
 
     return {
         tournaments,
         loading,
         error,
+        reloading,
+        currentTournament,
         createTournament,
         joinTournament,
+        assignCurrentTournament,
         getTournamentById,
         updateSushiCount,
         isAnyTournamentActive,
-        reloading,
         updateStatus,
         isOwner,
         deleteTournament

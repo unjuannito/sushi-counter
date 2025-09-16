@@ -3,6 +3,8 @@ import { useParams } from 'react-router';
 import { useUserTournaments } from "~/hooks/useUserTournaments";
 import { useAuth } from "~/hooks/useAuth";
 import type { Route } from './+types';
+import loadingIcon from "~/assets/rotate.svg"
+import "~/styles/tournaments.css"
 
 export function meta({ }: Route.MetaArgs) {
   return [
@@ -14,18 +16,27 @@ export function meta({ }: Route.MetaArgs) {
 
 const JoinTournament = () => {
   const { id } = useParams(); // Obtenemos el ID del torneo desde la URL
-    const { joinTournament, error } = useUserTournaments();
+    const { joinTournament, error, loading } = useUserTournaments();
     const { user } = useAuth()
   useEffect(() => {
-    if (!user) return
-    console.log(joinTournament(id as string))
-    console.log("asd")
+    if (!user || !id || loading) return
+    // if (loading) return
+    joinTournament(id as string);
   }, [id, user]);
 
   return (
-    <main>
-      <h2>Joining tournament...</h2>
-      <p>{error}</p>
+    <main className='join'>
+      {error ?
+      <>
+        <h2 className='error'>{error}</h2>
+        <img src={loadingIcon} alt="relaoding" className='loading' />
+      </>
+      :
+      <>
+        <h2>Joining tournament...</h2>
+        <img src={loadingIcon} alt="relaoding" className='loading' />
+      </>
+      }
     </main>
   );
 };

@@ -4,6 +4,7 @@ import { authRouter } from "./auth";
 import { tournamentsRouter } from "./routes/tournaments";
 import http from "http";
 import { initWebSocket, notifyClients } from "./websocket/websocketServer"; // Importa notifyClients directamente
+import generateId from "./utils/generateId";
 
 const app = express();
 const PORT = parseInt(process.env.PORT || "4000", 10);
@@ -22,7 +23,7 @@ app.use(cors({
 }));
 
 app.get('/', (req, res) => {
-  res.json({ ok: true, message: 'API funcionando correctamente' });
+  res.json({ ok: true, message: 'API funcionando correctamente: ' + generateId() });
 });
 
 app.use(express.json());

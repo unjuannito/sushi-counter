@@ -7,8 +7,9 @@ type Tournament = {
 
 type PublicTournament = {
   id: string;
+  ownerId: string;
+  ownerName: string;
   status: string;
-  creator: string;
   createdAt: Date;
   participants: PublicParticipant[];
 };
@@ -21,8 +22,9 @@ type Participant = {
 };
 
 type PublicParticipant = {
-  tournament: string;
-  name: string;
+  userId: string;
+  userName: string
+  tournamentId: string;
   sushiCount: number;
 };
 export { Tournament, PublicTournament, Participant, PublicParticipant };

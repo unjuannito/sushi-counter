@@ -32,7 +32,7 @@ export default function Index() {
     const newCounter: number = count + mod;
     setCount(newCounter);
     localStorage.setItem('sushiCounter', newCounter.toString());
-    if (isAnyTournamentActive()) {
+    if (isAnyTournamentActive() && mod != 0) {
       updateSushiCount(newCounter)
     }
     // if (mod != 1) return;

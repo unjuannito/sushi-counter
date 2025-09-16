@@ -57,8 +57,9 @@ export class TournamentService extends ApiService {
 
   public async getUserTournaments(userCode: string): Promise<{ success: boolean; tournaments?: Tournament[]; errorMessage?: string }> {
     try {
+      console.log(userCode)
       const response: Response = await this.get(`/tournaments/user/${userCode}`);
-
+      console.log(response)
       if (response.success) {
         return { success: true, tournaments: response.tournaments as Tournament[] };
       } else {
@@ -108,9 +109,9 @@ export class TournamentService extends ApiService {
     }
   }
 
-  public async deleteTournament(id: string): Promise<{ success: boolean; tournamentId?: string; errorMessage?: string }> {
+  public async deleteTournament(id: string, userCode: string): Promise<{ success: boolean; tournamentId?: string; errorMessage?: string }> {
     try {
-      const response: Response = await this.delete(`/tournaments/delete-tournament/${id}`);
+      const response: Response = await this.delete(`/tournaments/delete-tournament/${id}/user/${userCode}`);
       if (response.success) {
         this.webSocketService.sendMessage('update', { type: 'deleteTournament', data: { id } });
         return { success: true, tournamentId: response.tournamentId as string };

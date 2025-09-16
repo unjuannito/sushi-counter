@@ -1,11 +1,14 @@
+
 // services/user.service.ts
 import { RowDataPacket } from 'mysql2';
 import { pool } from '../db'; // o tu instancia de Prisma, Sequelize, etc.
+import { User } from '../types/userType';
+import generateId from '../utils/generateId';
 
-export const getUserName = async (userCode: string) => {
+export const getUserName = async (id: string) => {
     const [rows] = await pool.query<RowDataPacket[]>(
-        "SELECT name FROM users WHERE user_code = ? LIMIT 1",
-        [userCode ]
+        "SELECT name FROM users WHERE id = ? LIMIT 1",
+        [id]
     );
     if (rows.length > 0) {
         return {
@@ -18,13 +21,13 @@ export const getUserName = async (userCode: string) => {
 
 export const getUsers = async (userCodes: string[]) => {
     const [rows] = await pool.query<RowDataPacket[]>(
-        "SELECT user_code, name FROM users WHERE user_code IN ?",
+        "SELECT code, name FROM users WHERE code IN ?",
         [userCodes]
     );
 
     if (rows.length > 0) {
         const users = rows.map(user => ({
-            userCode: user.user_code,
+            userCode: user.code,
             name: user.name
         }));
 
@@ -37,4 +40,24 @@ export const getUsers = async (userCodes: string[]) => {
     return { success: false, errorMessage: "User not found" };
 };
 
-// puedes exportar más funciones según necesites
+export const getUserByCode = async (userCode: string) => {
+    try{
+    const [rows] = await pool.query<RowDataPacket[]>(
+        "SELECT id, code, name FROM users WHERE code = ? LIMIT 1",
+        [userCode]
+    );
+    if (rows.length > 0) {
+        return {
+            success: true,
+            user: rows[0] as User
+        };
+    }
+    return { success: false, errorMessage: "User not found" };
+
+  } catch (err: any) {
+    return {
+      success: false,
+      errorMessage: err.message,
+    };
+  }
+}

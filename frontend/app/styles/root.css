@@ -14,7 +14,7 @@ body {
   height: auto;
 
   color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  background-color: #222222;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -59,10 +59,22 @@ button {
   cursor: pointer;
   transition: border-color 0.25s;
 }
+
+button[disabled]{
+  background-color: #B0B0B0; /* Gris claro */
+  color: #A0A0A0; /* Gris más oscuro */
+  cursor: not-allowed; /* Cambia el cursor a un símbolo de no permitido */
+  opacity: 0.5; /* Hace el botón más tenue */
+  border: none;
+}
 button:hover {
   border-color: #646cff;
 }
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
+}
+
+input {
+  padding: 0.6em 1.2em;
 }

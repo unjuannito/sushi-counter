@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router';
+import { useNavigate, useParams } from 'react-router';
 import { useUserTournaments } from '~/hooks/useUserTournaments';
 import type { Tournament } from '~/types/tournamentType';
 import { formatDateTime } from '~/utils/formatDateTime';
@@ -21,35 +21,34 @@ export function meta({ }: Route.MetaArgs) {
 function Tournament() {
   // Accede al parámetro 'id' desde la URL
   const { id } = useParams();
-  const { tournaments, getTournamentById, updateStatus, isOwner, deleteTournament} = useUserTournaments();
-  const [tournament, setTournament] = useState<Tournament | null>(null);
+  const { loading, assignCurrentTournament, currentTournament, updateStatus, isOwner, deleteTournament} = useUserTournaments();
+  const navigate = useNavigate()
 
   useEffect(() => {
-    if (tournaments.length <= 0 || !id) return;
-    const newTournament = getTournamentById(id);
-    setTournament(newTournament || null)
-  }, [tournaments, id])
+    if (loading || !id) return;
+    assignCurrentTournament(id)
+  }, [loading, id])
 
   const handleDeleteTournament = () => {
-    if (!tournament || !tournament.id) return
-    deleteTournament(tournament.id)
+    if (!currentTournament || !currentTournament.id) return
+    deleteTournament(currentTournament.id)
   }
 
   const handleChangueFinished = () => {
-    if (!tournament) return;
-    const newStatus = tournament?.status == 'open' ? 'closed' : 'open'
-    updateStatus(tournament.id, newStatus);
+    if (!currentTournament) return;
+    const newStatus = currentTournament?.status == 'open' ? 'closed' : 'open'
+    updateStatus(currentTournament.id, newStatus);
   }
 
   return (
     <main>
       <h1>Tournament</h1>
-      <h3>{tournament && formatDateTime(tournament?.createdAt)}</h3>
+      <h3>{currentTournament && formatDateTime(currentTournament?.createdAt)}</h3>
       <article>
         {
-          tournament?.participants.map((participant, index) => (
-            <article key={index} className='participant'>
-              <h2>{participant.name}</h2>
+          currentTournament?.participants.sort((a, b) => b.sushiCount - a.sushiCount).map((participant) => (
+            <article key={participant.userId} className='participant'>
+              <h2>{participant.userName}</h2>
               <h2>{participant.sushiCount}</h2>
             </article>
 
@@ -58,9 +57,9 @@ function Tournament() {
       </article>
       <section className='buttons'>
         <button onClick={handleChangueFinished}>
-          <img src={tournament?.status == 'open' ? check : redo} alt={tournament?.status == 'open' ? "End tournament" : "Reopen tournament"} />
+          <img src={currentTournament?.status == 'open' ? check : redo} alt={currentTournament?.status == 'open' ? "End tournament" : "Reopen tournament"} />
         </button>
-        <button onClick={() => {handleDeleteTournament()}} disabled={tournament?.status !== 'open'}>
+        <button onClick={() => {handleDeleteTournament()}} disabled={currentTournament?.status !== 'open' || !isOwner()}>
           <img src={trash} alt="Delete tournament" />
         </button>
       </section>

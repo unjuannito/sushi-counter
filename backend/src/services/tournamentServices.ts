@@ -4,19 +4,18 @@ import type { PublicParticipant, PublicTournament, Tournament } from "../types/t
 import { pool } from "../db";
 import { getUserName, getUsers } from "../services/userSevices";
 
-// Función para agregar un participante
-async function addParticipant(tournamentId: string, userCode: string): Promise<boolean> {
+async function addParticipant(tournamentId: string, userId: string): Promise<Response> {
   const [existing] = await pool.query<RowDataPacket[]>(
-    "SELECT * FROM participants WHERE tournament = ? AND user = ?",
-    [tournamentId, userCode]
+    "SELECT * FROM participants WHERE tournament_id = ? AND user_id = ?",
+    [tournamentId, userId]
   );
-  if (existing.length > 0) return false;
+  if (existing.length > 0) return {success: false, errorMessage: "The user is already in the tournament."};
 
   await pool.query(
-    "INSERT INTO participants (tournament, user) VALUES (?, ?)",
-    [tournamentId, userCode]
+    "INSERT INTO participants (tournament_id, user_id) VALUES (?, ?)",
+    [tournamentId, userId]
   );
-  return true;
+  return {success: true, participant: {tournamentId, userId, sushiCount: 0} as PublicParticipant};
 }
 
 
@@ -24,7 +23,7 @@ async function getFormatedTournamentsByIds(idList: string[]): Promise<Response> 
     try {
         // Obtener los participantes
         const [participants] = await pool.query<RowDataPacket[]>(
-            "SELECT user, tournament, sushi_count FROM participants WHERE tournament IN (?)",
+            "SELECT user_id, tournament_id, sushi_count FROM participants WHERE tournament_id IN (?)",
             [idList]
         );
 
@@ -36,12 +35,13 @@ async function getFormatedTournamentsByIds(idList: string[]): Promise<Response> 
         const formatedParticipants: PublicParticipant[] = [];
         await Promise.all(
             participants.map(async (participant) => {
-                const res = await getUserName(participant.user);
+                const res = await getUserName(participant.user_id);
                 if (res.success) {
                     formatedParticipants.push({
-                        name: res.name,
+                        userId: participant.user_id,
+                        userName: res.name,
+                        tournamentId: participant.tournament_id,
                         sushiCount: participant.sushi_count,
-                        tournament: participant.tournament
                     });
                 }
             })
@@ -49,7 +49,7 @@ async function getFormatedTournamentsByIds(idList: string[]): Promise<Response> 
 
         // Obtener los torneos
         const [tournaments] = await pool.query<RowDataPacket[]>(
-            "SELECT id, creator, status, created_at FROM tournaments WHERE id IN (?)",
+            "SELECT id, owner_id, status, created_at FROM tournaments WHERE id IN (?)",
             [idList]
         );
 
@@ -61,14 +61,15 @@ async function getFormatedTournamentsByIds(idList: string[]): Promise<Response> 
         const formatedTournaments: PublicTournament[] = [];
         await Promise.all(
             tournaments.map(async (tournament) => {
-                const res = await getUserName(tournament.creator);
+                const res = await getUserName(tournament.owner_id);
                 if (res.success) {
                     const currentParticipants: PublicParticipant[] = formatedParticipants.filter(
-                        p => p.tournament === tournament.id
+                        p => p.tournamentId === tournament.id
                     );
                     formatedTournaments.push({
                         id: tournament.id,
-                        creator: res.name,
+                        ownerId: tournament.owner_id,
+                        ownerName: res.name,
                         status: tournament.status,
                         createdAt: tournament.created_at,
                         participants: currentParticipants

@@ -1,16 +1,15 @@
 import { useState } from "react";
 import { useAuth } from "../hooks/useAuth";
+import "~/styles/dialog.css"
 
 export default function LoginDialog({ isOpen, closeDialog }: { isOpen: boolean, closeDialog: () => void }) {
     const [hasUserCode, setHasUserCode] = useState<Boolean | null>(null);
     const { verifyUser, createUser } = useAuth();
 
-    const handleSetUserCode = (code: string) => {
-        const response = verifyUser(code);
-        //si devuelve success = true cierra el dialogo y si devuelve success = false muestra el error
+    const handleSetUserCode = (userCode: string) => {
+        const response = verifyUser(userCode);
         response.then((res) => {
             if (res.success) {
-                localStorage.setItem('userCode', code);
                 closeDialog();
             } else {
                 alert("Error verifying user: " + res.errorMessage);
@@ -25,8 +24,6 @@ export default function LoginDialog({ isOpen, closeDialog }: { isOpen: boolean, 
         //si devuelve success = true cierra el dialogo y si devuelve success = false muestra el error
         response.then((res) => {
             if (res.success == true) {
-                console.log('User created:', res.user);
-                localStorage.setItem('userCode', res.user?.userCode || '');
                 closeDialog();
             } else {
                 alert("Error creating user: " + res.errorMessage);
@@ -35,36 +32,34 @@ export default function LoginDialog({ isOpen, closeDialog }: { isOpen: boolean, 
             alert("Error creating user: " + error);
         });
 
-        //call api to create user and get code
-        const code = '1234'; //dummy code
-        // setUserCode(code);
+        //call api to create user and get userCode
+        const userCode = '1234'; //dummy userCode
+        // setUserCode(userCode);
     }
 
     return (
         <dialog open={isOpen} className="login-dialog">
             {
                 hasUserCode == null ?
-                    <main>
+                    <form onSubmit={(ev) => { ev.preventDefault()}}>
                         <h2>Do you have a user</h2>
-                        <button onClick={() => setHasUserCode(true)}>Yes</button>
-                        <button onClick={() => setHasUserCode(false)}>No</button>
-                    </main>
+                        <button onClick={() => {setTimeout(() => setHasUserCode(true), 100)}}>Yes</button>
+                        <button onClick={() => {setTimeout(() => setHasUserCode(false), 100)}}>No</button>
+                    </form>
                     : hasUserCode ?
-                        <main>
-                            <form onSubmit={(ev) => { ev.preventDefault(); const form = ev.target as HTMLFormElement; handleSetUserCode(form.getElementsByTagName('input')[0].value); }}>
-                                <h2>Enter your user code</h2>
-                                <input type="text" />
-                                <button >Submit</button>
-                            </form>
-                        </main>
+                        <form onSubmit={(ev) => { ev.preventDefault(); const form = ev.target as HTMLFormElement; handleSetUserCode(form.getElementsByTagName('input')[0].value); }}>
+                            <h2>Enter your user userCode</h2>
+                            <input type="text" />
+                            <button>Submit</button>
+                            <button onClick={() => setHasUserCode(null)}>Back</button>
+                        </form>
                         :
-                        <main>
-                            <form onSubmit={(ev) => { ev.preventDefault(); const form = ev.target as HTMLFormElement; handleCreateUser(form.getElementsByTagName('input')[0].value); }}>
-                                <h2>Your name</h2>
-                                <input type="text" />
-                                <button>Create user</button>
-                            </form>
-                        </main>
+                        <form onSubmit={(ev) => { ev.preventDefault(); const form = ev.target as HTMLFormElement; handleCreateUser(form.getElementsByTagName('input')[0].value); }}>
+                            <h2>Your name</h2>
+                            <input type="text" />
+                            <button>Create user</button>
+                            <button onClick={() => setHasUserCode(null)}>Back</button>
+                        </form>
             }
         </dialog>
     );

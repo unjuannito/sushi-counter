@@ -11,7 +11,6 @@ export default function Layout() {
   const { verifyUser, user } = useAuth();
 
   useEffect(() => {
-
     const localUserCode = localStorage.getItem('userCode');
     if (localUserCode) {
       const response = verifyUser(localUserCode);

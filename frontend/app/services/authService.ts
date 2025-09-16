@@ -12,23 +12,20 @@ export interface AuthResponse {
 }
 
 export class AuthService extends ApiService {
-    public async verifyUser(userCode: string): Promise<{ success: boolean, user?: User, errorMessage?: string }> {
+    public async verifyUser(userCode: string): Promise<Response> {
         try {
-            const response : Response = await this.get(`/auth/verify/?userCode=${userCode}`);
-            if (response.success) {
-                return { success: true, user: response.user as User };
-            } else {
-                return { success: false, errorMessage: response.errorMessage };
-            }
+            const response: Response = await this.get(`/auth/verify/${userCode}`);
+            console.log(response)
+            return response;
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
             return { success: false, errorMessage };
         }
     }
 
-    public async createUser(name: string): Promise<{ success: boolean, user?: User, errorMessage?: string }> {
+    public async createUser(name: string): Promise<Response> {
         try {
-            const response : Response = await this.post(`/auth/create`, { name });
+            const response: Response = await this.post(`/auth/create`, { name });
             if (response.success) {
                 return { success: true, user: response.user as User };
             } else {

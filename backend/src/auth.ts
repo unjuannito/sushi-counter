@@ -1,46 +1,57 @@
 import { Router } from "express";
 import { pool } from "./db";
 import generateId from "./utils/generateId";
+import { getUserByCode } from "./services/userSevices";
+import { User } from "./types/userType";
 export const authRouter = Router();
 
-/**
- * POST /api/auth/create
- * Crea un usuario con name y un código único
- */
 authRouter.post("/create", async (req, res) => {
   const { name } = req.body;
 
-  if (!name) {
+  if (!name || name == '') {
     return res.json({
       success: false,
-      errorMessage: "El campo 'name' es obligatorio",
+      errorMessage: "Name is compulsary",
     });
   }
 
   try {
     let code: string;
-    let exists = true;
+    let existsCode = true;
 
-    // Generar hasta encontrar un código no existente
     do {
       code = generateId();
       const [rows] = await pool.query(
-        "SELECT user_code FROM users WHERE user_code = ? LIMIT 1",
+        "SELECT code FROM users WHERE code = ? LIMIT 1",
         [code]
       );
-      exists = (rows as any[]).length > 0;
-    } while (exists);
+      existsCode = (rows as any[]).length > 0;
+    } while (existsCode);
 
-    // Insertar usuario
+    let id: string;
+    let existsId = true;
+
+    do {
+      id = generateId();
+      const [rows] = await pool.query(
+        "SELECT id FROM users WHERE id = ? LIMIT 1",
+        [id]
+      );
+      existsId = (rows as any[]).length > 0;
+    } while (existsId);
+
+
     const [result] = await pool.query(
-      "INSERT INTO users (name, user_code) VALUES (?, ?)",
-      [name, code]
+      "INSERT INTO users (id, code, name) VALUES (?, ?, ?)",
+      [id, code, name]
     );
 
     const insertedUser = {
+      id,
+      code,
       name,
-      userCode: code,
     };
+
     return res.json({
       success: true,
       user: insertedUser,
@@ -53,44 +64,18 @@ authRouter.post("/create", async (req, res) => {
   }
 });
 
-/**
- * POST /api/auth/verify
- * Verifica si existe un usuario por código
- */
-authRouter.get("/verify", async (req, res) => {
-  const { userCode } = req.query;
-
-  if (!userCode) {
+authRouter.get("/verify/:userCode", async (req, res) => {
+  const { userCode } = req.params;
+  const reqUser = await getUserByCode(userCode);
+  if (!reqUser.success || !reqUser.user) {
     return res.json({
       success: false,
-      errorMessage: "El campo 'userCode' es obligatorio",
+      errorMessage: "Error during verifying user.1",
     });
   }
-
-  try {
-    const [rows] = await pool.query(
-      "SELECT user_code, name, user_code FROM users WHERE user_code = ? LIMIT 1",
-      [userCode]
-    );
-
-    if ((rows as any[]).length === 0) {
-      return res.json({
-        success: false,
-        errorMessage: "El usuario no existe",
-      });
-    }
-
-    return res.json({
-      success: true,
-      user: {
-        name: (rows as any[])[0].name,
-        userCode: (rows as any[])[0].user_code,
-      },
-    });
-  } catch (err: any) {
-    return res.json({
-      success: false,
-      errorMessage: err.message,
-    });
-  }
+  const user: User = reqUser.user;
+  return res.json({
+    success: true,
+    user
+  });
 });

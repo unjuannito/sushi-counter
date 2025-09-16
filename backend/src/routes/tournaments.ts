@@ -2,40 +2,42 @@ import { Router } from "express";
 import { RowDataPacket } from "mysql2";
 import { pool } from "../db";
 import generateId from "../utils/generateId";
-import { getUserName } from "../services/userSevices";
 import { addParticipant, getFormatedTournamentsByIds, tournamentExists } from "../services/tournamentServices";
 import type { Response } from '../types/responseType';
 import { format } from "path";
 import { notifyClients } from "../websocket/websocketServer"; // Asegúrate de que la función esté exportada correctamente
+import { User } from "../types/userType";
+import { getUserByCode } from "../services/userSevices";
 
 export const tournamentsRouter = Router();
 
 // Crear torneo
 tournamentsRouter.post("/create", async (req, res) => {
   const { userCode } = req.body;
-
-  if (!userCode) {
+  const reqUser = await getUserByCode(userCode);
+  if (!reqUser.success || !reqUser.user) {
     return res.json({
       success: false,
-      errorMessage: "No se encontró el usuario creador",
+      errorMessage: "User not valid.",
     });
   }
+  const user: User = reqUser.user;
 
   try {
     let id: string;
     let exists = true;
 
     do {
-      id = generateId(8);
+      id = generateId();
       exists = await tournamentExists(id);
     } while (exists);
 
     await pool.query(
-      "INSERT INTO tournaments (id, creator) VALUES (?, ?)",
-      [id, userCode]
+      "INSERT INTO tournaments (id, owner_id) VALUES (?, ?)",
+      [id, user.id]
     );
 
-    await addParticipant(id, userCode);
+    await addParticipant(id, user.id);
 
     return res.json({
       success: true,
@@ -52,29 +54,30 @@ tournamentsRouter.post("/create", async (req, res) => {
 // Unirse a torneo
 tournamentsRouter.post("/join", async (req, res) => {
   const { userCode, tournamentId } = req.body;
-  if (!userCode || !tournamentId) {
+  const reqUser = await getUserByCode(userCode);
+  if (!reqUser.success || !reqUser.user) {
     return res.json({
       success: false,
-      errorMessage: "Faltan datos necesarios (usuario o torneo)",
+      errorMessage: "User not valid.",
     });
   }
+  const user: User = reqUser.user;
 
   try {
-    const exists = await tournamentExists(tournamentId);
-    if (!exists) {
+    const exist = await tournamentExists(tournamentId);
+    if (!exist) {
       return res.json({
         success: false,
-        errorMessage: "El torneo no existe",
+        errorMessage: "Tournament not found",
       });
     }
 
-    const added = await addParticipant(tournamentId, userCode);
-    if (!added) {
-      return res.json({
-        success: false,
-        errorMessage: "El usuario ya está en el torneo",
-      });
+    const resAddParticipant = await addParticipant(tournamentId, user.id);
+    if (!resAddParticipant.success) {
+      return res.json(resAddParticipant);
     }
+
+    notifyClients('join');
 
     return res.json({
       success: true,
@@ -108,14 +111,14 @@ tournamentsRouter.get("/:id", async (req, res) => {
     const tournament = rows[0];
 
     const [participantsRows] = await pool.query<RowDataPacket[]>(
-      "SELECT user, sushi_count FROM participants WHERE tournament = ?",
+      "SELECT user_id, sushi_count FROM participants WHERE tournament_id = ?",
       [tournament.id]
     );
 
     const participants = await Promise.all(
       participantsRows.map(async (participant: RowDataPacket) => {
         const [userRows] = await pool.query<RowDataPacket[]>(
-          "SELECT name FROM users WHERE user_code = ?",
+          "SELECT name FROM users WHERE code = ?",
           [participant.user]
         );
 
@@ -148,10 +151,14 @@ tournamentsRouter.get("/:id", async (req, res) => {
 //obtener torneos de un usuario
 tournamentsRouter.get("/user/:userCode", async (req, res) => {
   const { userCode } = req.params;
-
-  if (!userCode) {
-    return res.json({ success: false, errorMessage: "User code is required" });
+  const reqUser = await getUserByCode(userCode);
+  if (!reqUser.success || !reqUser.user) {
+    return res.json({
+      success: false,
+      errorMessage: "User not valid.",
+    });
   }
+  const user: User = reqUser.user;
 
   try {
     // Obtener todos los torneos donde participa el usuario
@@ -159,12 +166,12 @@ tournamentsRouter.get("/user/:userCode", async (req, res) => {
       SELECT t.id
       FROM tournaments t
       WHERE t.id IN (
-        SELECT p.tournament
+        SELECT p.tournament_id
         FROM participants p
-        WHERE p.user = ?
+        WHERE p.user_id = ?
       )
-    `, [userCode]);
-
+    `, [user.id]);
+    
     //convertir tournamentsIds a list de strings
     const idList = tournamentsIds.map(row => row.id as string);
     if (idList.length === 0) {
@@ -217,11 +224,19 @@ tournamentsRouter.post("/update-status", async (req, res) => {
 // Cambiar puntuación de un participante en todos sus torneos activos
 tournamentsRouter.post("/update-count", async (req, res) => {
   const { userCode, sushiCount } = req.body;
-
-  if (!userCode || sushiCount === undefined) {
+  const reqUser = await getUserByCode(userCode);
+  if (!reqUser.success || !reqUser.user) {
     return res.json({
       success: false,
-      errorMessage: "Faltan datos necesarios (usuario, torneo o puntuación)",
+      errorMessage: "User not valid.",
+    });
+  }
+  const user: User = reqUser.user;
+
+  if (!user || sushiCount === undefined) {
+    return res.json({
+      success: false,
+      errorMessage: "Miss user or count",
     });
   }
 
@@ -230,12 +245,12 @@ tournamentsRouter.post("/update-count", async (req, res) => {
     await pool.query(`
       UPDATE participants
       SET sushi_count = ?
-      WHERE user = ?
-      AND tournament IN (
+      WHERE user_id = ?
+      AND tournament_id IN (
         SELECT id FROM tournaments WHERE status = 'open'
       );
       `,
-      [sushiCount, userCode]
+      [sushiCount, user.id]
     );
 
     notifyClients('update');
@@ -260,9 +275,9 @@ tournamentsRouter.get("/has-active-tournament:userCode", async (req, res) => {
       SELECT t.id
       FROM tournaments t
       WHERE t.id IN (
-        SELECT p.tournament
+        SELECT p.tournament_id
         FROM participants p
-        WHERE p.user = ?
+        WHERE p.user_id = ?
       ) AND status= 'open'
     `, [userCode]);
 
@@ -287,14 +302,25 @@ tournamentsRouter.get("/has-active-tournament:userCode", async (req, res) => {
 });
 
 //delete tournament
-tournamentsRouter.delete("/delete-tournament/:id", async (req, res) => {
-    const { id } = req.params;
-    try {
+tournamentsRouter.delete("/delete-tournament/:id/user/:userCode", async (req, res) => {
+  const { id, userCode } = req.params;
+  const reqUser = await getUserByCode(userCode);
+  if (!reqUser.success || !reqUser.user) {
+    return res.json({
+      success: false,
+      errorMessage: "User not valid.",
+    });
+  }
+  const user: User = reqUser.user;
+
+  try {
     // Obtener todos los torneos donde participa el usuario
     const [result] = await pool.query<RowDataPacket[]>(`
       DELETE FROM tournaments
-      WHERE id = ? AND status = 'open'
-    `, [id]);
+      WHERE id = ? AND status = 'open' AND owner_id = ?
+    `, [id, user.id]);
+
+    notifyClients('delete');
 
     return res.json({
       success: true,
