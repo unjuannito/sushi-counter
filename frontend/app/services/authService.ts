@@ -15,7 +15,6 @@ export class AuthService extends ApiService {
     public async verifyUser(userCode: string): Promise<Response> {
         try {
             const response: Response = await this.get(`/auth/verify/${userCode}`);
-            console.log(response)
             return response;
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';

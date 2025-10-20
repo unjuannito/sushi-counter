@@ -57,9 +57,7 @@ export class TournamentService extends ApiService {
 
   public async getUserTournaments(userCode: string): Promise<{ success: boolean; tournaments?: Tournament[]; errorMessage?: string }> {
     try {
-      console.log(userCode)
       const response: Response = await this.get(`/tournaments/user/${userCode}`);
-      console.log(response)
       if (response.success) {
         return { success: true, tournaments: response.tournaments as Tournament[] };
       } else {

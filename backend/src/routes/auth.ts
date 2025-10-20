@@ -1,8 +1,8 @@
 import { Router } from "express";
-import { pool } from "./db";
-import generateId from "./utils/generateId";
-import { getUserByCode } from "./services/userSevices";
-import { User } from "./types/userType";
+import { pool } from "../db";
+import generateId from "../utils/generateId";
+import { getUserByCode } from "../services/userSevices";
+import { User } from "../types/userType";
 export const authRouter = Router();
 
 authRouter.post("/create", async (req, res) => {
