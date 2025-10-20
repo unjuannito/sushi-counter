@@ -9,9 +9,9 @@ const clients: Map<string, import("socket.io").Socket> = new Map();
 export function initWebSocket(server: http.Server) {
   const io = new Server(server, {
     cors: {
-      origin: "*",  // Permite conexiones desde cualquier origen
-      methods: ["GET", "POST"],
-    },
+      origin: "*",
+      methods: ["GET", "POST"]
+    }
   });
 
   io.on("connection", (socket) => {

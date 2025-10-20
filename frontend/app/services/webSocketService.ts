@@ -26,7 +26,8 @@ class WebSocketService {
             return;
         }
 
-        const SOCKET_URL = import.meta.env.DEV ? 'http://192.168.1.200:4000' : '/';
+        const SOCKET_URL = import.meta.env.DEV ? 'localhost:4000' : 'juacac.ydns.eu';
+        const SOCKET_PATH = import.meta.env.DEV ? '/socket.io' : '/sushi-counter/socket.io';
         let wsToken = sessionStorage.getItem('wsToken');
 
         // Si no hay token en sessionStorage, nos conectamos sin él y luego el servidor nos enviará uno.
@@ -37,6 +38,7 @@ class WebSocketService {
 
         // Configuración de conexión con Socket.IO
         this.socket = io(SOCKET_URL, {
+            path: SOCKET_PATH, // 👈 debe coincidir con el del servidor
             query: queryParams,  // Aquí estamos pasando el wsToken al servidor (si existe)
             reconnection: true,
             reconnectionAttempts: 5,

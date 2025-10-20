@@ -9,6 +9,7 @@ main {
     /* por si el calendario crece más */
     /* padding-top: 4rem; */
     width: 100vw;
+    max-width: 400px;
 }
 
 h1 {
