@@ -9,7 +9,7 @@ import { initWebSocket } from "./websocket/websocketServer";
 import { router as apiRouter } from "./routes"; // ← Importa el nuevo archivo de rutas
 
 const app = express();
-const PORT = 4000;
+const PORT = 50541;
 
 // Añade CORS solo para desarrollo o para la API
 app.use(

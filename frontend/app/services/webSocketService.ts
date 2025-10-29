@@ -26,8 +26,8 @@ class WebSocketService {
             return;
         }
 
-        const SOCKET_URL = import.meta.env.DEV ? 'localhost:4000' : 'juacac.ydns.eu';
-        const SOCKET_PATH = import.meta.env.DEV ? '/socket.io' : '/sushi-counter/socket.io';
+        const SOCKET_URL = import.meta.env.DEV ? 'localhost:4000' : 'sushi-counter.ydns.eu';
+        const SOCKET_PATH = import.meta.env.DEV ? '/socket.io' : '/socket.io';
         let wsToken = sessionStorage.getItem('wsToken');
 
         // Si no hay token en sessionStorage, nos conectamos sin él y luego el servidor nos enviará uno.
