@@ -1,9 +1,9 @@
 import { Router } from "express";
-import { authRouter } from "./routes/auth";
-import { tournamentsRouter } from "./routes/tournaments";
-import { calendarRouter } from "./routes/calendar";
-import generateId from "./utils/generateId";
-import { notifyClients } from "./websocket/websocketServer";
+import { authRouter } from "./auth";
+import { tournamentsRouter } from "./tournaments";
+import { calendarRouter } from "./calendar";
+import generateId from "../utils/generateId";
+import { notifyClients } from "../websocket/websocketServer";
 
 const router = Router();
 

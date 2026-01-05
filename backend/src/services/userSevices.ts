@@ -1,12 +1,10 @@
-
 // services/user.service.ts
-import { RowDataPacket } from 'mysql2';
-import { pool } from '../db'; // o tu instancia de Prisma, Sequelize, etc.
+import { pool } from "../db/db"; // o tu instancia de Prisma, Sequelize, etc.
 import { User } from '../types/userType';
 import generateId from '../utils/generateId';
 
 export const getUserName = async (id: string) => {
-    const [rows] = await pool.query<RowDataPacket[]>(
+    const [rows] = await pool.query<any[]>(
         "SELECT name FROM users WHERE id = ? LIMIT 1",
         [id]
     );
@@ -20,9 +18,12 @@ export const getUserName = async (id: string) => {
 };
 
 export const getUsers = async (userCodes: string[]) => {
-    const [rows] = await pool.query<RowDataPacket[]>(
-        "SELECT code, name FROM users WHERE code IN ?",
-        [userCodes]
+    if (userCodes.length === 0) return { success: true, users: [] };
+    
+    const placeholders = userCodes.map(() => '?').join(', ');
+    const [rows] = await pool.query<any[]>(
+        `SELECT code, name FROM users WHERE code IN (${placeholders})`,
+        userCodes
     );
 
     if (rows.length > 0) {
@@ -42,7 +43,7 @@ export const getUsers = async (userCodes: string[]) => {
 
 export const getUserByCode = async (userCode: string) => {
     try{
-    const [rows] = await pool.query<RowDataPacket[]>(
+    const [rows] = await pool.query<any[]>(
         "SELECT id, code, name FROM users WHERE code = ? LIMIT 1",
         [userCode]
     );

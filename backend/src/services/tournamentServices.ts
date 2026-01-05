@@ -1,11 +1,10 @@
 import type { Response } from '../types/responseType';
-import { RowDataPacket } from "mysql2";
 import type { PublicParticipant, PublicTournament, Tournament } from "../types/tournamentTypes";
-import { pool } from "../db";
+import { pool } from "../db/db";
 import { getUserName, getUsers } from "../services/userSevices";
 
 async function addParticipant(tournamentId: string, userId: string): Promise<Response> {
-  const [existing] = await pool.query<RowDataPacket[]>(
+  const [existing] = await pool.query<any[]>(
     "SELECT * FROM participants WHERE tournament_id = ? AND user_id = ?",
     [tournamentId, userId]
   );
@@ -21,10 +20,14 @@ async function addParticipant(tournamentId: string, userId: string): Promise<Res
 
 async function getFormatedTournamentsByIds(idList: string[]): Promise<Response> {
     try {
+        if (idList.length === 0) return { success: true, tournaments: [] };
+        
+        const placeholders = idList.map(() => '?').join(', ');
+        
         // Obtener los participantes
-        const [participants] = await pool.query<RowDataPacket[]>(
-            "SELECT user_id, tournament_id, sushi_count FROM participants WHERE tournament_id IN (?)",
-            [idList]
+        const [participants] = await pool.query<any[]>(
+            `SELECT user_id, tournament_id, sushi_count FROM participants WHERE tournament_id IN (${placeholders})`,
+            idList
         );
 
         if (participants.length === 0) {
@@ -48,9 +51,9 @@ async function getFormatedTournamentsByIds(idList: string[]): Promise<Response> 
         );
 
         // Obtener los torneos
-        const [tournaments] = await pool.query<RowDataPacket[]>(
-            "SELECT id, owner_id, status, created_at FROM tournaments WHERE id IN (?)",
-            [idList]
+        const [tournaments] = await pool.query<any[]>(
+            `SELECT id, owner_id, status, created_at FROM tournaments WHERE id IN (${placeholders})`,
+            idList
         );
 
         if (tournaments.length === 0) {
@@ -89,7 +92,7 @@ async function getFormatedTournamentsByIds(idList: string[]): Promise<Response> 
 
 // Función para verificar si un torneo existe
 async function tournamentExists(id: string): Promise<boolean> {
-    const [rows] = await pool.query<RowDataPacket[]>(
+    const [rows] = await pool.query<any[]>(
         "SELECT id FROM tournaments WHERE id = ? LIMIT 1",
         [id]
     );
