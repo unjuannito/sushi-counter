@@ -26,7 +26,7 @@ class WebSocketService {
             return;
         }
 
-        const SOCKET_URL = import.meta.env.DEV ? 'localhost:4000' : 'sushi-counter.ydns.eu';
+        const SOCKET_URL = import.meta.env.DEV ? 'localhost:50541' : 'sushi-counter.ydns.eu';
         const SOCKET_PATH = import.meta.env.DEV ? '/socket.io' : '/socket.io';
         let wsToken = sessionStorage.getItem('wsToken');
 

@@ -11,6 +11,9 @@ import { router as apiRouter } from "./routes"; // ← Importa el nuevo archivo 
 const app = express();
 const PORT = 50541;
 
+// Desactivar ETag para toda la app (incluye /api)
+app.set('etag', false);
+
 // Añade CORS solo para desarrollo o para la API
 app.use(
   "/api",
@@ -21,13 +24,18 @@ app.use(
   })
 );
 
+// Middleware para desactivar caché en todas las rutas bajo /api
+app.use('/api', (req: Request, res: Response, next: NextFunction) => {
+  res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
+  res.setHeader("Pragma", "no-cache"); // HTTP 1.0.
+  res.setHeader("Expires", "0"); // Proxies.
+  next();
+});
 
 // Crear servidor HTTP
 const server = http.createServer(app);
 
 // Middleware para leer JSON
-// app.use(express.json());
-// Ruta ejemplo API
 app.use("/api", express.json()); // middleware solo para API
 app.use("/api", apiRouter); // Las rutas API se manejan aquí.
 
@@ -41,19 +49,16 @@ if (!fs.existsSync(clientPath)) {
   console.log(`[info] Sirviendo archivos estáticos desde: ${clientPath}`);
   // Servir archivos estáticos (HTML, JS, CSS, imágenes...)
   // maxAge ajustable si quieres cache
-  app.use(express.static(clientPath, { index: false }));
+  app.use(express.static(clientPath, { index: false, etag: true })); // Mantener ETag en estáticos si quieres
 }
 
 // Middleware para depurar archivos estáticos no encontrados (opcional, útil localmente)
 app.use((req: Request, res: Response, next: NextFunction) => {
-  // Solo para propósitos de debug local; puedes quitar o comentar en producción
   const maybeFile = path.join(clientPath, req.path);
   if (path.extname(req.path)) {
-    // Petición con extensión (ej. .js, .css, .png)
     if (!fs.existsSync(maybeFile)) {
       console.warn(`[warn] static file not found -> ${req.path} (esperado en ${maybeFile})`);
     } else {
-      // existe el archivo pero express.static lo habría servido; esto es raro
       console.log(`[info] static file exists -> ${req.path}`);
     }
   }
@@ -62,14 +67,11 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 
 // --- Catch-all robusto para SPA (solo para peticiones que acepten HTML y no tengan extensión)
 app.use((req: Request, res: Response, next: NextFunction) => {
-  // No interferir con rutas API
   if (req.path.startsWith("/api")) return next();
   if (req.path.startsWith("/socket.io")) return next();
 
-  // Si la petición tiene extensión (ej. .js, .css, .png), dejar que caiga al 404
   if (path.extname(req.path)) return next();
 
-  // Si el cliente no acepta HTML, no servir index.html
   if (!req.accepts || !req.accepts("html")) return next();
 
   const indexHtml = path.join(clientPath, "index.html");
@@ -85,12 +87,10 @@ app.use((req: Request, res: Response) => {
   res.status(404).send("Not found1");
 });
 
-// app.listen(PORT, () => {
-//   console.log(`✅ Servidor escuchando en http://localhost:${PORT}/`);
-// });
+// init WebSocket
 initWebSocket(server);
 
-// Escuchar en puerto 4000
+// Escuchar en puerto 50541
 server.listen(PORT, () => {
   console.log(`✅ Servidor escuchando en http://localhost:${PORT}/`);
 });
