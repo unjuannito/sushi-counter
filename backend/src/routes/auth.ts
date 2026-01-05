@@ -70,7 +70,7 @@ authRouter.get("/verify/:userCode", async (req, res) => {
   if (!reqUser.success || !reqUser.user) {
     return res.json({
       success: false,
-      errorMessage: "Error during verifying user.1",
+      errorMessage: `Error during verifying user. ${reqUser.errorMessage} `,
     });
   }
   const user: User = reqUser.user;
