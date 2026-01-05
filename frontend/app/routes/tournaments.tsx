@@ -47,8 +47,10 @@ export default function Tournaments() {
                     </div>
                 )}
                 {tournaments.length > 0 ? (
-                    tournaments.map((tournament) => (
-                        <article key={tournament.id} onClick={() => { navigate(`/tournament/${tournament.id}`) }}>
+                    [...tournaments]
+                        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+                        .map((tournament) => (
+                            <article key={tournament.id} onClick={() => { navigate(`/tournament/${tournament.id}`) }}>
                             <h2>{formatDateTime(tournament.createdAt)}</h2>
                             <span>Owner: {tournament.ownerName}</span>
                             <button onClick={(ev) => { ev.stopPropagation(); handleCopy(tournament.id) }}>Copy link</button>

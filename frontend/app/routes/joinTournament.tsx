@@ -19,7 +19,7 @@ const JoinTournament = () => {
     const { joinTournament, error, loading } = useUserTournaments();
     const { user } = useAuth()
   useEffect(() => {
-    if (!user || !id || loading) return
+    if (!user || !id ) return
     // if (loading) return
     joinTournament(id as string);
   }, [id, user]);

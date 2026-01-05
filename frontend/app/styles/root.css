@@ -5,13 +5,15 @@ body {
   flex-direction: column;
   place-items: center;
   min-width: 100dvw;
+  min-height: 100vh;
   min-height: 100dvh;
   overflow-x: hidden;
 
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
-  height: auto;
+  height: 100vh;  /* fallback */
+  height: 100dvh; /* navegador moderno ajustable */
 
   color: rgba(255, 255, 255, 0.87);
   background-color: #222222;

@@ -3,9 +3,9 @@ import { CalendarService } from "~/services/calendarService";
 import type { Logs } from "~/types/calendarType";
 import { useAuth } from "./useAuth";
 
-export function useCalendar() {
+export function useCalendar(initialMonth?: { month: number, year: number }) {
     const { user } = useAuth();
-    const [currentMonth, setCurrentMonth] = useState({ month: new Date().getMonth()+1, year: new Date().getFullYear() });
+    const [currentMonth, setCurrentMonth] = useState(initialMonth || { month: new Date().getMonth() + 1, year: new Date().getFullYear() });
     const [logs, setLogs] = useState<Logs>([]);
     const [error, setError] = useState<string | null>(null);
     const service = new CalendarService();
