@@ -20,9 +20,26 @@ export default function useCounter() {
                 sushiCounter.createdAt !== undefined &&
                 sushiCounter.updatedAt !== undefined
             ) {
-                setCount(sushiCounter.count);
-                setCreatedAt(sushiCounter.createdAt);
-                setUpdatedAt(sushiCounter.updatedAt);
+                const now = new Date();
+                const lastUpdate = new Date(sushiCounter.updatedAt);
+                const timeSinceLastUpdate = now.getTime() - lastUpdate.getTime();
+
+                if (timeSinceLastUpdate > NEW_SESSION_THRESHOLD_MS) {
+                    console.log("New session threshold exceeded, resetting counter");
+                    const newCreatedAt = new Date();
+                    const newUpdatedAt = new Date();
+                    setCount(0);
+                    setCreatedAt(newCreatedAt);
+                    setUpdatedAt(newUpdatedAt);
+                    localStorage.setItem(
+                        "sushiCounter",
+                        JSON.stringify({ count: 0, createdAt: newCreatedAt, updatedAt: newUpdatedAt })
+                    );
+                } else {
+                    setCount(sushiCounter.count);
+                    setCreatedAt(new Date(sushiCounter.createdAt));
+                    setUpdatedAt(new Date(sushiCounter.updatedAt));
+                }
             }
         } else {
             localStorage.setItem(
@@ -52,9 +69,15 @@ export default function useCounter() {
     const callServices = (newCount: number, newCreatedAt: Date, newUpdatedAt: Date) => {
         const timeSinceLastUpdate = newUpdatedAt.getTime() - (new Date(updatedAt)).getTime();
         console.log("timeSinceLastUpdate", timeSinceLastUpdate);
-        // se va crear uno nuevo
-        if (timeSinceLastUpdate > NEW_SESSION_THRESHOLD_MS || (timeSinceLastUpdate > SHORT_SESSION_THRESHOLD_MS && oldCountRef.current === 0)) {
-            console.log("Creating new session");
+
+        // Si ha pasado mucho tiempo (> 3h) o si empezamos una sesión nueva (estaba en 0 y ahora hay sushi)
+        // Pero solo actualizamos createdAt si ha pasado el SHORT_SESSION_THRESHOLD_MS desde el último cambio,
+        // para evitar reinicios accidentales si se pone a 0 por error y se vuelve a subir rápido.
+        const isNewSessionAfterTimeout = timeSinceLastUpdate > NEW_SESSION_THRESHOLD_MS;
+        const isNewSessionFromZero = (oldCountRef.current === 0 && newCount > 0) && (timeSinceLastUpdate > SHORT_SESSION_THRESHOLD_MS);
+
+        if (isNewSessionAfterTimeout || isNewSessionFromZero) {
+            console.log("Starting new session (threshold reached)");
             setCreatedAt(newUpdatedAt);
             newCreatedAt = newUpdatedAt;
         }
