@@ -12,13 +12,16 @@ export function useUserTournaments() {
 
     const [tournaments, setTournaments] = useState<Tournament[]>([]);
     const [currentTournament, setCurrentTournament] = useState<Tournament | null>(null);
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
     const [reloading, setReloading] = useState(0);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
+        if (!user) {
+            setLoading(false);
+            return;
+        }
         setLoading(true);
-        if (!user) return;
         service.getActiveUserTournaments()
             .then((response) => {
                 if (!response.success) {

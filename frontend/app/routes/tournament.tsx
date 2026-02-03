@@ -9,6 +9,7 @@ import redo from "~/assets/icons/ui/rotate-right.svg"
 import { useAuth } from '~/hooks/useAuth';
 import type { Route } from './+types';
 import linkIcon from "~/assets/icons/ui/link.svg"
+import loadingIcon from "~/assets/icons/ui/rotate.svg"
 
 export function meta({ }: Route.MetaArgs) {
   return [
@@ -60,6 +61,14 @@ function Tournament() {
     }
   }
 
+  if (loading) {
+    return (
+      <div className="w-full max-w-[400px] p-4 flex flex-col items-center justify-center">
+        <h2 className='font-bold text-4xl p-2 text-center'>Loading tournament...</h2>
+        <img src={loadingIcon} alt="loading" className='animate-spin w-24 h-auto p-4' />
+      </div>
+    );
+  }
 
   return (
     <div className="w-full max-w-[400px] p-4 flex flex-col">
