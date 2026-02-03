@@ -1,20 +1,31 @@
 import type { Response } from '../types/responseType';
 import type { PublicParticipant, PublicTournament, Tournament } from "../types/tournamentTypes";
 import { pool } from "../db/db";
-import { getUserName, getUsers } from "../services/userSevices";
+import { getUserName } from "../services/userSevices";
 
 async function addParticipant(tournamentId: string, userId: string): Promise<Response> {
   const [existing] = await pool.query<any[]>(
     "SELECT * FROM participants WHERE tournament_id = ? AND user_id = ?",
     [tournamentId, userId]
   );
-  if (existing.length > 0) return {success: false, errorMessage: "The user is already in the tournament."};
+  
+  if (existing.length > 0) {
+    const participant = existing[0];
+    if (participant.status === 'left') {
+      await pool.query(
+        "UPDATE participants SET status = 'active' WHERE tournament_id = ? AND user_id = ?",
+        [tournamentId, userId]
+      );
+      return {success: true, participant: {tournamentId, userId, sushiCount: participant.sushi_count, status: 'active'} as PublicParticipant};
+    }
+    return {success: false, errorMessage: "The user is already in the tournament."};
+  }
 
   await pool.query(
-    "INSERT INTO participants (tournament_id, user_id) VALUES (?, ?)",
+    "INSERT INTO participants (tournament_id, user_id, sushi_count, status) VALUES (?, ?, 0, 'active')",
     [tournamentId, userId]
   );
-  return {success: true, participant: {tournamentId, userId, sushiCount: 0} as PublicParticipant};
+  return {success: true, participant: {tournamentId, userId, sushiCount: 0, status: 'active'} as PublicParticipant};
 }
 
 
@@ -26,7 +37,7 @@ async function getFormatedTournamentsByIds(idList: string[]): Promise<Response> 
         
         // Obtener los participantes
         const [participants] = await pool.query<any[]>(
-            `SELECT user_id, tournament_id, sushi_count FROM participants WHERE tournament_id IN (${placeholders})`,
+            `SELECT user_id, tournament_id, sushi_count, status FROM participants WHERE tournament_id IN (${placeholders})`,
             idList
         );
 
@@ -45,6 +56,7 @@ async function getFormatedTournamentsByIds(idList: string[]): Promise<Response> 
                         userName: res.name,
                         tournamentId: participant.tournament_id,
                         sushiCount: participant.sushi_count,
+                        status: participant.status,
                     });
                 }
             })
@@ -52,7 +64,7 @@ async function getFormatedTournamentsByIds(idList: string[]): Promise<Response> 
 
         // Obtener los torneos
         const [tournaments] = await pool.query<any[]>(
-            `SELECT id, owner_id, status, created_at FROM tournaments WHERE id IN (${placeholders})`,
+            `SELECT id, owner_id, status, strftime('%Y-%m-%dT%H:%M:%SZ', created_at) as created_at FROM tournaments WHERE id IN (${placeholders})`,
             idList
         );
 

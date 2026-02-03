@@ -4,18 +4,9 @@ import generateId from "../utils/generateId";
 import { addParticipant, getFormatedTournamentsByIds, tournamentExists } from "../services/tournamentServices";
 import { notifyClients } from "../websocket/websocketServer";
 import { User } from "../types/userType";
-import { getUserByCode } from "../services/userSevices";
 
 export const createTournament = async (req: Request, res: Response) => {
-  const { userCode } = req.body;
-  const reqUser = await getUserByCode(userCode);
-  if (!reqUser.success || !reqUser.user) {
-    return res.json({
-      success: false,
-      errorMessage: "User not valid.",
-    });
-  }
-  const user: User = reqUser.user;
+  const userId = (req as any).user.id;
 
   try {
     let id: string;
@@ -27,11 +18,11 @@ export const createTournament = async (req: Request, res: Response) => {
     } while (exists);
 
     await pool.query(
-      "INSERT INTO tournaments (id, owner_id) VALUES (?, ?)",
-      [id, user.id]
+      "INSERT INTO tournaments (id, owner_id, status, created_at) VALUES (?, ?, 'open', DATETIME('now'))",
+      [id, userId]
     );
 
-    await addParticipant(id, user.id);
+    await addParticipant(id, userId);
 
     return res.json({
       success: true,
@@ -45,16 +36,89 @@ export const createTournament = async (req: Request, res: Response) => {
   }
 };
 
-export const joinTournament = async (req: Request, res: Response) => {
-  const { userCode, tournamentId } = req.body;
-  const reqUser = await getUserByCode(userCode);
-  if (!reqUser.success || !reqUser.user) {
+export const leaveTournament = async (req: Request, res: Response) => {
+  const userId = (req as any).user.id;
+  const { tournamentId } = req.body;
+
+  if (!tournamentId) {
     return res.json({
       success: false,
-      errorMessage: "User not valid.",
+      errorMessage: "Tournament ID is required",
     });
   }
-  const user: User = reqUser.user;
+
+  try {
+    // Check if the user is in the tournament and get their sushi_count
+    const [rows] = await pool.query<any[]>(
+      "SELECT sushi_count FROM participants WHERE user_id = ? AND tournament_id = ?",
+      [userId, tournamentId]
+    );
+
+    if (rows.length === 0) {
+      return res.json({
+        success: false,
+        errorMessage: "User is not a participant in this tournament",
+      });
+    }
+
+    const { sushi_count } = rows[0];
+    let tournamentDeleted = false;
+
+    // Check if user is owner
+    const [tournamentRows] = await pool.query<any[]>(
+      "SELECT owner_id FROM tournaments WHERE id = ?",
+      [tournamentId]
+    );
+    const isOwner = tournamentRows.length > 0 && tournamentRows[0].owner_id === userId;
+
+    if (sushi_count > 0) {
+      // If sushi_count > 0, set status to 'left'
+      await pool.query(
+        "UPDATE participants SET status = 'left' WHERE user_id = ? AND tournament_id = ?",
+        [userId, tournamentId]
+      );
+    } else {
+      // If sushi_count is 0, delete the participant record
+      await pool.query(
+        "DELETE FROM participants WHERE user_id = ? AND tournament_id = ?",
+        [userId, tournamentId]
+      );
+
+      // Check if there are any participants left OR if the owner was the one who left
+      const [remainingParticipants] = await pool.query<any[]>(
+        "SELECT COUNT(*) as count FROM participants WHERE tournament_id = ?",
+        [tournamentId]
+      );
+
+      if (remainingParticipants[0].count === 0 || isOwner) {
+        await pool.query(
+          "DELETE FROM tournaments WHERE id = ?",
+          [tournamentId]
+        );
+        tournamentDeleted = true;
+      }
+    }
+
+    notifyClients('update');
+
+    return res.json({
+      success: true,
+      message: tournamentDeleted 
+        ? "Tournament deleted because no participants remained" 
+        : (sushi_count > 0 ? "Participant status set to left" : "Participant removed from tournament"),
+      tournamentDeleted
+    });
+  } catch (err: any) {
+    return res.json({
+      success: false,
+      errorMessage: err.message,
+    });
+  }
+};
+
+export const joinTournament = async (req: Request, res: Response) => {
+  const { tournamentId } = req.body;
+  const userId = (req as any).user.id;
 
   try {
     const exist = await tournamentExists(tournamentId);
@@ -65,7 +129,7 @@ export const joinTournament = async (req: Request, res: Response) => {
       });
     }
 
-    const resAddParticipant = await addParticipant(tournamentId, user.id);
+    const resAddParticipant = await addParticipant(tournamentId, userId);
     if (!resAddParticipant.success) {
       return res.json(resAddParticipant);
     }
@@ -89,7 +153,7 @@ export const getTournament = async (req: Request, res: Response) => {
 
   try {
     const [rows] = await pool.query<any[]>(
-      "SELECT * FROM tournaments WHERE id = ? LIMIT 1",
+      "SELECT id, owner_id, status, strftime('%Y-%m-%dT%H:%M:%SZ', created_at) as created_at FROM tournaments WHERE id = ? LIMIT 1",
       [id]
     );
 
@@ -103,7 +167,7 @@ export const getTournament = async (req: Request, res: Response) => {
     const tournament = rows[0];
 
     const [participantsRows] = await pool.query<any[]>(
-      "SELECT user_id, sushi_count FROM participants WHERE tournament_id = ?",
+      "SELECT user_id, sushi_count, status FROM participants WHERE tournament_id = ?",
       [tournament.id]
     );
 
@@ -119,6 +183,7 @@ export const getTournament = async (req: Request, res: Response) => {
         return {
           name: user.name,
           sushiCount: participant.sushi_count,
+          status: participant.status,
         };
       })
     );
@@ -141,15 +206,7 @@ export const getTournament = async (req: Request, res: Response) => {
 };
 
 export const getUserTournaments = async (req: Request, res: Response) => {
-  const { userCode } = req.params;
-  const reqUser = await getUserByCode(userCode);
-  if (!reqUser.success || !reqUser.user) {
-    return res.json({
-      success: false,
-      errorMessage: "User not valid.",
-    });
-  }
-  const user: User = reqUser.user;
+  const userId = (req as any).user.id;
 
   try {
     const [tournamentsIds] = await pool.query<any[]>(`
@@ -160,7 +217,36 @@ export const getUserTournaments = async (req: Request, res: Response) => {
         FROM participants p
         WHERE p.user_id = ?
       )
-    `, [user.id]);
+    `, [userId]);
+    
+    const idList = tournamentsIds.map(row => row.id as string);
+    if (idList.length === 0) {
+      return res.json({ success: true, tournaments: [] });
+    }
+    const result = await getFormatedTournamentsByIds(idList);
+    if (!result.success) return res.json(result);
+    return res.json({ success: true, tournaments: result.tournaments });
+  } catch (err: any) {
+    return res.json({
+      success: false,
+      errorMessage: err.message,
+    });
+  }
+};
+
+export const getActiveUserTournaments = async (req: Request, res: Response) => {
+  const userId = (req as any).user.id;
+
+  try {
+    const [tournamentsIds] = await pool.query<any[]>(`
+      SELECT t.id
+      FROM tournaments t
+      WHERE t.id IN (
+        SELECT p.tournament_id
+        FROM participants p
+        WHERE p.user_id = ? AND p.status != 'left'
+      )
+    `, [userId]);
     
     const idList = tournamentsIds.map(row => row.id as string);
     if (idList.length === 0) {
@@ -208,20 +294,13 @@ export const updateStatus = async (req: Request, res: Response) => {
 };
 
 export const updateCount = async (req: Request, res: Response) => {
-  const { userCode, sushiCount } = req.body;
-  const reqUser = await getUserByCode(userCode);
-  if (!reqUser.success || !reqUser.user) {
-    return res.json({
-      success: false,
-      errorMessage: "User not valid.",
-    });
-  }
-  const user: User = reqUser.user;
+  const { sushiCount } = req.body;
+  const userId = (req as any).user.id;
 
-  if (!user || sushiCount === undefined) {
+  if (sushiCount === undefined) {
     return res.json({
       success: false,
-      errorMessage: "Miss user or count",
+      errorMessage: "Miss count",
     });
   }
 
@@ -234,7 +313,7 @@ export const updateCount = async (req: Request, res: Response) => {
         SELECT id FROM tournaments WHERE status = 'open'
       );
       `,
-      [sushiCount, user.id]
+      [sushiCount, userId]
     );
 
     notifyClients('update');
@@ -252,7 +331,7 @@ export const updateCount = async (req: Request, res: Response) => {
 };
 
 export const hasActiveTournament = async (req: Request, res: Response) => {
-  const { userCode } = req.params;
+  const userId = (req as any).user.id;
   try {
     const [tournamentsIds] = await pool.query<any[]>(`
       SELECT t.id
@@ -262,7 +341,7 @@ export const hasActiveTournament = async (req: Request, res: Response) => {
         FROM participants p
         WHERE p.user_id = ?
       ) AND status= 'open'
-    `, [userCode]);
+    `, [userId]);
 
     if (tournamentsIds.length === 0) {
       return res.json({
@@ -284,21 +363,14 @@ export const hasActiveTournament = async (req: Request, res: Response) => {
 };
 
 export const deleteTournament = async (req: Request, res: Response) => {
-  const { id, userCode } = req.params;
-  const reqUser = await getUserByCode(userCode);
-  if (!reqUser.success || !reqUser.user) {
-    return res.json({
-      success: false,
-      errorMessage: "User not valid.",
-    });
-  }
-  const user: User = reqUser.user;
+  const { id } = req.params;
+  const userId = (req as any).user.id;
 
   try {
     await pool.query(`
       DELETE FROM tournaments
       WHERE id = ? AND status = 'open' AND owner_id = ?
-    `, [id, user.id]);
+    `, [id, userId]);
 
     notifyClients('delete');
 

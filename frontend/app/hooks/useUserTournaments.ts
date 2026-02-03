@@ -19,13 +19,15 @@ export function useUserTournaments() {
     useEffect(() => {
         setLoading(true);
         if (!user) return;
-        service.getUserTournaments(user.code)
+        service.getActiveUserTournaments()
             .then((response) => {
                 if (!response.success) {
+                    console.log('Error response:', response);
                     setError(response.errorMessage || 'Error fetching tournaments');
                     setLoading(false);
                     return;
                 }
+                console.log('Fetched tournaments:', response.tournaments);
                 setTournaments(response.tournaments || []);
                 setLoading(false);
             })
@@ -62,7 +64,7 @@ export function useUserTournaments() {
         setReloading(1);
         setError(null);
         if (!user) return { success: false, errorMessage: "User not authenticated" };
-        service.createTournament(user.code)
+        service.createTournament()
             .then((response) => {
                 if (!response.success) {
                     setError(response.errorMessage || 'Error creating tournament');
@@ -78,7 +80,7 @@ export function useUserTournaments() {
         setLoading(true);
         setError(null);
         if (!user) return { success: false, errorMessage: "User not authenticated" };
-        service.joinTournament(tournamentId, user.code)
+        service.joinTournament(tournamentId)
             .then((response) => {
                 if (!response.success) {
                     setError(response.errorMessage || 'Error joining tournament');
@@ -97,8 +99,11 @@ export function useUserTournaments() {
 
     const assignCurrentTournament = (id: string) => {
         const newTournament = tournaments.find(t => (t.id == id));
-        if (newTournament) setCurrentTournament(newTournament);
-        else if (currentTournament !== null) navigate("/tournaments")
+        if (newTournament) {
+            setCurrentTournament(newTournament);
+        } else {
+            navigate("/tournaments");
+        }
     }
 
     const getTournamentById = (id: string) => {
@@ -107,7 +112,7 @@ export function useUserTournaments() {
 
     const updateSushiCount = (newCounter: number) => {
         if (!user) return { success: false, errorMessage: "User not authenticated" };
-        service.updateSushiCount(user.code, newCounter)
+        service.updateSushiCount(newCounter)
         // .then((response) => {
         //     console.log(response)
         // })
@@ -129,12 +134,24 @@ export function useUserTournaments() {
 
     const deleteTournament = (tournamentId: string) => {
         if (!user) return
-        service.deleteTournament(tournamentId, user.code)
+        service.deleteTournament(tournamentId)
             .then(response => {
                 if (response.success) {
                     navigate("/tournaments/")
                 } else {
                     setError(response.errorMessage || 'Error when deleting tournament')
+                }
+            })
+    }
+
+    const leaveTournament = (tournamentId: string) => {
+        if (!user) return
+        service.leaveTournament(tournamentId)
+            .then(response => {
+                if (response.success) {
+                    navigate("/tournaments")
+                } else {
+                    setError(response.errorMessage || 'Error when leaving tournament')
                 }
             })
     }
@@ -153,6 +170,8 @@ export function useUserTournaments() {
         isAnyTournamentActive,
         updateStatus,
         isOwner,
-        deleteTournament
+        deleteTournament,
+        leaveTournament,
+        setError
     };
 }

@@ -5,21 +5,13 @@ import { User } from "../types/userType";
 import generateId from "../utils/generateId";
 
 export const getLogs = async (req: Request, res: Response) => {
-    const { userCode } = req.params;
-    const reqUser = await getUserByCode(userCode);
-    if (!reqUser.success || !reqUser.user) {
-        return res.json({
-            success: false,
-            errorMessage: "User not valid.",
-        });
-    }
-    const user: User = reqUser.user;
+    const userId = (req as any).user.id;
     try {
         const [logs] = await pool.query<any[]>(`
             SELECT id, sushi_count, created_at
             FROM sushi_logs
             WHERE user_id = ?
-        `, [user.id]);
+        `, [userId]);
 
         const logsToReturn = logs.map((log: any) => ({
             id: log.id,
@@ -38,18 +30,94 @@ export const getLogs = async (req: Request, res: Response) => {
     }
 };
 
-export const upsertLog = async (req: Request, res: Response) => {
-    const { userCode, sushiCount, createdAt, updatedAt } = req.body;
-    const reqUser = await getUserByCode(userCode);
-    if (!reqUser.success || !reqUser.user) {
+export const getLogsByDay = async (req: Request, res: Response) => {
+    const userId = (req as any).user.id;
+    const { date } = req.params; // Expecting YYYY-MM-DD
+
+    try {
+        const [logs] = await pool.query<any[]>(`
+            SELECT id, sushi_count, created_at
+            FROM sushi_logs
+            WHERE user_id = ? AND DATE(created_at) = DATE(?)
+        `, [userId, date]);
+
+        const logsToReturn = logs.map((log: any) => ({
+            id: log.id,
+            sushiCount: log.sushi_count,
+            createdAt: log.created_at,
+        }));
+
+        return res.json({
+            success: true,
+            logs: logsToReturn,
+        });
+    } catch (err: any) {
         return res.json({
             success: false,
-            errorMessage: "User not valid.",
+            errorMessage: err.message,
         });
     }
-    const user: User = reqUser.user;
+};
+
+export const getLogsByMonth = async (req: Request, res: Response) => {
+    const userId = (req as any).user.id;
+    const { year, month } = req.params; // Expecting year and month
+
     try {
-        const formattedCreatedAt = (new Date(createdAt)).toISOString().slice(0, 19).replace('T', ' ');
+        const [logs] = await pool.query<any[]>(`
+            SELECT id, sushi_count, created_at
+            FROM sushi_logs
+            WHERE user_id = ? 
+              AND strftime('%Y', created_at) = ? 
+              AND strftime('%m', created_at) = ?
+        `, [userId, year, month.padStart(2, '0')]);
+
+        const logsToReturn = logs.map((log: any) => ({
+            id: log.id,
+            sushiCount: log.sushi_count,
+            createdAt: log.created_at,
+        }));
+
+        return res.json({
+            success: true,
+            logs: logsToReturn,
+        });
+    } catch (err: any) {
+        return res.json({
+            success: false,
+            errorMessage: err.message,
+        });
+    }
+};
+
+export const deleteLog = async (req: Request, res: Response) => {
+    const userId = (req as any).user.id;
+    const { id } = req.params;
+
+    try {
+        await pool.query(`
+            DELETE FROM sushi_logs
+            WHERE id = ? AND user_id = ?
+        `, [id, userId]);
+
+        return res.json({
+            success: true,
+        });
+    } catch (err: any) {
+        return res.json({
+            success: false,
+            errorMessage: err.message,
+        });
+    }
+};
+
+export const upsertLog = async (req: Request, res: Response) => {
+    const { sushiCount, createdAt, updatedAt } = req.body;
+    const userId = (req as any).user.id;
+
+    try {
+        const dateObj = new Date(createdAt);
+        const formattedCreatedAt = dateObj.toISOString().slice(0, 19).replace('T', ' ');
         const formattedUpdatedAt = (new Date(updatedAt)).toISOString().slice(0, 19).replace('T', ' ');
 
         const [existingLogs] = await pool.query<any[]>(`
@@ -57,8 +125,7 @@ export const upsertLog = async (req: Request, res: Response) => {
             FROM sushi_logs
             WHERE user_id = ?
                 AND created_at = ?
-        `, [user.id, formattedCreatedAt]);
-
+        `, [userId, formattedCreatedAt]);
 
         if (sushiCount == 0) {
             if (existingLogs.length !== 0) {
@@ -71,7 +138,7 @@ export const upsertLog = async (req: Request, res: Response) => {
             await pool.query(`
                 INSERT INTO sushi_logs (id, user_id, sushi_count, created_at, updated_at)
                 VALUES (?, ?, ?, ?, ?)
-            `, [generateId(), user.id, sushiCount, formattedCreatedAt, formattedUpdatedAt]);
+            `, [generateId(), userId, sushiCount, formattedCreatedAt, formattedUpdatedAt]);
         } else {
             const logId = existingLogs[0].id;
             await pool.query(`
@@ -81,13 +148,15 @@ export const upsertLog = async (req: Request, res: Response) => {
             `, [sushiCount, formattedUpdatedAt, logId]);
         }
 
-        const [logs] = await pool.query<any[]>(`
+        // Return logs for the same day to update frontend state efficiently
+        const dateStr = dateObj.toISOString().split('T')[0];
+        const [dayLogs] = await pool.query<any[]>(`
             SELECT id, sushi_count, created_at
             FROM sushi_logs
-            WHERE user_id = ?
-        `, [user.id]);
+            WHERE user_id = ? AND DATE(created_at) = DATE(?)
+        `, [userId, dateStr]);
 
-        const logsToReturn = logs.map((log: any) => ({
+        const logsToReturn = dayLogs.map((log: any) => ({
             id: log.id,
             sushiCount: log.sushi_count,
             createdAt: log.created_at,

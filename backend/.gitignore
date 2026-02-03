@@ -6,3 +6,6 @@ package-lock.json
 *.sqlite-journal
 *.sqlite-shm
 *.sqlite-wal
+.env
+.env.*
+!.env.example

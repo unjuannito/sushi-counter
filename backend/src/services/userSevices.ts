@@ -17,18 +17,18 @@ export const getUserName = async (id: string) => {
     return { success: false, errorMessage: "User not found" };
 };
 
-export const getUsers = async (userCodes: string[]) => {
-    if (userCodes.length === 0) return { success: true, users: [] };
+export const getUsersByIds = async (userIds: string[]) => {
+    if (userIds.length === 0) return { success: true, users: [] };
     
-    const placeholders = userCodes.map(() => '?').join(', ');
+    const placeholders = userIds.map(() => '?').join(', ');
     const [rows] = await pool.query<any[]>(
-        `SELECT code, name FROM users WHERE code IN (${placeholders})`,
-        userCodes
+        `SELECT id, name FROM users WHERE id IN (${placeholders})`,
+        userIds
     );
 
     if (rows.length > 0) {
         const users = rows.map(user => ({
-            userCode: user.code,
+            id: user.id,
             name: user.name
         }));
 
@@ -44,7 +44,7 @@ export const getUsers = async (userCodes: string[]) => {
 export const getUserByCode = async (userCode: string) => {
     try{
     const [rows] = await pool.query<any[]>(
-        "SELECT id, code, name FROM users WHERE code = ? LIMIT 1",
+        "SELECT * FROM users WHERE code = ? LIMIT 1",
         [userCode]
     );
     if (rows.length > 0) {
@@ -62,3 +62,51 @@ export const getUserByCode = async (userCode: string) => {
     };
   }
 }
+
+export const getUserByEmail = async (email: string) => {
+    try {
+        const [rows] = await pool.query<any[]>(
+            "SELECT * FROM users WHERE email = ? LIMIT 1",
+            [email]
+        );
+        if (rows.length > 0) {
+            return {
+                success: true,
+                user: rows[0] as User
+            };
+        }
+        return { success: false, errorMessage: "User not found" };
+    } catch (err: any) {
+        return { success: false, errorMessage: err.message };
+    }
+};
+
+export const getUserByGoogleId = async (googleId: string) => {
+    try {
+        const [rows] = await pool.query<any[]>(
+            "SELECT * FROM users WHERE google_id = ? LIMIT 1",
+            [googleId]
+        );
+        if (rows.length > 0) {
+            return {
+                success: true,
+                user: rows[0] as User
+            };
+        }
+        return { success: false, errorMessage: "User not found" };
+    } catch (err: any) {
+        return { success: false, errorMessage: err.message };
+    }
+};
+
+export const logLoginActivity = async (userId: string | null, status: 'success' | 'failed', ip: string, userAgent: string) => {
+    try {
+        const id = generateId();
+        await pool.query(
+            "INSERT INTO login_activity (id, user_id, status, ip_address, user_agent) VALUES (?, ?, ?, ?, ?)",
+            [id, userId, status, ip, userAgent]
+        );
+    } catch (err: any) {
+        console.error('Error logging login activity:', err.message);
+    }
+};

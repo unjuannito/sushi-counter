@@ -1,10 +1,9 @@
 import React, { useEffect } from 'react';
-import { useParams } from 'react-router';
+import { useParams, useNavigate } from 'react-router';
 import { useUserTournaments } from "~/hooks/useUserTournaments";
 import { useAuth } from "~/hooks/useAuth";
 import type { Route } from './+types';
-import loadingIcon from "~/assets/rotate.svg"
-import "~/styles/tournaments.css"
+import loadingIcon from "~/assets/icons/ui/rotate.svg"
 
 export function meta({ }: Route.MetaArgs) {
   return [
@@ -14,31 +13,39 @@ export function meta({ }: Route.MetaArgs) {
 }
 
 
-const JoinTournament = () => {
+const JoinTournamentRoute = () => {
   const { id } = useParams(); // Obtenemos el ID del torneo desde la URL
-    const { joinTournament, error, loading } = useUserTournaments();
+    const { joinTournament, error, loading, setError } = useUserTournaments();
     const { user } = useAuth()
+    const navigate = useNavigate();
+
   useEffect(() => {
-    if (!user || !id ) return
-    // if (loading) return
+    if (!user) return
+    if (!id) {
+        setError("Invalid tournament link");
+        setTimeout(() => {
+            navigate("/tournaments");
+        }, 2000);
+        return
+    }
     joinTournament(id as string);
   }, [id, user]);
 
   return (
-    <main className='join'>
+      <div className="w-full max-w-[400px] p-4 flex flex-col items-center justify-center">
       {error ?
       <>
-        <h2 className='error'>{error}</h2>
-        <img src={loadingIcon} alt="relaoding" className='loading' />
+        <h2 className='text-red-500 text-xl font-bold text-center'>{error}</h2>
+        <img src={loadingIcon} alt="relaoding" className='animate-spin w-24 h-auto p-4 opacity-50' />
       </>
       :
       <>
-        <h2>Joining tournament...</h2>
-        <img src={loadingIcon} alt="relaoding" className='loading' />
+        <h2 className='font-bold text-4xl p-2 text-center'>Joining tournament...</h2>
+        <img src={loadingIcon} alt="relaoding" className='animate-spin w-24 h-auto p-4' />
       </>
       }
-    </main>
+    </div>
   );
 };
 
-export default JoinTournament;
+export default JoinTournamentRoute;

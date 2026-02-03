@@ -2,13 +2,20 @@ import express, { Request, Response, NextFunction } from "express";
 import path from "path";
 import fs from "fs";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 import { router as apiRouter } from "./routes/index";
+import { csrfMiddleware } from "./middleware/csrfMiddleware";
 
 export function createApp() {
   const app = express();
 
+  app.use(cookieParser());
+
   // Desactivar ETag para toda la app (incluye /api)
   app.set('etag', false);
+
+  // CSRF Protection for all API state-changing requests
+  app.use("/api", csrfMiddleware);
 
   // Añade CORS solo para desarrollo o para la API
   app.use(
