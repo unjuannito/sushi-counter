@@ -50,20 +50,25 @@ export default function useCounter() {
     }, []);
 
     const modifyCounter = (mod: number) => {
-        const now = Date.now();
-        const newCount = count + mod;
+        setCount((prevCount) => {
+            const newCount = prevCount + mod;
+            
+            if (!debounceTimeoutRef.current) {
+                oldCountRef.current = prevCount;
+            }
 
-        if (!debounceTimeoutRef.current) {
-            oldCountRef.current = count;
-        }
-        setCount(newCount);
-        if (debounceTimeoutRef.current) {
-            clearTimeout(debounceTimeoutRef.current);
-        }
-        debounceTimeoutRef.current = setTimeout(() => {
-            const updatedAtNow = Date.now();
-            callServices(newCount, new Date(createdAt), new Date(updatedAtNow));
-        }, SAVE_DELAY_MS);
+            if (debounceTimeoutRef.current) {
+                clearTimeout(debounceTimeoutRef.current);
+            }
+
+            debounceTimeoutRef.current = setTimeout(() => {
+                const updatedAtNow = Date.now();
+                callServices(newCount, new Date(createdAt), new Date(updatedAtNow));
+                debounceTimeoutRef.current = null; // Reset ref after execution
+            }, SAVE_DELAY_MS);
+
+            return newCount;
+        });
     };
 
     const callServices = (newCount: number, newCreatedAt: Date, newUpdatedAt: Date) => {

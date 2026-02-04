@@ -116,9 +116,9 @@ export const upsertLog = async (req: Request, res: Response) => {
     const userId = (req as any).user.id;
 
     try {
-        const dateObj = new Date(createdAt);
-        const formattedCreatedAt = dateObj.toISOString().slice(0, 19).replace('T', ' ');
-        const formattedUpdatedAt = (new Date(updatedAt)).toISOString().slice(0, 19).replace('T', ' ');
+        // Use the strings directly as they are already formatted as YYYY-MM-DD HH:mm:ss by the frontend
+        const formattedCreatedAt = createdAt;
+        const formattedUpdatedAt = updatedAt;
 
         const [existingLogs] = await pool.query<any[]>(`
             SELECT id
@@ -149,7 +149,7 @@ export const upsertLog = async (req: Request, res: Response) => {
         }
 
         // Return logs for the same day to update frontend state efficiently
-        const dateStr = dateObj.toISOString().split('T')[0];
+        const dateStr = formattedCreatedAt.split(' ')[0];
         const [dayLogs] = await pool.query<any[]>(`
             SELECT id, sushi_count, created_at
             FROM sushi_logs

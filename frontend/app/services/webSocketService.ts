@@ -26,8 +26,8 @@ class WebSocketService {
             return;
         }
 
-        const SOCKET_URL = import.meta.env.DEV ? 'localhost:50541' : 'sushi-counter.ydns.eu';
-        const SOCKET_PATH = import.meta.env.DEV ? '/socket.io' : '/socket.io';
+        const SOCKET_URL = import.meta.env.DEV ? 'http://localhost:50541' : window.location.origin;
+        const SOCKET_PATH = '/socket.io';
         let wsToken = sessionStorage.getItem('wsToken');
 
         // Si no hay token en sessionStorage, nos conectamos sin él y luego el servidor nos enviará uno.
@@ -37,6 +37,7 @@ class WebSocketService {
         }
 
         // Configuración de conexión con Socket.IO
+        console.log(`[WS] Intentando conectar a ${SOCKET_URL} con path ${SOCKET_PATH}`);
         this.socket = io(SOCKET_URL, {
             path: SOCKET_PATH, // 👈 debe coincidir con el del servidor
             query: queryParams,  // Aquí estamos pasando el wsToken al servidor (si existe)
@@ -44,25 +45,26 @@ class WebSocketService {
             reconnectionAttempts: 5,
             reconnectionDelay: 1000,
             reconnectionDelayMax: 5000,
+            transports: ['websocket', 'polling'], // Forzamos que intente websocket primero
         });
 
         // Cuando nos conectamos, el servidor nos envía un nuevo wsToken
         this.socket.on('connected', (data: { wsToken: string }) => {
-            // console.log('Conexión exitosa, wsToken:', data.wsToken);
+            console.log('[WS] Evento "connected" recibido. Nuevo wsToken:', data.wsToken);
             sessionStorage.setItem('wsToken', data.wsToken);  // Guardamos el wsToken en sessionStorage
         });
 
         this.socket.on('connect', () => {
-            // console.log('Conectado a WebSocket');
+            console.log('[WS] Conexión establecida con éxito. ID:', this.socket?.id);
             this.isConnected = true;
         });
 
         this.socket.on('connect_error', (error: Error) => {
-            console.error('Error de conexión WebSocket: ', error);
+            console.error('[WS] Error de conexión:', error.message, error);
         });
 
         this.socket.on('disconnect', (reason: string) => {
-            console.log('Desconectado del WebSocket. Razón: ', reason);
+            console.log('[WS] Desconectado. Razón:', reason);
             this.isConnected = false;
         });
 
@@ -101,13 +103,25 @@ class WebSocketService {
     public listenToEvent(event: string, callback: (data: any) => void) {
         if (!this.eventCallbacks[event]) {
             this.eventCallbacks[event] = [];
+            
+            // Solo registramos el listener del socket UNA vez por evento
+            if (this.socket) {
+                this.socket.on(event, (data) => {
+                    this.eventCallbacks[event].forEach(cb => cb(data));
+                });
+            }
         }
-        this.eventCallbacks[event].push(callback);
+        
+        // Añadimos el callback a la lista si no está ya
+        if (!this.eventCallbacks[event].includes(callback)) {
+            this.eventCallbacks[event].push(callback);
+        }
+    }
 
-        if (this.socket) {
-            this.socket.on(event, (data) => {
-                this.eventCallbacks[event].forEach(cb => cb(data));
-            });
+    // Método para dejar de escuchar un evento
+    public stopListening(event: string, callback: (data: any) => void) {
+        if (this.eventCallbacks[event]) {
+            this.eventCallbacks[event] = this.eventCallbacks[event].filter(cb => cb !== callback);
         }
     }
 

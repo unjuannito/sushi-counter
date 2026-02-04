@@ -33,7 +33,13 @@ export function useCalendar(initialMonth?: { month: number, year: number }) {
 
     const upsertLog = useCallback(async (sushiCount: number, createdAt: Date, updatedAt: Date) => {
         if (!user) return;
-        const response = await service.upsertLog(sushiCount, createdAt.toISOString(), updatedAt.toISOString());
+        
+        const toLocalSqlString = (date: Date) => {
+            const pad = (n: number) => n.toString().padStart(2, '0');
+            return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+        };
+
+        const response = await service.upsertLog(sushiCount, toLocalSqlString(createdAt), toLocalSqlString(updatedAt));
         if (!response.success) {
             setError(response.errorMessage || 'Error upserting log');
             return;

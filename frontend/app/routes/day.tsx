@@ -57,7 +57,9 @@ export default function Day() {
         const sushiCounter = localStorage.getItem("sushiCounter");
         if (sushiCounter) {
             const parsed = JSON.parse(sushiCounter);
-            const createdAtDate = Math.trunc((new Date(createdAt).getTime()) / 10000);
+            // Ensure we handle the date string format correctly
+            const formattedCreatedAt = createdAt.includes(' ') ? createdAt.replace(' ', 'T') : createdAt;
+            const createdAtDate = Math.trunc((new Date(formattedCreatedAt).getTime()) / 10000);
             const parsedCreatedAtDate = Math.trunc((new Date(parsed.createdAt).getTime()) / 10000);
 
             console.log("Comparing dates", parsedCreatedAtDate, createdAtDate);
@@ -88,16 +90,12 @@ export default function Day() {
                             >
                                 <span className="text-xl font-bold text-left justify-self-start">
                                     {formatDateTime(log.createdAt)}                                </span>
-                                {/* Columna 2: nombre */}
                                 <span className="text-xl font-medium text-center">
                                     {log.sushiCount} 🍣
                                 </span>
 
-                                {/* <span className="m-0 col-start-1 justify-self-start">{formatDateTime(log.createdAt)}</span>
-                                <span className="m-0 col-start-1 justify-self-start">{log.sushiCount} 🍣</span> */}
                                 <img src={deleteIcon} alt="Delete log" onClick={() => handleDeleteLog(log.id, log.createdAt)}
-                                    className=" h-full w-auto"
-                                // className="w-[2rem] h-auto cursor-pointer justify-self-end row-span-2 col-start-2" 
+                                    className=" h-full w-auto cursor-pointer"
                                 />
                             </article>
                         ))

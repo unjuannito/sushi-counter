@@ -38,8 +38,18 @@ export function useUserTournaments() {
                 setError(err.message || 'Error fetching tournaments');
                 setLoading(false);
             });
-        if (reloading > 0) setReloading(reloading - 1);
     }, [user, reloading]);
+
+    // ** Efecto para mantener currentTournament actualizado cuando cambia la lista de torneos **
+    useEffect(() => {
+        if (currentTournament) {
+            const updated = tournaments.find(t => t.id === currentTournament.id);
+            if (updated) {
+                console.log(`[WS Hook] Actualizando currentTournament (ID: ${currentTournament.id}) tras cambio en tournaments`);
+                setCurrentTournament(updated);
+            }
+        }
+    }, [tournaments]);
 
     // ** Nuevo useEffect para WebSocket **
     useEffect(() => {
@@ -51,15 +61,27 @@ export function useUserTournaments() {
         webSocketService.connect();
 
         // Listener para el evento 'update' (o el evento que mande el WS)
-        const handleUpdateMessage = (message: any) => {
-            setReloading(reloading + 1);
+        const handleUpdateMessage = (event: string, message: any) => {
+            console.log(`[WS Hook] Evento "${event}" recibido. Datos:`, message);
+            console.log('[WS Hook] Forzando recarga de torneos...');
+            setReloading(prev => prev + 1);
         };
 
-        webSocketService.listenToEvent('update', handleUpdateMessage);
+        const onUpdate = (data: any) => handleUpdateMessage('update', data);
+        const onJoin = (data: any) => handleUpdateMessage('join', data);
+        const onDelete = (data: any) => handleUpdateMessage('delete', data);
+
+        console.log('[WS Hook] Registrando listeners para "update", "join", "delete"');
+        webSocketService.listenToEvent('update', onUpdate);
+        webSocketService.listenToEvent('join', onJoin);
+        webSocketService.listenToEvent('delete', onDelete);
 
         // Cleanup: quitar el listener al desmontar
         return () => {
-            webSocketService.disconnect();
+            console.log('[WS Hook] Limpiando listeners');
+            webSocketService.stopListening('update', onUpdate);
+            webSocketService.stopListening('join', onJoin);
+            webSocketService.stopListening('delete', onDelete);
         };
     }, [user]);
 

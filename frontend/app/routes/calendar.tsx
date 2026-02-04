@@ -111,7 +111,11 @@ export default function Calendar() {
         <article className="grid grid-cols-7 gap-2 flex-1 px-[5px]">
           {[...Array(daysInMonth)].map((_, index) => {
             const actualLogs = logs.filter(log => {
-              const logDate = new Date(log.createdAt);
+              // Ensure we handle the date string format "YYYY-MM-DD HH:mm:ss" correctly
+              // by replacing the space with 'T' for better browser compatibility if needed,
+              // or just parsing as is. Most browsers handle "YYYY-MM-DD HH:mm:ss" as local.
+              const dateStr = log.createdAt.includes(' ') ? log.createdAt.replace(' ', 'T') : log.createdAt;
+              const logDate = new Date(dateStr);
               return logDate.getDate() === index + 1 && logDate.getMonth() === currentMonth.month - 1 && logDate.getFullYear() === currentMonth.year;
             });
             const totalSushi = actualLogs.reduce((sum, log) => sum + log.sushiCount, 0);
