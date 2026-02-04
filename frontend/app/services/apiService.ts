@@ -10,7 +10,7 @@ export class ApiService {
     private static refreshSubscribers: ((token: string) => void)[] = [];
 
     constructor() {
-        this.baseUrl = import.meta.env.DEV ? 'http://localhost:50541/api' : '/api/';
+        this.baseUrl = import.meta.env.DEV ? 'http://localhost:50541/api' : '/api';
 
         this.axiosInstance = axios.create({
             baseURL: this.baseUrl,
@@ -52,6 +52,7 @@ export class ApiService {
                     const refreshToken = ApiService.getRefreshToken();
                     if (refreshToken) {
                         try {
+                            // Use axiosInstance to ensure same config/basePath
                             const response = await axios.post(`${this.baseUrl}/auth/refresh-token`, { refreshToken });
                             if (response.data.success) {
                                 const { token: newToken, refreshToken: newRefreshToken } = response.data;
@@ -72,8 +73,12 @@ export class ApiService {
                     ApiService.isRefreshing = false;
                     ApiService.setToken(null);
                     ApiService.setRefreshToken(null);
-                    if (typeof window !== 'undefined') {
-                        window.location.href = '/'; // Redirect to login on complete failure
+                    
+                    // Nota: No redirigimos a /login porque el login es un Dialog que salta en la raíz (/)
+                    // Si el refresh falla, simplemente limpiamos tokens. El AuthContext detectará que no hay user
+                    // y debería disparar la apertura del Dialog de login.
+                    if (typeof window !== 'undefined' && window.location.pathname !== '/') {
+                        window.location.href = '/';
                     }
                 }
                 return Promise.reject(error);
