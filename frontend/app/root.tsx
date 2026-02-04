@@ -43,7 +43,7 @@ export default function Document() {
         <Meta />
         <Links />
       </head>
-      <body className="h-screen flex flex-col">
+      <body className="h-dvh flex flex-col">
         <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
           <AuthProvider>
             <Outlet />
@@ -83,7 +83,7 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
         <Links />
       </head>
       <body>
-        <main className="min-h-screen items-center justify-center flex flex-col p-8">
+        <main className="min-h-dvh items-center justify-center flex flex-col p-8">
           <h1 className="font-bold text-4xl p-4">{message}</h1>
           <p className="text-2xl p-4 text-center">{details}</p>
           {stack && (
