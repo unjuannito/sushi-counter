@@ -9,6 +9,9 @@ import { csrfMiddleware } from "./middleware/csrfMiddleware";
 export function createApp() {
   const app = express();
 
+  // Trust the first proxy (e.g. Nginx) to get the correct client IP for rate limiting
+  app.set('trust proxy', 1);
+
   app.use(cookieParser());
 
   // Desactivar ETag para toda la app (incluye /api)
