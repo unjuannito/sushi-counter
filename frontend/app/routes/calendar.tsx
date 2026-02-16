@@ -94,8 +94,7 @@ export default function Calendar() {
 
   return (
     <>
-      {/* <ChangeMonth open={isDialogOpen} changeMonth={(m) => navigate(`/calendar/${m}`)} setIsDialogOpen={setIsDialogOpen} /> */}
-      {/* <div className="flex flex-col h-[calc(100vh-60px)] h-[calc(100dvh-60px)] p-4 box-border overflow-y-auto w-screen max-w-[400px]"> */}
+      <ChangeMonth open={isDialogOpen} changeMonth={(m) => navigate(`/calendar/${m}`)} setIsDialogOpen={setIsDialogOpen} />
       <div className="w-full max-w-[400px] p-4 flex flex-col">
         <div className="flex items-center justify-between my-8">
           <span className="bg-none border-none text-[2rem] cursor-pointer px-4 text-white hover:text-[#646cff]" onClick={handlePrevMonth}>◀</span>

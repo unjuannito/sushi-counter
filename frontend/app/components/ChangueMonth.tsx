@@ -22,11 +22,11 @@ export default function ChangeMonth({ open, changeMonth, setIsDialogOpen }: { op
                         type="month"
                         name="month"
                         required
-                        className="bg-[#3a3a3a] border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="p-4 rounded-[10px] border border-[#333] bg-[#252525] text-white w-full box-border"
                     />
                 </div>
                 <div className="flex flex-col gap-2 mt-4">
-                    <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition-colors">
+                    <button type="submit" className="bg-[#444] hover:bg-[#555] text-white font-bold py-3 rounded-xl transition-colors">
                         Cambiar Mes
                     </button>
                     <button

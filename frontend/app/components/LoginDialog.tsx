@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useGoogleLogin } from "@react-oauth/google";
 import { useAuth } from "../hooks/useAuth";
 import DialogComponent from "./DialogComponent";
 import LoginForm from "./auth/LoginForm";
@@ -33,6 +34,18 @@ export default function LoginDialog({ isOpen, closeDialog, onLoginSuccess }: { i
             setError("Google auth failed: No token received");
         }
     };
+
+    const googleLoginAction = useGoogleLogin({
+        onSuccess: (tokenResponse) => {
+            console.log("useGoogleLogin onSuccess (LoginDialog):", tokenResponse);
+            handleGoogleSuccess(tokenResponse);
+        },
+        onError: (error) => {
+            console.error("useGoogleLogin onError (LoginDialog):", error);
+            setError("Google Login Failed. Please try again.");
+        },
+        flow: 'implicit',
+    });
 
     const handleGuest = () => {
         sessionStorage.setItem('isGuest', 'true');
@@ -107,6 +120,14 @@ export default function LoginDialog({ isOpen, closeDialog, onLoginSuccess }: { i
     };
 
     const handleMigration = async (formData: FormData) => {
+        const method = formData.get('migrateMethod');
+        
+        // Skip email/password validation for Google OAuth
+        if (method === 'google-oauth') {
+            googleLoginAction();
+            return;
+        }
+
         const name = formData.get('name') as string;
         const email = formData.get('email') as string;
         const password = formData.get('password') as string;
@@ -125,6 +146,13 @@ export default function LoginDialog({ isOpen, closeDialog, onLoginSuccess }: { i
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const formData = new FormData(e.currentTarget);
+        
+        // Append submit button value to formData manually because new FormData(form) excludes it
+        const nativeEvent = e.nativeEvent as any;
+        if (nativeEvent.submitter && nativeEvent.submitter.name) {
+            formData.set(nativeEvent.submitter.name, nativeEvent.submitter.value);
+        }
+
         if (mode === 'login') handleLogin(formData);
         else if (mode === 'register') handleRegister(formData);
         else if (mode === 'code') handleLegacyCode(formData);
@@ -139,11 +167,7 @@ export default function LoginDialog({ isOpen, closeDialog, onLoginSuccess }: { i
 
                 {mode === 'login' && (
                     <LoginForm
-                        handleGoogleSuccess={handleGoogleSuccess}
-                        handleGoogleError={() => {
-                            console.error("Google Login Failed. Check origins in Google Cloud Console.");
-                            setError("Google Login Failed. Please try again.");
-                        }}
+                        onGoogleLoginClick={() => googleLoginAction()}
                         handleGuest={handleGuest}
                         setMode={setMode}
                     />
@@ -151,11 +175,7 @@ export default function LoginDialog({ isOpen, closeDialog, onLoginSuccess }: { i
 
                 {mode === 'register' && (
                     <RegisterForm
-                        handleGoogleSuccess={handleGoogleSuccess}
-                        handleGoogleError={() => {
-                            console.error("Google Login Failed. Check origins in Google Cloud Console.");
-                            setError("Google Login Failed. Please try again.");
-                        }}
+                        onGoogleLoginClick={() => googleLoginAction()}
                         setMode={setMode}
                     />
                 )}
@@ -168,8 +188,6 @@ export default function LoginDialog({ isOpen, closeDialog, onLoginSuccess }: { i
 
                 {mode === 'migrate' && (
                     <MigrateAccountForm
-                        handleGoogleSuccess={handleGoogleSuccess}
-                        handleGoogleError={() => setError("Google Login Failed")}
                         handleBackToLogin={() => {
                             localStorage.removeItem('userCode');
                             setMode('login');

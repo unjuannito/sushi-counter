@@ -39,7 +39,7 @@ export const register = async (req: Request, res: Response) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const id = generateId();
-    const code = 'MIGRATED_' + generateId(); // Block creation of usable usercodes
+    const code = null;
 
     await pool.query(
       "INSERT INTO users (id, code, name, email, password, token_version) VALUES (?, ?, ?, ?, ?, 0)",
@@ -223,11 +223,16 @@ export const googleLogin = async (req: Request, res: Response) => {
         return res.json({ success: false, errorMessage: "This Google account is already linked to another user" });
       }
 
+      // Mark code as migrated
+      const userToMigrate = rows[0];
+      const oldCode = userToMigrate.code;
+      const newCode = oldCode && !oldCode.startsWith('MIGRATED_') ? `MIGRATED_${oldCode}` : oldCode;
+
       await pool.query(
-        "UPDATE users SET google_id = ?, google_email = ?, email = COALESCE(email, ?), name = COALESCE(name, ?) WHERE id = ?",
-        [googleId, email, email, name, userId]
+        "UPDATE users SET google_id = ?, google_email = ?, email = COALESCE(email, ?), name = COALESCE(name, ?), code = ? WHERE id = ?",
+        [googleId, email, email, name, newCode, userId]
       );
-      
+
       const [updatedRows] = await pool.query<any[]>("SELECT * FROM users WHERE id = ?", [userId]);
       user = updatedRows[0];
     } else {
@@ -247,7 +252,7 @@ export const googleLogin = async (req: Request, res: Response) => {
         } else {
           // Create new user
           const id = generateId();
-          const code = 'MIGRATED_' + generateId();
+          const code = null;
           await pool.query(
             "INSERT INTO users (id, code, name, email, google_id, google_email, token_version) VALUES (?, ?, ?, ?, ?, ?, 0)",
             [id, code, name, email, googleId, email]
@@ -590,11 +595,21 @@ export const migrateAccount = async (req: Request, res: Response) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    
+
+    // GET user code
+    const [userCodeRows] = await pool.query<any[]>(
+      "SELECT code FROM users WHERE id = ?",
+      [userId]
+    );
+    if (userCodeRows.length === 0) {
+      return res.json({ success: false, errorMessage: "User not found" });
+    }
+    const userCode = userCodeRows[0].code;
+
     // Update existing user
     await pool.query(
-      "UPDATE users SET email = ?, password = ?, name = COALESCE(?, name) WHERE id = ?",
-      [email, hashedPassword, name, userId]
+      "UPDATE users SET code = ?, email = ?, password = ?, name = COALESCE(?, name) WHERE id = ?",
+      ['MIGRATED_'+userCode, email, hashedPassword, name, userId]
     );
 
     const [rows] = await pool.query<any[]>("SELECT * FROM users WHERE id = ?", [userId]);

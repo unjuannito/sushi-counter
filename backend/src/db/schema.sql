@@ -3,7 +3,7 @@
 -- Users table
 CREATE TABLE IF NOT EXISTS users (
   id TEXT PRIMARY KEY,
-  code TEXT NOT NULL,
+  code TEXT,
   name TEXT NOT NULL,
   email TEXT UNIQUE,
   password TEXT,

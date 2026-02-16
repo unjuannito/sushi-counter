@@ -32,12 +32,12 @@ async function addParticipant(tournamentId: string, userId: string): Promise<Res
 async function getFormatedTournamentsByIds(idList: string[]): Promise<Response> {
     try {
         if (idList.length === 0) return { success: true, tournaments: [] };
-        
+
         const placeholders = idList.map(() => '?').join(', ');
-        
+
         // Obtener los participantes
         const [participants] = await pool.query<any[]>(
-            `SELECT user_id, tournament_id, sushi_count, status FROM participants WHERE tournament_id IN (${placeholders})`,
+            `SELECT user_id, tournament_id, sushi_count, status FROM participants WHERE tournament_id IN (${placeholders}) AND NOT (status = 'left' AND sushi_count = 0)`,
             idList
         );
 

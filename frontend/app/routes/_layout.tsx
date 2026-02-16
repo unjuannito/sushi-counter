@@ -62,7 +62,7 @@ export default function Layout() {
   }, [user, showLoginDialog, showAuthRequired, loading, isGuest, location.pathname])
 
   if (loading) {
-    return <div className="loading-screen">Loading...</div>; // Or a better spinner
+    return <main className="flex-1 w-full overflow-y-auto flex justify-center items-center p-0 text-[2rem] font-bold">Loading...</main>; // Or a better spinner
   }
 
   const handleCloseLogin = (forceClose: boolean = false) => {

@@ -94,7 +94,7 @@ const migrateAll = async () => {
     migrateTable('users', `
       CREATE TABLE users_new (
         id TEXT PRIMARY KEY,
-        code TEXT NOT NULL,
+        code TEXT,
         name TEXT NOT NULL,
         email TEXT UNIQUE,
         password TEXT,

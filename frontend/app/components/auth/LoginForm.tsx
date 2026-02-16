@@ -1,34 +1,19 @@
-import { useGoogleLogin } from "@react-oauth/google";
 import atIcon from "../../assets/icons/auth/at.svg";
 import lockIcon from "../../assets/icons/auth/lock.svg";
 import googleIcon from "../../assets/icons/social/google.svg";
 import keyIcon from "../../assets/icons/auth/key.svg";
 
 interface LoginFormProps {
-    handleGoogleSuccess: (tokenResponse: any) => void;
-    handleGoogleError: () => void;
+    onGoogleLoginClick: () => void;
     handleGuest: () => void;
     setMode: (mode: 'register' | 'code') => void;
 }
 
 export default function LoginForm({
-    handleGoogleSuccess,
-    handleGoogleError,
+    onGoogleLoginClick,
     handleGuest,
     setMode
 }: LoginFormProps) {
-    const login = useGoogleLogin({
-        onSuccess: (tokenResponse) => {
-            console.log("useGoogleLogin onSuccess:", tokenResponse);
-            handleGoogleSuccess(tokenResponse);
-        },
-        onError: (error) => {
-            console.error("useGoogleLogin onError:", error);
-            handleGoogleError();
-        },
-        flow: 'implicit',
-    });
-
     return (
         <>
             <h2 className="mb-0 text-[1.75rem] font-extrabold text-center w-full">
@@ -57,7 +42,7 @@ export default function LoginForm({
             <span className="w-full flex items-center gap-4 my-2 opacity-50 before:h-px before:flex-1 before:bg-white/20 after:h-px after:flex-1 after:bg-white/20 text-[0.7rem] font-bold">OR</span>
 
 
-            <button type="button" className="flex items-center justify-center gap-3 w-full h-[44px] bg-white border border-[#ddd] rounded-[10px] text-[#222] text-[0.9rem] font-bold cursor-pointer transition-all duration-200 hover:bg-[#f5f5f5] shadow-sm" onClick={() => login()}>
+            <button type="button" className="flex items-center justify-center gap-3 w-full h-[44px] bg-white border border-[#ddd] rounded-[10px] text-[#222] text-[0.9rem] font-bold cursor-pointer transition-all duration-200 hover:bg-[#f5f5f5] shadow-sm" onClick={onGoogleLoginClick}>
                 <img src={googleIcon} width="20" height="20" alt="Google" />
                 Sign in with Google
             </button>

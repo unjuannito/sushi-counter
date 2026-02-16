@@ -1,34 +1,17 @@
-import { useGoogleLogin } from "@react-oauth/google";
 import googleIcon from "../../assets/icons/social/google.svg";
 import atIcon from "../../assets/icons/auth/at.svg";
 import lockIcon from "../../assets/icons/auth/lock.svg";
 import userPlusIcon from "../../assets/icons/auth/user-plus.svg";
 
 interface MigrateAccountFormProps {
-    handleGoogleSuccess: (tokenResponse: any) => void;
-    handleGoogleError: () => void;
     handleBackToLogin: () => void;
     defaultName?: string;
 }
 
 export default function MigrateAccountForm({
-    handleGoogleSuccess,
-    handleGoogleError,
     handleBackToLogin,
     defaultName
 }: MigrateAccountFormProps) {
-    const login = useGoogleLogin({
-        onSuccess: (tokenResponse) => {
-            console.log("useGoogleLogin onSuccess (Migrate):", tokenResponse);
-            handleGoogleSuccess(tokenResponse);
-        },
-        onError: (error) => {
-            console.error("useGoogleLogin onError (Migrate):", error);
-            handleGoogleError();
-        },
-        flow: 'implicit',
-    });
-
     return (
         <>
             <h2 className="mb-0 text-[1.75rem] font-extrabold text-center w-full">
@@ -54,13 +37,13 @@ export default function MigrateAccountForm({
 
             <p className="text-[0.75rem] text-[#888] mt-[-0.5rem] self-start">Min 8 chars, 1 uppercase, 1 number</p>
 
-            <button className="w-full p-[0.85rem] rounded-[10px] bg-[#444] text-white font-bold text-[1rem] cursor-pointer transition-all hover:bg-[#555]" type="submit">
+            <button className="w-full p-[0.85rem] rounded-[10px] bg-[#444] text-white font-bold text-[1rem] cursor-pointer transition-all hover:bg-[#555]" type="submit" name="migrateMethod" value="email-password">
                 Complete Migration
             </button>
 
             <span className="w-full flex items-center gap-4 my-2 opacity-50 before:h-px before:flex-1 before:bg-white/20 after:h-px after:flex-1 after:bg-white/20 text-[0.7rem] font-bold">OR</span>
 
-            <button type="button" className="flex items-center justify-center gap-3 w-full h-[44px] bg-white border border-[#ddd] rounded-[10px] text-[#222] text-[0.9rem] font-bold cursor-pointer transition-all duration-200 hover:bg-[#f5f5f5] shadow-sm" onClick={() => login()}>
+            <button type="submit" formNoValidate name="migrateMethod" value="google-oauth" className="flex items-center justify-center gap-3 w-full h-[44px] bg-white border border-[#ddd] rounded-[10px] text-[#222] text-[0.9rem] font-bold cursor-pointer transition-all duration-200 hover:bg-[#f5f5f5] shadow-sm">
                 <img src={googleIcon} width="20" height="20" alt="Google" />
                 Link with Google
             </button>
