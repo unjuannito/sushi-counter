@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { pool } from "../db/db";
 import generateId from "../utils/generateId";
-import { addParticipant, getFormatedTournamentsByIds, tournamentExists } from "../services/tournamentServices";
+import { addParticipant, getFormatedTournamentsByIds, tournamentExists, leaveTournamentService } from "../services/tournamentServices";
 import { notifyClients } from "../websocket/websocketServer";
 import { User } from "../types/userType";
 
@@ -48,67 +48,28 @@ export const leaveTournament = async (req: Request, res: Response) => {
   }
 
   try {
-    // Check if the user is in the tournament and get their sushi_count
-    const [rows] = await pool.query<any[]>(
-      "SELECT sushi_count FROM participants WHERE user_id = ? AND tournament_id = ?",
-      [userId, tournamentId]
-    );
+    const result = await leaveTournamentService(userId, tournamentId);
 
-    if (rows.length === 0) {
+    if (!result.success) {
       return res.json({
         success: false,
-        errorMessage: "User is not a participant in this tournament",
+        errorMessage: result.errorMessage,
       });
     }
 
-    const { sushi_count } = rows[0];
-    let tournamentDeleted = false;
-
-    // Check if user is owner
-    const [tournamentRows] = await pool.query<any[]>(
-      "SELECT owner_id FROM tournaments WHERE id = ?",
-      [tournamentId]
-    );
-    const isOwner = tournamentRows.length > 0 && tournamentRows[0].owner_id === userId;
-
-    if (isOwner) {
-      // Find new owner among active participants
-      const [candidates] = await pool.query<any[]>(
-        "SELECT user_id FROM participants WHERE tournament_id = ? AND user_id != ? AND status != 'left' ORDER BY sushi_count DESC LIMIT 1",
-        [tournamentId, userId]
-      );
-
-      if (candidates.length > 0) {
-        await pool.query(
-          "UPDATE tournaments SET owner_id = ? WHERE id = ?",
-          [candidates[0].user_id, tournamentId]
-        );
-      } else {
-        // No active participants to take over.
-        await pool.query("DELETE FROM tournaments WHERE id = ?", [tournamentId]);
-        tournamentDeleted = true;
-        
-        notifyClients('delete');
-        return res.json({
-          success: true,
-          message: "Tournament deleted because owner left and no active participants remained",
-          tournamentDeleted: true
-        });
-      }
+    if (result.action === 'delete') {
+      notifyClients('delete');
+      return res.json({
+        success: true,
+        message: result.message,
+        tournamentDeleted: true
+      });
     }
 
-    // Always set status to 'left' to allow rejoining with same stats, regardless of sushi_count
-    await pool.query(
-      "UPDATE participants SET status = 'left' WHERE user_id = ? AND tournament_id = ?",
-      [userId, tournamentId]
-    );
-
-    console.log(`[Tournaments] Participant leaving tournament ${tournamentId}. User: ${userId}`);
     notifyClients('update');
-
     return res.json({
       success: true,
-      message: "Participant status set to left",
+      message: result.message,
       tournamentDeleted: false
     });
   } catch (err: any) {
