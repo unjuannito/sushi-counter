@@ -52,8 +52,13 @@ export class ApiService {
                     const refreshToken = ApiService.getRefreshToken();
                     if (refreshToken) {
                         try {
-                            // Use axiosInstance to ensure same config/basePath
-                            const response = await axios.post(`${this.baseUrl}/auth/refresh-token`, { refreshToken });
+                            // Used global axios to prevent infinite loops, but we must pass the CSRF headers manually
+                            const response = await axios.post(`${this.baseUrl}/auth/refresh-token`, { refreshToken }, {
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-Requested-With': 'XMLHttpRequest'
+                                }
+                            });
                             if (response.data.success) {
                                 const { token: newToken, refreshToken: newRefreshToken } = response.data;
                                 ApiService.setToken(newToken);
