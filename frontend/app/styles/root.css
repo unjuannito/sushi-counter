@@ -26,6 +26,8 @@
     min-width: 100dvw;
     min-height: 100vh;
     min-height: 100dvh;
+    height: 100vh;
+    height: 100dvh;
     overflow-x: hidden;
     font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
     line-height: 1.5;
@@ -54,7 +56,8 @@
     -webkit-user-select: none;
   }
 
-  input, textarea {
+  input,
+  textarea {
     user-select: text;
     -webkit-user-select: text;
   }
@@ -65,7 +68,7 @@
     text-align: center;
   }
 
-  /* --- Solución profesional para artefactos de autofill en Chrome --- */
+  /* --- Professional solution for autofill artifacts in Chrome --- */
 
   :root {
     --input-border-radius: 10px;
@@ -76,26 +79,26 @@
   input:-webkit-autofill:focus,
   input:-webkit-autofill:active {
     /*
-       1. CAUSA TÉCNICA:
-       Chrome aplica el fondo de autofill mediante una capa interna del User Agent (UA)
-       que se renderiza de forma independiente al flujo normal de fondos de CSS.
-       Esta capa no siempre respeta el 'clipping path' del border-radius del elemento,
-       causando artefactos visuales en las esquinas.
+       1. TECHNICAL CAUSE:
+       Chrome applies the autofill background through an internal layer of the User Agent (UA)
+       that renders independently of the normal CSS background flow.
+       This layer does not always respect the 'clipping path' of the element's border-radius,
+       causing visual artifacts at the corners.
     */
 
-    /* 2. IMPLEMENTACIÓN SIN HACKS DE BOX-SHADOW O TRANSITION: */
+    /* 2. IMPLEMENTATION WITHOUT BOX-SHADOW OR TRANSITION HACKS: */
 
-    /* Forzamos al navegador a usar su paleta oscura para autofill */
+    /* Force the browser to use its dark palette for autofill */
     color-scheme: dark !important;
 
-    /* Recorte manual de la capa de autofill para eliminar artefactos en las esquinas */
+    /* Manual clipping of the autofill layer to remove corner artifacts */
     clip-path: inset(0 round var(--input-border-radius));
 
-    /* Aseguramos la visibilidad del texto y el cursor */
+    /* Ensure text and cursor visibility */
     -webkit-text-fill-color: white !important;
     caret-color: white !important;
 
-    /* Evitamos que el fondo se extienda bajo el borde */
+    /* Prevent the background from extending under the border */
     background-clip: padding-box !important;
   }
 }

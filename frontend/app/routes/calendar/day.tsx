@@ -1,10 +1,10 @@
 import { useCalendar } from "~/hooks/useCalendar";
-import type { Route } from "./+types";
-import { MONTHS } from "~/utils/constants";
+import type { Route } from './+types/day';
+import { APP_CONSTANTS } from "~/utils/constants";
 import { useNavigate, useParams } from "react-router";
-import AddLogDialog from "~/components/AddLogDialog";
+import AddLogDialog from "~/components/calendar/AddLogDialog";
 import { use, useEffect, useState } from "react";
-import { formatDateTime } from "~/utils/formatDateTime";
+import { formatDateTime } from "~/utils/date";
 import type { Logs } from "~/types/calendarType";
 import deleteIcon from "~/assets/icons/ui/trash.svg";
 
@@ -53,7 +53,7 @@ export default function Day() {
 
     const handleDeleteLog = (logId: string, createdAt: string) => {
         deleteLog(logId);
-        //si es el q esta en localstorage, ponerlo a cero
+        // If it's the one in localStorage, set it to zero
         const sushiCounter = localStorage.getItem("sushiCounter");
         if (sushiCounter) {
             const parsed = JSON.parse(sushiCounter);
@@ -72,42 +72,40 @@ export default function Day() {
     };
 
     return (
-        <>
+        <main className="flex-1 w-full max-w-[400px] mx-auto flex flex-col gap-4 p-4 items-center">
             <AddLogDialog open={showAddLogDialog} setShowAddLogDialog={setShowAddLogDialog} day={day} upsertLog={upsertLog} />
-            <div className="w-full max-w-[400px] p-4 flex flex-col gap-3">
-                <h1 className="text-center m-0 text-6xl font-bold my-8 mb-1">
-                    {dayPart}<br />
-                    {MONTHS[Number(monthPart) - 1]}
-                    <br />
-                    {yearPart}
-                </h1>
-                <article className="flex flex-col gap-4 w-full overflow-y-auto p-2">
-                    {logs.length === 0 && <p className="text-center text-xl font-medium text-white/50">No sushi eaten this day.</p>}
-                    {
-                        logs.sort((a, b) => a.createdAt.localeCompare(b.createdAt)).map((log) => (
-                            <article key={log.id}
-                                className="grid grid-cols-[10fr_4fr_1fr] gap-2 p-4 border border-white/10 rounded-xl bg-white/5 items-center"
-                            >
-                                <span className="text-xl font-bold text-left justify-self-start">
-                                    {formatDateTime(log.createdAt)}                                </span>
-                                <span className="text-xl font-medium text-center">
-                                    {log.sushiCount} 🍣
-                                </span>
+            <h1 className="text-center m-0 text-6xl font-bold my-8 mb-1">
+                {dayPart}<br />
+                {APP_CONSTANTS.MONTHS[Number(monthPart) - 1]}
+                <br />
+                {yearPart}
+            </h1>
+            <article className="flex flex-col gap-4 w-full overflow-y-auto p-2">
+                {logs.length === 0 && <p className="text-center text-xl font-medium text-white/50">No sushi eaten this day.</p>}
+                {
+                    logs.sort((a, b) => a.createdAt.localeCompare(b.createdAt)).map((log) => (
+                        <article key={log.id}
+                            className="grid grid-cols-[10fr_4fr_1fr] gap-2 p-4 border border-white/10 rounded-xl bg-white/5 items-center"
+                        >
+                            <span className="text-xl font-bold text-left justify-self-start">
+                                {formatDateTime(log.createdAt)}                                </span>
+                            <span className="text-xl font-medium text-center">
+                                {log.sushiCount} 🍣
+                            </span>
 
-                                <img src={deleteIcon} alt="Delete log" onClick={() => handleDeleteLog(log.id, log.createdAt)}
-                                    className=" h-full w-auto cursor-pointer"
-                                />
-                            </article>
-                        ))
-                    }
-                    <button onClick={() => setShowAddLogDialog(true)}
-                        className="p-2 border border-white/10 rounded-xl bg-white/5 text-center text-xl font-bold text-white"
-                    >
-                        Add Log
-                    </button>
+                            <img src={deleteIcon} alt="Delete log" onClick={() => handleDeleteLog(log.id, log.createdAt)}
+                                className=" h-full w-auto cursor-pointer"
+                            />
+                        </article>
+                    ))
+                }
+                <button onClick={() => setShowAddLogDialog(true)}
+                    className="p-2 border border-white/10 rounded-xl bg-white/5 text-center text-xl font-bold text-white"
+                >
+                    Add Log
+                </button>
 
-                </article>
-            </div>
-        </>
+            </article>
+        </main>
     );
 }

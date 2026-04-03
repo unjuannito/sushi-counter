@@ -8,4 +8,6 @@ export type User = {
     isGoogleLinked?: boolean;
     googleEmail?: string;
     hasPassword?: boolean;
+    deletionRequestedAt?: string | null;
+    accountDeletionDays?: number;
 };

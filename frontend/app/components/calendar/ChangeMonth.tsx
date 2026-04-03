@@ -1,4 +1,4 @@
-import DialogComponent from "./DialogComponent";
+import DialogComponent from "~/components/DialogComponent";
 
 export default function ChangeMonth({ open, changeMonth, setIsDialogOpen }: { open: boolean, changeMonth: (month: string) => void, setIsDialogOpen: (open: boolean) => void }) {
 

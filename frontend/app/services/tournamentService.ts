@@ -1,7 +1,7 @@
 import { ApiService } from './apiService';
 import type { Tournament } from '~/types/tournamentType';
 import type { Response } from '~/types/responseType';
-import WebSocketService from '~/services/webSocketService';  // Importa el singleton WS
+import WebSocketService from '~/services/webSocketService';  // Import the WS singleton
 
 export class TournamentService extends ApiService {
   private webSocketService = WebSocketService.getInstance();
@@ -16,7 +16,7 @@ export class TournamentService extends ApiService {
       }
     } catch (error) {
       const errorMessage =
-        error instanceof Error ? error.message : 'Error desconocido al crear torneo';
+        error instanceof Error ? error.message : 'Unknown error while creating tournament';
       return { success: false, errorMessage };
     }
   }
@@ -34,7 +34,7 @@ export class TournamentService extends ApiService {
       }
     } catch (error) {
       const errorMessage =
-        error instanceof Error ? error.message : 'Error desconocido al unirse al torneo';
+        error instanceof Error ? error.message : 'Unknown error while joining tournament';
       return { success: false, errorMessage };
     }
   }
@@ -49,7 +49,7 @@ export class TournamentService extends ApiService {
       }
     } catch (error) {
       const errorMessage =
-        error instanceof Error ? error.message : 'Error desconocido al obtener torneo';
+        error instanceof Error ? error.message : 'Unknown error while getting tournament';
       return { success: false, errorMessage };
     }
   }
@@ -95,7 +95,7 @@ export class TournamentService extends ApiService {
       }
     } catch (error) {
       const errorMessage =
-        error instanceof Error ? error.message : 'Error desconocido al unirse al torneo';
+        error instanceof Error ? error.message : 'Unknown error while updating sushi count';
       return { success: false, errorMessage };
     }
   }
@@ -114,7 +114,7 @@ export class TournamentService extends ApiService {
       }
     } catch (error) {
       const errorMessage =
-        error instanceof Error ? error.message : 'Error desconocido al unirse al torneo';
+        error instanceof Error ? error.message : 'Unknown error while updating status';
       return { success: false, errorMessage };
     }
   }
@@ -130,7 +130,7 @@ export class TournamentService extends ApiService {
       }
     } catch (error) {
       const errorMessage =
-        error instanceof Error ? error.message : 'Error desconocido al unirse al torneo';
+        error instanceof Error ? error.message : 'Unknown error while deleting tournament';
       return { success: false, errorMessage };
     }
   }
@@ -148,7 +148,7 @@ export class TournamentService extends ApiService {
       }
     } catch (error) {
       const errorMessage =
-        error instanceof Error ? error.message : 'Error desconocido al abandonar el torneo';
+        error instanceof Error ? error.message : 'Unknown error while leaving tournament';
       return { success: false, errorMessage };
     }
   }

@@ -1,6 +1,6 @@
 # Guía Técnica: Sistema de Autenticación JWT y Google OAuth
 
-Este documento detalla el flujo de autenticación, la migración de usercodes y los procedimientos de seguridad implementados.
+Este documento detalla el flujo de autenticación y los procedimientos de seguridad implementados.
 
 ## 1. Flujo de Autenticación JWT
 
@@ -26,23 +26,11 @@ Se utiliza `google-auth-library` para validar la identidad de los usuarios.
 - Se realiza una validación cruzada: se busca al usuario por su `google_id` o `email` verificado por Google.
 - Si el usuario no existe, se crea uno nuevo con una `token_version` inicial de 0.
 
-## 3. Migración de Usercodes a JWT
-
-El uso de `userCode` ha sido eliminado de todas las operaciones normales y solo se mantiene para la migración.
-
-### Pasos para la migración gradual:
-1. **Detección**: El frontend identifica si el usuario tiene un `userCode` guardado pero no un JWT.
-2. **Verificación**: El frontend llama a `/api/auth/verify/:userCode` para confirmar la existencia de la cuenta antigua.
-3. **Vinculación**: El usuario elige migrar su cuenta creando una contraseña o vinculando su cuenta de Google.
-4. **Actualización**: El backend actualiza el registro del usuario con el nuevo `email`/`password` o `google_id`, e invalida la posibilidad de usar el `userCode` para futuras creaciones marcándolo internamente.
-5. **Transición**: Una vez migrado, el `userCode` se mantiene en la DB por referencia histórica pero no se utiliza para autenticación.
-
-## 4. Medidas de Seguridad
+## 3. Medidas de Seguridad
 
 - **Invalidación de Sesiones**: El endpoint `/api/auth/logout` incrementa la `token_version`, cerrando sesión en todos los dispositivos.
 - **Protección CSRF**: Al usar el header `Authorization`, las solicitudes están protegidas contra CSRF estándar ya que los navegadores no envían este header automáticamente en peticiones de otros sitios.
 - **Cifrado**: Los tokens están firmados con algoritmos HS256 utilizando secretos configurados en variables de entorno.
-- **Bloqueo de Usercodes**: Se ha bloqueado la generación de nuevos usercodes legibles; ahora se generan con un prefijo `MIGRATED_` que no es aceptado por las rutas antiguas de verificación si se deseara restringir más.
 
 ## 5. Procedimientos de Emergencia
 

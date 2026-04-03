@@ -3,7 +3,7 @@ import type { Tournament } from '~/types/tournamentType';
 import { TournamentService } from "~/services/tournamentService";
 import { useAuth } from "./useAuth";
 import { useNavigate } from "react-router";
-import WebSocketService from '~/services/webSocketService'; // Importa tu servicio WebSocket
+import WebSocketService from '~/services/webSocketService'; // Import your WebSocket service
 
 export function useUserTournaments() {
     const { user } = useAuth();
@@ -40,30 +40,30 @@ export function useUserTournaments() {
             });
     }, [user, reloading]);
 
-    // ** Efecto para mantener currentTournament actualizado cuando cambia la lista de torneos **
+    // ** Effect to keep currentTournament updated when the tournament list changes **
     useEffect(() => {
         if (currentTournament) {
             const updated = tournaments.find(t => t.id === currentTournament.id);
             if (updated) {
-                console.log(`[WS Hook] Actualizando currentTournament (ID: ${currentTournament.id}) tras cambio en tournaments`);
+                console.log(`[WS Hook] Updating currentTournament (ID: ${currentTournament.id}) after tournaments change`);
                 setCurrentTournament(updated);
             }
         }
     }, [tournaments]);
 
-    // ** Nuevo useEffect para WebSocket **
+    // ** New useEffect for WebSocket **
     useEffect(() => {
         if (!user) return;
 
         const webSocketService = WebSocketService.getInstance();
 
-        // Conectamos (si no está conectado)
+        // Connect (if not connected)
         webSocketService.connect();
 
-        // Listener para el evento 'update' (o el evento que mande el WS)
+        // Listener for the 'update' event (or the event sent by the WS)
         const handleUpdateMessage = (event: string, message: any) => {
-            console.log(`[WS Hook] Evento "${event}" recibido. Datos:`, message);
-            console.log('[WS Hook] Forzando recarga de torneos...');
+            console.log(`[WS Hook] Event "${event}" received. Data:`, message);
+            console.log('[WS Hook] Forcing tournament reload...');
             setReloading(prev => prev + 1);
         };
 
@@ -71,14 +71,14 @@ export function useUserTournaments() {
         const onJoin = (data: any) => handleUpdateMessage('join', data);
         const onDelete = (data: any) => handleUpdateMessage('delete', data);
 
-        console.log('[WS Hook] Registrando listeners para "update", "join", "delete"');
+        console.log('[WS Hook] Registering listeners for "update", "join", "delete"');
         webSocketService.listenToEvent('update', onUpdate);
         webSocketService.listenToEvent('join', onJoin);
         webSocketService.listenToEvent('delete', onDelete);
 
-        // Cleanup: quitar el listener al desmontar
+        // Cleanup: remove listener on unmount
         return () => {
-            console.log('[WS Hook] Limpiando listeners');
+            console.log('[WS Hook] Cleaning up listeners');
             webSocketService.stopListening('update', onUpdate);
             webSocketService.stopListening('join', onJoin);
             webSocketService.stopListening('delete', onDelete);

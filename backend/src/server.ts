@@ -3,6 +3,7 @@ import { config } from "./config/config";
 import { createApp } from "./app";
 import { initWebSocket } from "./websocket/websocketServer";
 import { runMigrations } from "./db/migrations";
+import { initScheduler } from "./services/scheduler";
 
 // Run database migrations
 runMigrations();
@@ -12,6 +13,9 @@ const server = http.createServer(app);
 
 // init WebSocket
 initWebSocket(server);
+
+// Initialize background tasks
+initScheduler();
 
 // Escuchar en puerto configurado
 server.listen(config.port, () => {

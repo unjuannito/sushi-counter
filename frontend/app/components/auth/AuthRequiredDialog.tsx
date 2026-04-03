@@ -1,13 +1,21 @@
+import { useLocation, useNavigate } from "react-router";
 import DialogComponent from "../DialogComponent";
 import lockIcon from "../../assets/icons/auth/lock.svg";
 
 interface AuthRequiredDialogProps {
     isOpen: boolean;
-    onLogin: () => void;
     onCancel: () => void;
 }
 
-export default function AuthRequiredDialog({ isOpen, onLogin, onCancel }: AuthRequiredDialogProps) {
+export default function AuthRequiredDialog({ isOpen, onCancel }: AuthRequiredDialogProps) {
+    const location = useLocation();
+    const navigate = useNavigate();
+
+    const handleLoginRedirect = () => {
+        const redirectTo = encodeURIComponent(location.pathname + location.search);
+        navigate(`/login?redirectTo=${redirectTo}`);
+    };
+
     return (
         <DialogComponent isOpen={isOpen} onClose={onCancel}>
             <div className="p-6 text-center flex flex-col items-center gap-6">
@@ -20,25 +28,25 @@ export default function AuthRequiredDialog({ isOpen, onLogin, onCancel }: AuthRe
                         Login Required
                     </h2>
                     <p className="text-[#bbb] text-[0.95rem]">
-                        Para acceder a esta funcionalidad, necesitas tener una cuenta.
+                        To access this feature, you need an account.
                     </p>
                     <p className="text-[0.8rem] text-[#888]">
-                        Inicia sesión para guardar tu historial, ver estadísticas detalladas y participar en torneos.
+                        Log in to save your history, view detailed statistics, and participate in tournaments.
                     </p>
                 </div>
 
                 <div className="flex flex-col w-full gap-3 mt-2">
                     <button
-                        onClick={onLogin}
+                        onClick={handleLoginRedirect}
                         className="w-full p-[0.85rem] rounded-[10px] bg-[#444] text-white font-bold text-[1rem] cursor-pointer transition-all hover:bg-[#555]"
                     >
-                        Iniciar Sesión / Registrarse
+                        Login / Register
                     </button>
                     <button
                         onClick={onCancel}
                         className="text-[#888] text-[0.85rem] cursor-pointer hover:text-white transition-colors bg-transparent border-none p-0 mt-1"
                     >
-                        No, volver al inicio
+                        No, go back
                     </button>
                 </div>
             </div>

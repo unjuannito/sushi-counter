@@ -3,7 +3,6 @@
 -- Users table
 CREATE TABLE IF NOT EXISTS users (
   id TEXT PRIMARY KEY,
-  code TEXT,
   name TEXT NOT NULL,
   email TEXT UNIQUE,
   password TEXT,
@@ -12,7 +11,8 @@ CREATE TABLE IF NOT EXISTS users (
   reset_token TEXT,
   reset_token_expiry TEXT,
   token_version INTEGER DEFAULT 0,
-  refresh_token TEXT
+  refresh_token TEXT,
+  deletion_requested_at TEXT
 );
 
 -- Login activity table

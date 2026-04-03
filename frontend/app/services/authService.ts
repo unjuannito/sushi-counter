@@ -12,16 +12,6 @@ export interface AuthResponse {
 }
 
 export class AuthService extends ApiService {
-    public async verifyUser(userCode: string): Promise<Response> {
-        try {
-            const response: Response = await this.get(`/auth/verify/${userCode}`);
-            return response;
-        } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
-            return { success: false, errorMessage };
-        }
-    }
-
     public async register(name: string, email: string, password: string): Promise<Response> {
         try {
             const response: Response = await this.post(`/auth/register`, { name, email, password });
@@ -42,9 +32,9 @@ export class AuthService extends ApiService {
         }
     }
 
-    public async googleLogin(credential: string, userId?: string): Promise<Response> {
+    public async googleLogin(credential: string): Promise<Response> {
         try {
-            const response: Response = await this.post(`/auth/google`, { credential, userId });
+            const response: Response = await this.post(`/auth/google`, { credential });
             return response;
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
@@ -65,16 +55,6 @@ export class AuthService extends ApiService {
     public async resetPassword(token: string, newPassword: string): Promise<Response> {
         try {
             const response: Response = await this.post(`/auth/reset-password`, { token, newPassword });
-            return response;
-        } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
-            return { success: false, errorMessage };
-        }
-    }
-
-    public async migrateAccount(data: any): Promise<Response> {
-        try {
-            const response: Response = await this.post(`/auth/migrate-account`, data);
             return response;
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
@@ -115,6 +95,26 @@ export class AuthService extends ApiService {
     public async updateProfile(data: { name?: string; email?: string; password?: string; currentPassword?: string }): Promise<Response> {
         try {
             const response: Response = await this.put(`/auth/profile`, data);
+            return response;
+        } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+            return { success: false, errorMessage };
+        }
+    }
+
+    public async requestDeletion(): Promise<Response> {
+        try {
+            const response: Response = await this.post(`/auth/request-deletion`, {});
+            return response;
+        } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+            return { success: false, errorMessage };
+        }
+    }
+
+    public async cancelDeletion(): Promise<Response> {
+        try {
+            const response: Response = await this.post(`/auth/cancel-deletion`, {});
             return response;
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';

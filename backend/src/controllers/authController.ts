@@ -1,11 +1,12 @@
 import { Request, Response } from "express";
 import { pool } from "../db/db";
 import generateId from "../utils/generateId";
-import { getUserByCode, getUserByEmail, getUserByGoogleId, logLoginActivity } from "../services/userSevices";
+import { getUserByEmail, getUserByGoogleId, logLoginActivity } from "../services/userSevices";
 import { User } from "../types/userType";
 import bcrypt from "bcryptjs";
 import { generateToken, generateRefreshToken, verifyRefreshToken } from "../utils/auth";
 import { OAuth2Client } from "google-auth-library";
+import { config } from "../config/config";
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -39,14 +40,13 @@ export const register = async (req: Request, res: Response) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const id = generateId();
-    const code = null;
 
     await pool.query(
-      "INSERT INTO users (id, code, name, email, password, token_version) VALUES (?, ?, ?, ?, ?, 0)",
-      [id, code, name, email, hashedPassword]
+      "INSERT INTO users (id, name, email, password, token_version) VALUES (?, ?, ?, ?, 0)",
+      [id, name, email, hashedPassword]
     );
 
-    const user: User = { id, code, name, email, token_version: 0 };
+    const user: User = { id, name, email, token_version: 0 };
     const token = generateToken(user);
     const refreshToken = generateRefreshToken(user);
 
@@ -210,58 +210,30 @@ export const googleLogin = async (req: Request, res: Response) => {
 
     let user: User;
 
-    if (userId) {
-      // Migration mode: Link Google to existing legacy userId
-      const [rows] = await pool.query<any[]>("SELECT * FROM users WHERE id = ?", [userId]);
-      if (rows.length === 0) {
-        return res.json({ success: false, errorMessage: "User to migrate not found" });
-      }
+    // Normal login/register mode
+    let userResult = await getUserByGoogleId(googleId);
 
-      // Check if this Google account is already linked to ANOTHER user
-      const existingGoogleUser = await getUserByGoogleId(googleId);
-      if (existingGoogleUser.success && existingGoogleUser.user && existingGoogleUser.user.id !== userId) {
-        return res.json({ success: false, errorMessage: "This Google account is already linked to another user" });
-      }
-
-      // Mark code as migrated
-      const userToMigrate = rows[0];
-      const oldCode = userToMigrate.code;
-      const newCode = oldCode && !oldCode.startsWith('MIGRATED_') ? `MIGRATED_${oldCode}` : oldCode;
-
-      await pool.query(
-        "UPDATE users SET google_id = ?, google_email = ?, email = COALESCE(email, ?), name = COALESCE(name, ?), code = ? WHERE id = ?",
-        [googleId, email, email, name, newCode, userId]
-      );
-
-      const [updatedRows] = await pool.query<any[]>("SELECT * FROM users WHERE id = ?", [userId]);
-      user = updatedRows[0];
-    } else {
-      // Normal login/register mode
-      let userResult = await getUserByGoogleId(googleId);
-
-      if (!userResult.success) {
-        // Check if user exists with this email
-        const emailResult = await getUserByEmail(email!);
-        if (emailResult.success && emailResult.user) {
-          // Link Google account to existing email account
-          user = emailResult.user;
-          await pool.query(
-            "UPDATE users SET google_id = ?, google_email = ? WHERE id = ?",
-            [googleId, email, user.id]
-          );
-        } else {
-          // Create new user
-          const id = generateId();
-          const code = null;
-          await pool.query(
-            "INSERT INTO users (id, code, name, email, google_id, google_email, token_version) VALUES (?, ?, ?, ?, ?, ?, 0)",
-            [id, code, name, email, googleId, email]
-          );
-          user = { id, code, name: name!, email: email!, google_id: googleId, google_email: email!, token_version: 0 };
-        }
+    if (!userResult.success) {
+      // Check if user exists with this email
+      const emailResult = await getUserByEmail(email!);
+      if (emailResult.success && emailResult.user) {
+        // Link Google account to existing email account
+        user = emailResult.user;
+        await pool.query(
+          "UPDATE users SET google_id = ?, google_email = ? WHERE id = ?",
+          [googleId, email, user.id]
+        );
       } else {
-        user = userResult.user!;
+        // Create new user
+        const id = generateId();
+        await pool.query(
+          "INSERT INTO users (id, name, email, google_id, google_email, token_version) VALUES (?, ?, ?, ?, ?, 0)",
+          [id, name, email, googleId, email]
+        );
+        user = { id, name: name!, email: email!, google_id: googleId, google_email: email!, token_version: 0 };
       }
+    } else {
+      user = userResult.user!;
     }
 
     const token = generateToken(user);
@@ -286,7 +258,7 @@ export const getMe = async (req: Request, res: Response) => {
 
   try {
     const [rows] = await pool.query<any[]>(
-      "SELECT id, code, name, email, google_id, google_email, password FROM users WHERE id = ?",
+      "SELECT id, name, email, google_id, google_email, password, deletion_requested_at FROM users WHERE id = ?",
       [userId]
     );
     if (rows.length === 0) {
@@ -302,7 +274,9 @@ export const getMe = async (req: Request, res: Response) => {
         email: user.email,
         isGoogleLinked: !!user.google_id,
         googleEmail: user.google_email,
-        hasPassword: !!user.password
+        hasPassword: !!user.password,
+        deletionRequestedAt: user.deletion_requested_at,
+        accountDeletionDays: config.accountDeletionDays
       }
     });
   } catch (err: any) {
@@ -470,31 +444,6 @@ export const createAccount = async (req: Request, res: Response) => {
   });
 };
 
-export const verifyUser = async (req: Request, res: Response) => {
-  // Only for migration purposes
-  const { userCode } = req.params;
-
-  if (userCode.startsWith('MIGRATED_')) {
-    return res.json({
-      success: false,
-      errorMessage: "This account is already migrated or is a new JWT-based account.",
-    });
-  }
-
-  const reqUser = await getUserByCode(userCode);
-  if (!reqUser.success || !reqUser.user) {
-    return res.json({
-      success: false,
-      errorMessage: `Error during verifying user for migration. ${reqUser.errorMessage} `,
-    });
-  }
-  const user: User = reqUser.user;
-  return res.json({
-    success: true,
-    user: { id: user.id, name: user.name } // Only return what's necessary for migration UI
-  });
-};
-
 export const forgotPassword = async (req: Request, res: Response) => {
   const { email } = req.body;
   try {
@@ -565,65 +514,22 @@ export const resetPassword = async (req: Request, res: Response) => {
   }
 };
 
-export const migrateAccount = async (req: Request, res: Response) => {
-  const { userId, email, password, name } = req.body;
-
-  if (!userId || !email || !password) {
-    return res.json({ success: false, errorMessage: "Missing required fields" });
-  }
-
-  // Email format validation
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(email)) {
-    return res.json({ success: false, errorMessage: "Invalid email format" });
-  }
-
-  // Password requirements
-  const passwordRegex = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
-  if (!passwordRegex.test(password)) {
-    return res.json({
-      success: false,
-      errorMessage: "Password must be at least 8 characters long, contain at least one uppercase letter and one number"
-    });
-  }
-
+export const requestDeletion = async (req: Request, res: Response) => {
+  const userId = (req as any).user.id;
   try {
-    // Check if email is already in use
-    const existingUser = await getUserByEmail(email);
-    if (existingUser.success) {
-      return res.json({ success: false, errorMessage: "Email already registered to another account" });
-    }
+    const timestamp = new Date().toISOString();
+    await pool.query("UPDATE users SET deletion_requested_at = ? WHERE id = ?", [timestamp, userId]);
+    return res.json({ success: true, message: "Account scheduled for deletion.", deletionRequestedAt: timestamp });
+  } catch (err: any) {
+    return res.json({ success: false, errorMessage: err.message });
+  }
+};
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // GET user code
-    const [userCodeRows] = await pool.query<any[]>(
-      "SELECT code FROM users WHERE id = ?",
-      [userId]
-    );
-    if (userCodeRows.length === 0) {
-      return res.json({ success: false, errorMessage: "User not found" });
-    }
-    const userCode = userCodeRows[0].code;
-
-    // Update existing user
-    await pool.query(
-      "UPDATE users SET code = ?, email = ?, password = ?, name = COALESCE(?, name) WHERE id = ?",
-      ['MIGRATED_'+userCode, email, hashedPassword, name, userId]
-    );
-
-    const [rows] = await pool.query<any[]>("SELECT * FROM users WHERE id = ?", [userId]);
-    const user = rows[0];
-
-    const token = generateToken(user);
-    const refreshToken = generateRefreshToken(user);
-
-    return res.json({
-      success: true,
-      user: { id: user.id, name: user.name, email: user.email },
-      token,
-      refreshToken
-    });
+export const cancelDeletion = async (req: Request, res: Response) => {
+  const userId = (req as any).user.id;
+  try {
+    await pool.query("UPDATE users SET deletion_requested_at = NULL WHERE id = ?", [userId]);
+    return res.json({ success: true, message: "Account deletion cancelled." });
   } catch (err: any) {
     return res.json({ success: false, errorMessage: err.message });
   }

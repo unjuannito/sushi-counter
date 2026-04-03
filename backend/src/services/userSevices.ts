@@ -41,28 +41,6 @@ export const getUsersByIds = async (userIds: string[]) => {
     return { success: false, errorMessage: "User not found" };
 };
 
-export const getUserByCode = async (userCode: string) => {
-    try{
-    const [rows] = await pool.query<any[]>(
-        "SELECT * FROM users WHERE code = ? LIMIT 1",
-        [userCode]
-    );
-    if (rows.length > 0) {
-        return {
-            success: true,
-            user: rows[0] as User
-        };
-    }
-    return { success: false, errorMessage: "User not found" };
-
-  } catch (err: any) {
-    return {
-      success: false,
-      errorMessage: err.message,
-    };
-  }
-}
-
 export const getUserByEmail = async (email: string) => {
     try {
         const [rows] = await pool.query<any[]>(

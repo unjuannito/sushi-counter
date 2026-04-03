@@ -19,14 +19,11 @@ authRouter.post("/login", authLimiter, authController.login);
 authRouter.post("/google", authLimiter, authController.googleLogin);
 authRouter.post("/forgot-password", authLimiter, authController.forgotPassword);
 authRouter.post("/reset-password", authLimiter, authController.resetPassword);
-authRouter.post("/migrate-account", authLimiter, authController.migrateAccount);
 authRouter.post("/refresh-token", authController.refreshToken);
 authRouter.post("/logout", authMiddleware, authController.logout);
 authRouter.get("/me", authMiddleware, authController.getMe);
 authRouter.post("/link-google", authMiddleware, authController.linkGoogle);
 authRouter.post("/unlink-google", authMiddleware, authController.unlinkGoogle);
 authRouter.put("/profile", authMiddleware, authController.updateProfile);
-
-// Legacy routes
-authRouter.post("/create", authController.createAccount);
-authRouter.get("/verify/:userCode", authController.verifyUser);
+authRouter.post("/request-deletion", authMiddleware, authController.requestDeletion);
+authRouter.post("/cancel-deletion", authMiddleware, authController.cancelDeletion);

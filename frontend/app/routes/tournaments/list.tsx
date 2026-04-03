@@ -1,8 +1,8 @@
 import { useAuth } from "~/hooks/useAuth";
 import { useUserTournaments } from "~/hooks/useUserTournaments";
-import { formatDateTime } from "~/utils/formatDateTime";
+import { formatDateTime } from "~/utils/date";
 import { useNavigate } from "react-router";
-import type { Route } from "./+types";
+import type { Route } from './+types/list';
 import linkIcon from "~/assets/icons/ui/link.svg"
 
 export function meta({ }: Route.MetaArgs) {
@@ -40,7 +40,7 @@ export default function Tournaments() {
     }
 
     return (
-        <div className="w-full max-w-[400px] p-4 flex flex-col items-center">
+        <main className="flex-1 w-full max-w-[400px] mx-auto flex flex-col gap-4 p-4 items-center">
             <h1 className="text-center m-0 text-[55px] font-bold my-8 mb-1">
                 Tournaments
             </h1>
@@ -63,7 +63,7 @@ export default function Tournaments() {
                                 <span className="text-[5.9xl] font-bold px-4">{tournament.status === 'open' ? '🟢 Active' : '🟠 Finished'}</span>
                                 <menu className='grid grid-cols-2 gap-4 px-3 '>
                                     <span className='font-semibold justify-self-center'>Owner: {tournament.ownerName} </span>
-                                    <span className='flex flex-row items-center gap-2 font-semibold justify-self-center cursor-pointer' onClick={(event) => {event.stopPropagation(); handleCopyInviteLink(tournament?.id || '')}}>
+                                    <span className='flex flex-row items-center gap-2 font-semibold justify-self-center cursor-pointer' onClick={(event) => { event.stopPropagation(); handleCopyInviteLink(tournament?.id || '') }}>
                                         <img src={linkIcon} alt="Invite" className='invert h-auto w-6' /> Invite
                                     </span>
                                 </menu>
@@ -74,6 +74,6 @@ export default function Tournaments() {
                 )}
             </article>
             <button onClick={handleCreateTournament} className="w-full max-w-[300px] p-2 border border-white text-white hover:bg-white/5 transition-colors rounded-md">Create Tournament</button>
-        </div>
+        </main>
     );
 }

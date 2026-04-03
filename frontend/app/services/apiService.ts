@@ -79,11 +79,10 @@ export class ApiService {
                     ApiService.setToken(null);
                     ApiService.setRefreshToken(null);
                     
-                    // Nota: No redirigimos a /login porque el login es un Dialog que salta en la raíz (/)
-                    // Si el refresh falla, simplemente limpiamos tokens. El AuthContext detectará que no hay user
-                    // y debería disparar la apertura del Dialog de login.
-                    if (typeof window !== 'undefined' && window.location.pathname !== '/') {
-                        window.location.href = '/';
+                    // Note: Redirecting to /login because it is now a dedicated page.
+                    // If refresh fails, simply clear tokens. AuthContext will detect that there is no user.
+                    if (typeof window !== 'undefined' && window.location.pathname !== '/login' && window.location.pathname !== '/register') {
+                        window.location.href = '/login';
                     }
                 }
                 return Promise.reject(error);

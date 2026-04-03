@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
 import { pool } from "../db/db";
-import { getUserByCode } from "../services/userSevices";
 import { User } from "../types/userType";
 import generateId from "../utils/generateId";
 

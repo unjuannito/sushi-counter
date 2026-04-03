@@ -1,34 +1,29 @@
-const constantsEN = {
-
-        MONTHS: [
-            "January", "February", "March", "April", "May", "June",
-            "July", "August", "September", "October", "November", "December"],
-};
-
-const constantsES = {
+export const APP_CONSTANTS = {
     MONTHS: [
-        "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
-        "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"],
-};
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+    ],
+    // Language-independent constants
+    SAVE_DELAY_MS: 0.5 * 1000, // 0.5 seconds
+    SHORT_SESSION_THRESHOLD_MS: 5 * 60 * 1000, // 5 minutes
+    SESSION_TIMEOUT_MS: 2 * 60 * 60 * 1000,  // 2 hours
+    NEW_SESSION_THRESHOLD_MS: 3 * 60 * 60 * 1000, // 3 hours
 
-//constnates independientes del idioma pueden ir aqui
-const constantsIndependent = {
-    SAVE_DELAY_MS: 0.5 * 1000, // 0.5 segundo
-    SHORT_SESSION_THRESHOLD_MS: 5 * 60 * 1000, // 5 minutos
-    SESSION_TIMEOUT_MS: 2 * 60 * 60 * 1000,  // 2 horas
-    NEW_SESSION_THRESHOLD_MS: 3 * 60 * 60 * 1000, // 3 horas
-};
+    legalDetails: {
+        // Company / Owner Information
+        companyName: "Juan Cañas",
+        commercialName: "Sushi Counter",
+        vatId: "",
 
-const lan = navigator.language.startsWith('es') ? 'es' : 'en';
-let constants;
-// if (lan === 'es') {
-if (false) {
-    constants = constantsES;
-} else {
-    constants = constantsEN;
-}
-export const MONTHS = constants.MONTHS;
-export const SAVE_DELAY_MS = constantsIndependent.SAVE_DELAY_MS;
-export const SESSION_TIMEOUT_MS = constantsIndependent.SESSION_TIMEOUT_MS;
-export const NEW_SESSION_THRESHOLD_MS = constantsIndependent.NEW_SESSION_THRESHOLD_MS;
-export const SHORT_SESSION_THRESHOLD_MS = constantsIndependent.SHORT_SESSION_THRESHOLD_MS;
+        // Contact Information
+        address: "",
+        email: "sushi.counter.project@gmail.com",
+
+        // Other details
+        websiteUrl: "https://sushi-counter.ydns.eu",
+        registryData: "",
+
+        // Last updated date
+        lastUpdated: "April 2, 2026",
+    }
+};

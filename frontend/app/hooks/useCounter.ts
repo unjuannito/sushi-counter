@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useUserTournaments } from "./useUserTournaments";
 import { useCalendar } from "./useCalendar";
-import { NEW_SESSION_THRESHOLD_MS, SAVE_DELAY_MS, SESSION_TIMEOUT_MS, SHORT_SESSION_THRESHOLD_MS } from "~/utils/constants";
+import { APP_CONSTANTS } from "~/utils/constants";
 
 export default function useCounter() {
     const [count, setCount] = useState<number>(0);
@@ -24,7 +24,7 @@ export default function useCounter() {
                 const lastUpdate = new Date(sushiCounter.updatedAt);
                 const timeSinceLastUpdate = now.getTime() - lastUpdate.getTime();
 
-                if (timeSinceLastUpdate > NEW_SESSION_THRESHOLD_MS) {
+                if (timeSinceLastUpdate > APP_CONSTANTS.NEW_SESSION_THRESHOLD_MS) {
                     console.log("New session threshold exceeded, resetting counter");
                     const newCreatedAt = new Date();
                     const newUpdatedAt = new Date();
@@ -65,7 +65,7 @@ export default function useCounter() {
                 const updatedAtNow = Date.now();
                 callServices(newCount, new Date(createdAt), new Date(updatedAtNow));
                 debounceTimeoutRef.current = null; // Reset ref after execution
-            }, SAVE_DELAY_MS);
+            }, APP_CONSTANTS.SAVE_DELAY_MS);
 
             return newCount;
         });
@@ -75,11 +75,11 @@ export default function useCounter() {
         const timeSinceLastUpdate = newUpdatedAt.getTime() - (new Date(updatedAt)).getTime();
         console.log("timeSinceLastUpdate", timeSinceLastUpdate);
 
-        // Si ha pasado mucho tiempo (> 3h) o si empezamos una sesión nueva (estaba en 0 y ahora hay sushi)
-        // Pero solo actualizamos createdAt si ha pasado el SHORT_SESSION_THRESHOLD_MS desde el último cambio,
-        // para evitar reinicios accidentales si se pone a 0 por error y se vuelve a subir rápido.
-        const isNewSessionAfterTimeout = timeSinceLastUpdate > NEW_SESSION_THRESHOLD_MS;
-        const isNewSessionFromZero = (oldCountRef.current === 0 && newCount > 0) && (timeSinceLastUpdate > SHORT_SESSION_THRESHOLD_MS);
+        // If a long time has passed (> 3h) or if we are starting a new session (it was at 0 and now there is sushi)
+        // But we only update createdAt if APP_CONSTANTS.SHORT_SESSION_THRESHOLD_MS has passed since the last change,
+        // to avoid accidental resets if it is set to 0 by error and then quickly increased.
+        const isNewSessionAfterTimeout = timeSinceLastUpdate > APP_CONSTANTS.NEW_SESSION_THRESHOLD_MS;
+        const isNewSessionFromZero = (oldCountRef.current === 0 && newCount > 0) && (timeSinceLastUpdate > APP_CONSTANTS.SHORT_SESSION_THRESHOLD_MS);
 
         if (isNewSessionAfterTimeout || isNewSessionFromZero) {
             console.log("Starting new session (threshold reached)");

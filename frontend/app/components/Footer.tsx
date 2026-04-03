@@ -6,7 +6,7 @@ import userImg from "../assets/icons/ui/user.svg";
 
 export default function Footer() {
     return (
-        <footer className="w-full border-t border-[#333] bg-[#222222]">
+        <footer className="sticky bottom-0 left-0 w-full border-t border-[#333] bg-[#222222]">
             <nav className="flex flex-row pt-5 pb-3 gap-[0.8em] justify-center m-0 text-[2em] text-[#aaa] text-center">
                 <a href="/calendar">
                     <img src={calendarImg} alt="Calendar" className="text-white w-[1.5em] h-auto" />
