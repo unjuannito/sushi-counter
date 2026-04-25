@@ -13,8 +13,10 @@ import type { Route } from './+types/detail';
 
 export function meta({ }: Route.MetaArgs) {
   return [
-    { title: "Tournament - Sushi Counter" },
-    { name: "description", content: "Compete in how many sushi dou you eat!" },
+    { title: "Tournament Details - Sushi Counter" },
+    { name: "description", content: "View live rankings, participants, and status for this sushi eating tournament." },
+    { property: "og:title", content: "Sushi Tournament Live Rankings" },
+    { property: "og:description", content: "Check out who is winning this sushi eating tournament!" },
   ];
 }
 

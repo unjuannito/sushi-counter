@@ -8,8 +8,10 @@ import { useUserTournaments } from "~/hooks/useUserTournaments";
 import { useAuth } from "~/hooks/useAuth";
 export function meta({ }: Route.MetaArgs) {
   return [
-    { title: "Calendar - Sushi Counter" },
-    { name: "description", content: "Your sushi eating history" },
+    { title: "Sushi Calendar - Sushi Counter" },
+    { name: "description", content: "Browse your sushi eating calendar month by month. See daily totals, tournament medals, and track your sushi consumption history." },
+    { property: "og:title", content: "Sushi Calendar - Sushi Counter" },
+    { property: "og:description", content: "Browse your sushi eating calendar and track daily consumption history." },
   ];
 }
 export default function Calendar() {
@@ -95,14 +97,14 @@ export default function Calendar() {
     <main className="flex-1 w-full max-w-[400px] mx-auto flex flex-col gap-4 p-4">
       <ChangeMonth open={isDialogOpen} changeMonth={(m: string) => navigate(`/calendar/${m}`)} setIsDialogOpen={setIsDialogOpen} />
       <div className="flex items-center justify-between my-8">
-        <span className="bg-none border-none text-[2rem] cursor-pointer px-4 text-white hover:text-[#646cff]" onClick={handlePrevMonth}>◀</span>
+        <button type="button" aria-label="Previous month" className="bg-none border-none text-[2rem] cursor-pointer px-4 text-white hover:text-[#646cff]" onClick={handlePrevMonth}>◀</button>
         <span></span>
-        <h1 className="text-center m-0 font-bold cursor-pointer" onClick={() => setIsDialogOpen(true)}>
+        <h1 className="text-center m-0 font-bold cursor-pointer" onClick={() => setIsDialogOpen(true)} aria-label="Change month">
           {APP_CONSTANTS.MONTHS[currentMonth.month - 1]}<br />
           {currentMonth.year}
-          <span className="p-2 text-[2rem] cursor-pointer">▼</span>
+          <span className="p-2 text-[2rem] cursor-pointer" aria-hidden="true">▼</span>
         </h1>
-        <span className="bg-none border-none text-[2rem] cursor-pointer px-4 text-white hover:text-[#646cff]" onClick={handleNextMonth} >▶</span>
+        <button type="button" aria-label="Next month" className="bg-none border-none text-[2rem] cursor-pointer px-4 text-white hover:text-[#646cff]" onClick={handleNextMonth} >▶</button>
       </div>
 
       <article className="grid grid-cols-7 gap-2 flex-1">

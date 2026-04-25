@@ -5,13 +5,16 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import { router as apiRouter } from "./routes/index";
 import { csrfMiddleware } from "./middleware/csrfMiddleware";
+import compression from "compression";
+import { createRequestHandler } from "@react-router/express";
 
-export function createApp() {
+export async function createApp() {
   const app = express();
 
   // Trust the first proxy (e.g. Nginx) to get the correct client IP for rate limiting
   app.set('trust proxy', 1);
 
+  app.use(compression());
   app.use(cookieParser());
 
   // Desactivar ETag para toda la app (incluye /api)
@@ -43,43 +46,32 @@ export function createApp() {
   app.use("/api", express.json()); // middleware solo para API
   app.use("/api", apiRouter); // Las rutas API se manejan aquí.
 
-  // Ruta a la build de React
-  const clientPath = path.join(__dirname, "../client");
+  // --- Catch-all para React Router SSR ---
+  const clientPath = path.resolve(__dirname, "../../frontend/build/client");
+  const serverBuildPath = path.resolve(__dirname, "../../frontend/build/server/index.js");
 
-  // Comprueba que la carpeta exista
-  if (!fs.existsSync(clientPath)) {
-    console.error(`[error] client build folder NO encontrada en: ${clientPath}`);
-  } else {
+  // Servir archivos estáticos
+  if (fs.existsSync(clientPath)) {
     console.log(`[info] Sirviendo archivos estáticos desde: ${clientPath}`);
-    // Servir archivos estáticos (HTML, JS, CSS, imágenes...)
     app.use(express.static(clientPath, { index: false, etag: true }));
+  } else {
+    console.warn(`[warn] Carpeta de build de frontend no encontrada en: ${clientPath}`);
   }
 
-  // Middleware para depurar archivos estáticos no encontrados (opcional, útil localmente)
-  app.use((req: Request, res: Response, next: NextFunction) => {
-    const maybeFile = path.join(clientPath, req.path);
-    if (path.extname(req.path)) {
-      if (!fs.existsSync(maybeFile)) {
-        console.warn(`[warn] static file not found -> ${req.path} (esperado en ${maybeFile})`);
-      }
+  // Manejador de React Router
+  app.all("*path", async (req, res, next) => {
+    if (req.path.startsWith("/api") || req.path.startsWith("/socket.io")) {
+      return next();
     }
-    next();
-  });
 
-  // --- Catch-all robusto para SPA
-  app.use((req: Request, res: Response, next: NextFunction) => {
-    if (req.path.startsWith("/api")) return next();
-    if (req.path.startsWith("/socket.io")) return next();
-
-    if (path.extname(req.path)) return next();
-
-    if (!req.accepts || !req.accepts("html")) return next();
-
-    const indexHtml = path.join(clientPath, "index.html");
-    if (fs.existsSync(indexHtml)) {
-      res.sendFile(indexHtml);
-    } else {
-      res.status(404).send("React build no encontrado. Ejecuta el build y coloca la carpeta en /client");
+    try {
+      // Importación dinámica para el build de servidor (ESM)
+      const build = await import(serverBuildPath);
+      const handler = createRequestHandler({ build });
+      return handler(req, res, next);
+    } catch (error) {
+      console.error("[error] Fallo al cargar el build del servidor de React Router:", error);
+      res.status(500).send("Error interno del servidor (React Router Build no encontrado)");
     }
   });
 

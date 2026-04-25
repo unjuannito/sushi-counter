@@ -8,8 +8,11 @@ import useCounter from "~/hooks/useCounter";
 
 export function meta({ }: Route.MetaArgs) {
   return [
-    { title: "Sushi Counter" },
-    { name: "description", content: "Count how many sushi dou you eat!" },
+    { title: "Sushi Counter - Track Your Sushi Consumption" },
+    { name: "description", content: "Track how many sushi pieces you eat every day. Log your meals, view your calendar history, check statistics, and compete with friends in sushi eating tournaments." },
+    { name: "keywords", content: "sushi counter, sushi tracker, food tracker, sushi log, sushi tournament" },
+    { property: "og:title", content: "Sushi Counter - Track Your Sushi Consumption" },
+    { property: "og:description", content: "Track how many sushi pieces you eat every day. Log your meals, view statistics, and compete with friends!" },
   ];
 }
 
@@ -25,10 +28,14 @@ export default function Index() {
         className='w-[65%] h-auto cursor-pointer self-center'
         onClick={() => modifyCounter(1)}
       />
-      <h2 className="text-2xl font-bold self-center align-self-center">{count}</h2>
+      <p className="text-2xl font-bold self-center align-self-center" aria-live="polite" aria-label={`Current sushi count: ${count}`}>{count}</p>
       <div className="flex flex-row justify-center gap-16">
-        <img src={upArrow} onClick={() => modifyCounter(1)} className="w-8 h-auto cursor-pointer" />
-        <img src={downArrow} onClick={() => modifyCounter(count == 0 ? 0 : -1)} className="w-8 h-auto cursor-pointer" />
+        <button type="button" onClick={() => modifyCounter(1)} className="w-12 h-12 p-0 border-none bg-transparent cursor-pointer flex items-center justify-center" aria-label="Add one sushi">
+          <img src={upArrow} alt="Add one sushi" className="w-10 h-auto" />
+        </button>
+        <button type="button" onClick={() => modifyCounter(count == 0 ? 0 : -1)} className="w-12 h-12 p-0 border-none bg-transparent cursor-pointer flex items-center justify-center" aria-label="Remove one sushi">
+          <img src={downArrow} alt="Remove one sushi" className="w-10 h-auto" />
+        </button>
       </div>
     </main>
 

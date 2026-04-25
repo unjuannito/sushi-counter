@@ -7,8 +7,9 @@ import loadingIcon from "~/assets/icons/ui/rotate.svg"
 
 export function meta({ }: Route.MetaArgs) {
   return [
-    { title: "Joining tournament - Sushi Counter" },
-    { name: "description", content: "Compete in how many sushi dou you eat!" },
+    { title: "Joining Sushi Tournament - Sushi Counter" },
+    { name: "description", content: "You are being redirected to join a sushi eating tournament." },
+    { name: "robots", content: "noindex, nofollow" },
   ];
 }
 

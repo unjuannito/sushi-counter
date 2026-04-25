@@ -4,6 +4,15 @@ import { useGoogleLogin } from "@react-oauth/google";
 import { useAuth } from "~/hooks/useAuth";
 import RegisterForm from "~/components/auth/RegisterForm";
 import sushiIcon from "~/assets/niam-niam.png";
+import type { Route } from "./+types/register";
+
+export function meta({ }: Route.MetaArgs) {
+    return [
+        { title: "Create Account - Sushi Counter" },
+        { name: "description", content: "Join Sushi Counter today to start tracking your sushi consumption and competing with friends." },
+        { name: "robots", content: "noindex, nofollow" },
+    ];
+}
 
 export default function Register() {
     const [searchParams] = useSearchParams();

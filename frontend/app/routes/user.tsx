@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router";
 import { useAuth } from "~/hooks/useAuth";
 import type { Route } from './+types/user';
 import { useGoogleLogin } from "@react-oauth/google";
@@ -6,8 +7,11 @@ import googleIcon from "../assets/icons/social/google.svg";
 
 export function meta({ }: Route.MetaArgs) {
   return [
-    { title: "User - Sushi Counter" },
-    { name: "description", content: "Your profile sushi eater" },
+    { title: "Your Profile - Sushi Counter" },
+    { name: "description", content: "Manage your Sushi Counter profile, link your Google account, update your credentials, and configure your privacy settings." },
+    { property: "og:title", content: "Your Profile - Sushi Counter" },
+    { property: "og:description", content: "Manage your Sushi Counter profile and account settings." },
+    { name: "robots", content: "noindex, nofollow" },
   ];
 }
 
@@ -324,18 +328,18 @@ export default function User() {
       <section className="flex flex-col gap-4 w-full p-6 sm:p-8 border border-white/10 rounded-2xl bg-white/5 backdrop-blur-sm mt-2">
         <h2 className="text-xl font-bold m-0 border-b border-white/10 pb-4">Legal & Privacy</h2>
         <div className="flex flex-col gap-3 mt-2">
-          <a href="/legal-notice" className="text-gray-300 hover:text-white transition-colors bg-white/5 px-4 py-3 rounded-lg flex justify-between items-center group">
+          <Link to="/legal-notice" className="text-gray-300 hover:text-white transition-colors bg-white/5 px-4 py-3 rounded-lg flex justify-between items-center group">
             <span>Legal Notice</span>
             <span className="text-gray-500 group-hover:translate-x-1 transition-transform">→</span>
-          </a>
-          <a href="/privacy-policy" className="text-gray-300 hover:text-white transition-colors bg-white/5 px-4 py-3 rounded-lg flex justify-between items-center group">
+          </Link>
+          <Link to="/privacy-policy" className="text-gray-300 hover:text-white transition-colors bg-white/5 px-4 py-3 rounded-lg flex justify-between items-center group">
             <span>Privacy Policy</span>
             <span className="text-gray-500 group-hover:translate-x-1 transition-transform">→</span>
-          </a>
-          <a href="/cookies-policy" className="text-gray-300 hover:text-white transition-colors bg-white/5 px-4 py-3 rounded-lg flex justify-between items-center group">
+          </Link>
+          <Link to="/cookies-policy" className="text-gray-300 hover:text-white transition-colors bg-white/5 px-4 py-3 rounded-lg flex justify-between items-center group">
             <span>Cookies Policy</span>
             <span className="text-gray-500 group-hover:translate-x-1 transition-transform">→</span>
-          </a>
+          </Link>
         </div>
       </section>
 

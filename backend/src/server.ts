@@ -5,19 +5,28 @@ import { initWebSocket } from "./websocket/websocketServer";
 import { runMigrations } from "./db/migrations";
 import { initScheduler } from "./services/scheduler";
 
-// Run database migrations
-runMigrations();
+async function boot() {
+  try {
+    // Run database migrations
+    runMigrations();
 
-const app = createApp();
-const server = http.createServer(app);
+    const app = await createApp();
+    const server = http.createServer(app);
 
-// init WebSocket
-initWebSocket(server);
+    // init WebSocket
+    initWebSocket(server);
 
-// Initialize background tasks
-initScheduler();
+    // Initialize background tasks
+    initScheduler();
 
-// Escuchar en puerto configurado
-server.listen(config.port, () => {
-  console.log(`🚀 Servidor escuchando en http://localhost:${config.port}/`);
-});
+    // Escuchar en puerto configurado
+    server.listen(config.port, () => {
+      console.log(`🚀 Servidor escuchando en http://localhost:${config.port}/`);
+    });
+  } catch (error) {
+    console.error("❌ Critical server boot error:", error);
+    process.exit(1);
+  }
+}
+
+boot();

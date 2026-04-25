@@ -10,8 +10,9 @@ import deleteIcon from "~/assets/icons/ui/trash.svg";
 
 export function meta({ }: Route.MetaArgs) {
     return [
-        { title: "Calendar - Sushi Counter" },
-        { name: "description", content: "Your sushi eating history" },
+        { title: "Daily Sushi Log - Sushi Counter" },
+        { name: "description", content: "View and manage your sushi logs for a specific day. See session times and your total sushi count." },
+        { name: "robots", content: "noindex, nofollow" },
     ];
 }
 

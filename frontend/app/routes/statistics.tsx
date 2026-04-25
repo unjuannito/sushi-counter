@@ -5,8 +5,11 @@ import type { Log } from '~/types/calendarType';
 
 export function meta({ }: Route.MetaArgs) {
   return [
-    { title: "Statistics - Sushi Counter" },
-    { name: "description", content: "Your sushi eating habits at a glance" },
+    { title: "Your Sushi Statistics - Sushi Counter" },
+    { name: "description", content: "Explore detailed sushi eating statistics: all-time totals, monthly trends, personal records, streaks, favourite days, and a 12-month activity chart." },
+    { name: "keywords", content: "sushi statistics, eating habits, food stats, sushi tracker analytics" },
+    { property: "og:title", content: "Your Sushi Statistics - Sushi Counter" },
+    { property: "og:description", content: "Explore detailed sushi eating statistics: totals, trends, records, and streaks." },
   ];
 }
 

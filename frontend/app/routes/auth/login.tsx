@@ -4,6 +4,15 @@ import { useGoogleLogin } from "@react-oauth/google";
 import { useAuth } from "~/hooks/useAuth";
 import LoginForm from "~/components/auth/LoginForm";
 import sushiIcon from "~/assets/niam-niam.png"; // Reusing the sushi image for branding
+import type { Route } from "./+types/login";
+
+export function meta({ }: Route.MetaArgs) {
+    return [
+        { title: "Login - Sushi Counter" },
+        { name: "description", content: "Log in to your Sushi Counter account to track your sushi logs and participate in tournaments." },
+        { name: "robots", content: "noindex, nofollow" },
+    ];
+}
 
 export default function Login() {
     const [searchParams] = useSearchParams();
