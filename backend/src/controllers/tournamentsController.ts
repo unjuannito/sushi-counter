@@ -114,7 +114,7 @@ export const joinTournament = async (req: Request, res: Response) => {
 };
 
 export const getTournament = async (req: Request, res: Response) => {
-  const { id } = req.params;
+  const { id } = req.params as Record<string, string>;
 
   try {
     const [rows] = await pool.query<any[]>(
@@ -330,7 +330,7 @@ export const hasActiveTournament = async (req: Request, res: Response) => {
 };
 
 export const deleteTournament = async (req: Request, res: Response) => {
-  const { id } = req.params;
+  const { id } = req.params as Record<string, string>;
   const userId = (req as any).user.id;
 
   try {
