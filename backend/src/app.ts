@@ -64,6 +64,11 @@ export async function createApp() {
       return next();
     }
 
+    // Asegurar que el index (SSR) no se cachee para que siempre traiga los últimos assets compilados
+    res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+    res.setHeader("Pragma", "no-cache");
+    res.setHeader("Expires", "0");
+
     try {
       // Importación dinámica para el build de servidor (ESM)
       const build = await import(serverBuildPath);

@@ -8,7 +8,7 @@ import userImg from "../assets/icons/ui/user.svg";
 export default function Footer() {
     return (
         <footer className="sticky bottom-0 left-0 w-full border-t border-[#333] bg-[#222222]">
-            <nav className="flex flex-row items-center justify-around w-full max-w-2xl mx-auto pt-4 pb-3 px-4 text-[1.6rem] text-[#aaa]">
+            <nav className="flex flex-row items-center justify-around w-full mx-auto pt-4 pb-3 px-4 text-[1.6rem] text-[#aaa] max-w-sm">
                 <Link to="/calendar" aria-label="View Calendar" className="hover:opacity-80 transition-opacity">
                     <img src={calendarImg} alt="Calendar" className="text-white w-[1.5em] h-auto" />
                 </Link>
