@@ -8,20 +8,20 @@ import userImg from "../assets/icons/ui/user.svg";
 export default function Footer() {
     return (
         <footer className="sticky bottom-0 left-0 w-full border-t border-[#333] bg-[#222222]">
-            <nav className="flex flex-row pt-5 pb-3 gap-[0.8em] justify-center m-0 text-[1.2rem] text-[#aaa] text-center">
-                <Link to="/calendar" aria-label="View Calendar">
+            <nav className="flex flex-row items-center justify-around w-full max-w-2xl mx-auto pt-4 pb-3 px-4 text-[1.6rem] text-[#aaa]">
+                <Link to="/calendar" aria-label="View Calendar" className="hover:opacity-80 transition-opacity">
                     <img src={calendarImg} alt="Calendar" className="text-white w-[1.5em] h-auto" />
                 </Link>
-                <Link to="/tournaments" aria-label="View Tournaments">
+                <Link to="/tournaments" aria-label="View Tournaments" className="hover:opacity-80 transition-opacity">
                     <img src={tournamentsImg} alt="Tournaments" className="text-white w-[1.5em] h-auto" />
                 </Link>
-                <Link to="/" aria-label="Home Counter">
+                <Link to="/" aria-label="Home Counter" className="hover:opacity-80 transition-opacity">
                     <img src={homeImg} alt="Home" className="text-white w-[1.5em] h-auto" />
                 </Link>
-                <Link to="/statistics" aria-label="View Statistics">
+                <Link to="/statistics" aria-label="View Statistics" className="hover:opacity-80 transition-opacity">
                     <img src={statisticsImg} alt="Statistics" className="text-white w-[1.5em] h-auto" />
                 </Link>
-                <Link to="/user" aria-label="View Profile">
+                <Link to="/user" aria-label="View Profile" className="hover:opacity-80 transition-opacity">
                     <img src={userImg} alt="User" className="text-white w-[1.5em] h-auto" />
                 </Link>
             </nav>
