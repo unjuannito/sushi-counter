@@ -31,7 +31,7 @@ export const getLogs = async (req: Request, res: Response) => {
 
 export const getLogsByDay = async (req: Request, res: Response) => {
     const userId = (req as any).user.id;
-    const { date } = req.params; // Expecting YYYY-MM-DD
+    const { date } = req.params as Record<string, string>; // Expecting YYYY-MM-DD
 
     try {
         const [logs] = await pool.query<any[]>(`
@@ -60,7 +60,7 @@ export const getLogsByDay = async (req: Request, res: Response) => {
 
 export const getLogsByMonth = async (req: Request, res: Response) => {
     const userId = (req as any).user.id;
-    const { year, month } = req.params; // Expecting year and month
+    const { year, month } = req.params as Record<string, string>; // Expecting year and month
 
     try {
         const [logs] = await pool.query<any[]>(`
@@ -91,7 +91,7 @@ export const getLogsByMonth = async (req: Request, res: Response) => {
 
 export const deleteLog = async (req: Request, res: Response) => {
     const userId = (req as any).user.id;
-    const { id } = req.params;
+    const { id } = req.params as Record<string, string>;
 
     try {
         await pool.query(`
