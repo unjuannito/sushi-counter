@@ -1,14 +1,14 @@
 import { ApiService } from './apiService';
 import type { Tournament } from '~/types/tournamentType';
 import type { Response } from '~/types/responseType';
-import WebSocketService from '~/services/webSocketService';  // Importa el singleton WS
+import WebSocketService from '~/services/webSocketService';  // Import the WS singleton
 
 export class TournamentService extends ApiService {
   private webSocketService = WebSocketService.getInstance();
 
-  public async createTournament(userCode: string): Promise<{ success: boolean; tournamentId?: string; errorMessage?: string }> {
+  public async createTournament(): Promise<{ success: boolean; tournamentId?: string; errorMessage?: string }> {
     try {
-      const response: Response = await this.post(`/tournaments/create`, { userCode });
+      const response: Response = await this.post(`/tournaments/create`, {});
       if (response.success) {
         return { success: true, tournamentId: response.tournamentId as string };
       } else {
@@ -16,26 +16,25 @@ export class TournamentService extends ApiService {
       }
     } catch (error) {
       const errorMessage =
-        error instanceof Error ? error.message : 'Error desconocido al crear torneo';
+        error instanceof Error ? error.message : 'Unknown error while creating tournament';
       return { success: false, errorMessage };
     }
   }
 
-  public async joinTournament(tournamentId: string, userCode: string): Promise<{ success: boolean; tournamentId?: string; errorMessage?: string; }> {
+  public async joinTournament(tournamentId: string): Promise<{ success: boolean; tournamentId?: string; errorMessage?: string; }> {
     try {
       const response: Response = await this.post(`/tournaments/join`, {
         tournamentId,
-        userCode,
       });
       if (response.success) {
-        this.webSocketService.sendMessage('update', { type: 'joinTournament', data: { userCode, tournamentId } });
+        this.webSocketService.sendMessage('update', { type: 'joinTournament', data: { tournamentId } });
         return { success: true, tournamentId: response.tournamentId as string };
       } else {
         return { success: false, errorMessage: response.errorMessage };
       }
     } catch (error) {
       const errorMessage =
-        error instanceof Error ? error.message : 'Error desconocido al unirse al torneo';
+        error instanceof Error ? error.message : 'Unknown error while joining tournament';
       return { success: false, errorMessage };
     }
   }
@@ -50,14 +49,14 @@ export class TournamentService extends ApiService {
       }
     } catch (error) {
       const errorMessage =
-        error instanceof Error ? error.message : 'Error desconocido al obtener torneo';
+        error instanceof Error ? error.message : 'Unknown error while getting tournament';
       return { success: false, errorMessage };
     }
   }
 
-  public async getUserTournaments(userCode: string): Promise<{ success: boolean; tournaments?: Tournament[]; errorMessage?: string }> {
+  public async getUserTournaments(): Promise<{ success: boolean; tournaments?: Tournament[]; errorMessage?: string }> {
     try {
-      const response: Response = await this.get(`/tournaments/user/${userCode}`);
+      const response: Response = await this.get(`/tournaments/user/me`);
       if (response.success) {
         return { success: true, tournaments: response.tournaments as Tournament[] };
       } else {
@@ -69,21 +68,34 @@ export class TournamentService extends ApiService {
     }
   }
 
-  public async updateSushiCount(userCode: string, sushiCount: number): Promise<{ success: boolean; tournamentId?: string; errorMessage?: string }> {
+  public async getActiveUserTournaments(): Promise<{ success: boolean; tournaments?: Tournament[]; errorMessage?: string }> {
+    try {
+      const response: Response = await this.get(`/tournaments/user/active`);
+      if (response.success) {
+        return { success: true, tournaments: response.tournaments as Tournament[] };
+      } else {
+        return { success: false, errorMessage: response.errorMessage };
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+      return { success: false, errorMessage };
+    }
+  }
+
+  public async updateSushiCount(sushiCount: number): Promise<{ success: boolean; tournamentId?: string; errorMessage?: string }> {
     try {
       const response: Response = await this.post(`/tournaments/update-count`, {
-        userCode,
         sushiCount,
       });
       if (response.success) {
-        this.webSocketService.sendMessage('update', { type: 'updateSushiCount', data: { userCode, sushiCount } });
+        this.webSocketService.sendMessage('update', { type: 'updateSushiCount', data: { sushiCount } });
         return { success: true, tournamentId: response.tournamentId as string };
       } else {
         return { success: false, errorMessage: response.errorMessage };
       }
     } catch (error) {
       const errorMessage =
-        error instanceof Error ? error.message : 'Error desconocido al unirse al torneo';
+        error instanceof Error ? error.message : 'Unknown error while updating sushi count';
       return { success: false, errorMessage };
     }
   }
@@ -102,14 +114,14 @@ export class TournamentService extends ApiService {
       }
     } catch (error) {
       const errorMessage =
-        error instanceof Error ? error.message : 'Error desconocido al unirse al torneo';
+        error instanceof Error ? error.message : 'Unknown error while updating status';
       return { success: false, errorMessage };
     }
   }
 
-  public async deleteTournament(id: string, userCode: string): Promise<{ success: boolean; tournamentId?: string; errorMessage?: string }> {
+  public async deleteTournament(id: string): Promise<{ success: boolean; tournamentId?: string; errorMessage?: string }> {
     try {
-      const response: Response = await this.delete(`/tournaments/delete-tournament/${id}/user/${userCode}`);
+      const response: Response = await this.delete(`/tournaments/delete-tournament/${id}`);
       if (response.success) {
         this.webSocketService.sendMessage('update', { type: 'deleteTournament', data: { id } });
         return { success: true, tournamentId: response.tournamentId as string };
@@ -118,7 +130,25 @@ export class TournamentService extends ApiService {
       }
     } catch (error) {
       const errorMessage =
-        error instanceof Error ? error.message : 'Error desconocido al unirse al torneo';
+        error instanceof Error ? error.message : 'Unknown error while deleting tournament';
+      return { success: false, errorMessage };
+    }
+  }
+
+  public async leaveTournament(tournamentId: string): Promise<{ success: boolean; message?: string; errorMessage?: string }> {
+    try {
+      const response: Response = await this.post(`/tournaments/leave`, {
+        tournamentId,
+      });
+      if (response.success) {
+        this.webSocketService.sendMessage('update', { type: 'leaveTournament', data: { tournamentId } });
+        return { success: true, message: response.message as string };
+      } else {
+        return { success: false, errorMessage: response.errorMessage };
+      }
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error while leaving tournament';
       return { success: false, errorMessage };
     }
   }

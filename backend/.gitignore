@@ -2,3 +2,10 @@
 package-lock.json
 /dist/*
 /client/*
+*.sqlite
+*.sqlite-journal
+*.sqlite-shm
+*.sqlite-wal
+.env
+.env.*
+!.env.example

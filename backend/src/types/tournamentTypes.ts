@@ -19,6 +19,7 @@ type Participant = {
   user: string;
   tournament: string;
   sushiCount: number;
+  status: string;
 };
 
 type PublicParticipant = {
@@ -26,5 +27,6 @@ type PublicParticipant = {
   userName: string
   tournamentId: string;
   sushiCount: number;
+  status: string;
 };
 export { Tournament, PublicTournament, Participant, PublicParticipant };

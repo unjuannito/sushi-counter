@@ -1,5 +1,6 @@
-import { createContext, useState, useEffect, type ReactNode, useContext } from 'react';
+import { createContext, useState, useEffect, type ReactNode } from 'react';
 import { AuthService } from '../services/authService';
+import { ApiService } from '../services/apiService';
 
 import type { User } from '~/types/userType';
 import type { AuthContextType } from '~/types/authContextType';
@@ -9,44 +10,158 @@ const authService = new AuthService();
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUser] = useState<User | null>(null);
+    const [loading, setLoading] = useState<boolean>(true);
 
-    const verifyUser = async (userCode: string): Promise<{ success: boolean, errorMessage?: string }> => {
+    useEffect(() => {
+        const initAuth = async () => {
+            const storedToken = localStorage.getItem('authToken');
+
+            if (storedToken) {
+                try {
+                    const response = await authService.getMe();
+                    if (response.success && response.user) {
+                        setUser(response.user as User);
+                    } else {
+                        // Token invalid or expired
+                        logout();
+                    }
+                } catch (error) {
+                    console.error("Error initializing auth:", error);
+                    logout();
+                }
+            }
+            setLoading(false);
+        };
+
+        initAuth();
+    }, []);
+
+    const register = async (name: string, email: string, password: string) => {
+        const response = await authService.register(name, email, password);
+        if (response.success && response.user) {
+            setUser(response.user);
+            if (response.token) ApiService.setToken(response.token);
+            if (response.refreshToken) ApiService.setRefreshToken(response.refreshToken);
+            return { success: true };
+        }
+        return { success: false, errorMessage: response.errorMessage };
+    };
+
+    const login = async (email: string, password: string) => {
+        const response = await authService.login(email, password);
+        if (response.success && response.user) {
+            setUser(response.user);
+            if (response.token) {
+                ApiService.setToken(response.token);
+                if (response.refreshToken) ApiService.setRefreshToken(response.refreshToken);
+            }
+            return { success: true };
+        }
+        return { success: false, errorMessage: response.errorMessage };
+    };
+
+    const googleLogin = async (credential: string) => {
+        const response = await authService.googleLogin(credential);
+        if (response.success && response.user) {
+            setUser(response.user);
+            if (response.token) ApiService.setToken(response.token);
+            if (response.refreshToken) ApiService.setRefreshToken(response.refreshToken);
+
+            return { success: true };
+        }
+        return { success: false, errorMessage: response.errorMessage };
+    };
+
+    const logout = () => {
+        setUser(null);
+        ApiService.setToken(null);
+        ApiService.setRefreshToken(null);
+        // redirect to /
+        window.location.href = '/';
+    };
+
+    const forgotPassword = async (email: string) => {
+        return await authService.forgotPassword(email);
+    };
+
+    const resetPassword = async (token: string, newPassword: string) => {
+        return await authService.resetPassword(token, newPassword);
+    };
+
+    const refreshUser = async () => {
         try {
-            const response = await authService.verifyUser(userCode);
-            if (response.success) {
-                setUser(response.user ? response.user : null);
-                localStorage.setItem('userCode', response.user?.code);
-                return { success: true };
-            } else {
-                setUser(null);
-                return { success: false, errorMessage: response.errorMessage };
+            const response = await authService.getMe();
+            if (response.success && response.user) {
+                setUser(response.user as User);
             }
         } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
-            return { success: false, errorMessage };
+            console.error("Error refreshing user:", error);
         }
     };
 
-    const createUser = async (name: string): Promise<{ success: boolean, user?: User, errorMessage?: string }> => {
-        try {
-            const response = await authService.createUser(name);
-            if (response.success && response.user) {
-                setUser(response.user ? response.user : null);
-                localStorage.setItem('userCode', response.user.code);
-                return { success: true, user: response.user as User };
-            } else {
-                setUser(null);
-                return { success: false, errorMessage: response.errorMessage };
-            }
-        } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
-            return { success: false, errorMessage };
+    const linkGoogle = async (credential: string) => {
+        const response = await authService.linkGoogle(credential);
+        if (response.success) {
+            await refreshUser();
+            return { success: true };
         }
+        return { success: false, errorMessage: response.errorMessage };
+    };
+
+    const unlinkGoogle = async () => {
+        const response = await authService.unlinkGoogle();
+        if (response.success) {
+            await refreshUser();
+            return { success: true };
+        }
+        return { success: false, errorMessage: response.errorMessage };
+    };
+
+    const updateProfile = async (data: { name?: string; email?: string; password?: string; currentPassword?: string }) => {
+        const response = await authService.updateProfile(data);
+        if (response.success) {
+            await refreshUser();
+            return { success: true };
+        }
+        return { success: false, errorMessage: response.errorMessage };
+    };
+
+    const requestDeletion = async () => {
+        const response = await authService.requestDeletion();
+        if (response.success) {
+            await refreshUser();
+            return { success: true };
+        }
+        return { success: false, errorMessage: response.errorMessage };
+    };
+
+    const cancelDeletion = async () => {
+        const response = await authService.cancelDeletion();
+        if (response.success) {
+            await refreshUser();
+            return { success: true };
+        }
+        return { success: false, errorMessage: response.errorMessage };
     };
 
     return (
         <AuthContext.Provider
-            value={{ verifyUser, createUser, user }}
+            value={{
+                register,
+                login,
+                googleLogin,
+                logout,
+                forgotPassword,
+                resetPassword,
+                refreshUser,
+                linkGoogle,
+                unlinkGoogle,
+                updateProfile,
+                requestDeletion,
+                cancelDeletion,
+                user,
+                loading
+            }}
         >
             {children}
         </AuthContext.Provider>

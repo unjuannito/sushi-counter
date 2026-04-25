@@ -1,81 +1,29 @@
 import { Router } from "express";
-import { pool } from "../db";
-import generateId from "../utils/generateId";
-import { getUserByCode } from "../services/userSevices";
-import { User } from "../types/userType";
+import * as authController from "../controllers/authController";
+import rateLimit from "express-rate-limit";
+import { authMiddleware } from "../middleware/authMiddleware";
+
 export const authRouter = Router();
 
-authRouter.post("/create", async (req, res) => {
-  const { name } = req.body;
-
-  if (!name || name == '') {
-    return res.json({
-      success: false,
-      errorMessage: "Name is compulsary",
-    });
-  }
-
-  try {
-    let code: string;
-    let existsCode = true;
-
-    do {
-      code = generateId();
-      const [rows] = await pool.query(
-        "SELECT code FROM users WHERE code = ? LIMIT 1",
-        [code]
-      );
-      existsCode = (rows as any[]).length > 0;
-    } while (existsCode);
-
-    let id: string;
-    let existsId = true;
-
-    do {
-      id = generateId();
-      const [rows] = await pool.query(
-        "SELECT id FROM users WHERE id = ? LIMIT 1",
-        [id]
-      );
-      existsId = (rows as any[]).length > 0;
-    } while (existsId);
-
-
-    const [result] = await pool.query(
-      "INSERT INTO users (id, code, name) VALUES (?, ?, ?)",
-      [id, code, name]
-    );
-
-    const insertedUser = {
-      id,
-      code,
-      name,
-    };
-
-    return res.json({
-      success: true,
-      user: insertedUser,
-    });
-  } catch (err: any) {
-    return res.json({
-      success: false,
-      errorMessage: err.message,
-    });
-  }
+// Brute force protection for login and registration
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 10, // Limit each IP to 10 requests per windowMs
+  message: { success: false, errorMessage: "Too many requests from this IP, please try again after 15 minutes" },
+  standardHeaders: true,
+  legacyHeaders: false,
 });
 
-authRouter.get("/verify/:userCode", async (req, res) => {
-  const { userCode } = req.params;
-  const reqUser = await getUserByCode(userCode);
-  if (!reqUser.success || !reqUser.user) {
-    return res.json({
-      success: false,
-      errorMessage: "Error during verifying user.1",
-    });
-  }
-  const user: User = reqUser.user;
-  return res.json({
-    success: true,
-    user
-  });
-});
+authRouter.post("/register", authLimiter, authController.register);
+authRouter.post("/login", authLimiter, authController.login);
+authRouter.post("/google", authLimiter, authController.googleLogin);
+authRouter.post("/forgot-password", authLimiter, authController.forgotPassword);
+authRouter.post("/reset-password", authLimiter, authController.resetPassword);
+authRouter.post("/refresh-token", authController.refreshToken);
+authRouter.post("/logout", authMiddleware, authController.logout);
+authRouter.get("/me", authMiddleware, authController.getMe);
+authRouter.post("/link-google", authMiddleware, authController.linkGoogle);
+authRouter.post("/unlink-google", authMiddleware, authController.unlinkGoogle);
+authRouter.put("/profile", authMiddleware, authController.updateProfile);
+authRouter.post("/request-deletion", authMiddleware, authController.requestDeletion);
+authRouter.post("/cancel-deletion", authMiddleware, authController.cancelDeletion);

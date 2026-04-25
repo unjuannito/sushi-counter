@@ -1,80 +1,104 @@
-body {
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  place-items: center;
-  min-width: 100dvw;
-  min-height: 100dvh;
-  overflow-x: hidden;
+@import "tailwindcss";
 
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-  height: auto;
+@theme {
+  --animate-dialog-appear: dialogAppear 0.2s ease-out forwards;
 
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #222222;
+  @keyframes dialogAppear {
+    from {
+      opacity: 0;
+      transform: translate(-50%, -48%) scale(0.96);
+    }
 
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+    to {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+  }
 }
 
-main{
-  padding-top: 2rem;
-  flex: 1;
-}
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
+@layer base {
+  body {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    place-items: center;
+    min-width: 100dvw;
+    min-height: 100vh;
+    min-height: 100dvh;
+    height: 100vh;
+    height: 100dvh;
+    overflow-x: hidden;
+    font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.87);
+    background-color: #222222;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
 
-a:hover {
-  color: #535bf2;
-}
+  a {
+    font-weight: 500;
+    color: #646cff;
+    text-decoration: inherit;
+    transition: color 0.2s;
+  }
 
-div{
-  padding: 0;
-  margin: 0
-}
+  a:hover {
+    color: #535bf2;
+  }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-  text-align: center;
-}
+  * {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    user-select: none;
+    -webkit-user-select: none;
+  }
 
-button {
-  color: white;
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
+  input,
+  textarea {
+    user-select: text;
+    -webkit-user-select: text;
+  }
 
-button[disabled]{
-  background-color: #B0B0B0; /* Gris claro */
-  color: #A0A0A0; /* Gris más oscuro */
-  cursor: not-allowed; /* Cambia el cursor a un símbolo de no permitido */
-  opacity: 0.5; /* Hace el botón más tenue */
-  border: none;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
+  h1 {
+    font-size: 3.2em;
+    line-height: 1.1;
+    text-align: center;
+  }
 
-input {
-  padding: 0.6em 1.2em;
+  /* --- Professional solution for autofill artifacts in Chrome --- */
+
+  :root {
+    --input-border-radius: 10px;
+  }
+
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  input:-webkit-autofill:active {
+    /*
+       1. TECHNICAL CAUSE:
+       Chrome applies the autofill background through an internal layer of the User Agent (UA)
+       that renders independently of the normal CSS background flow.
+       This layer does not always respect the 'clipping path' of the element's border-radius,
+       causing visual artifacts at the corners.
+    */
+
+    /* 2. IMPLEMENTATION WITHOUT BOX-SHADOW OR TRANSITION HACKS: */
+
+    /* Force the browser to use its dark palette for autofill */
+    color-scheme: dark !important;
+
+    /* Manual clipping of the autofill layer to remove corner artifacts */
+    clip-path: inset(0 round var(--input-border-radius));
+
+    /* Ensure text and cursor visibility */
+    -webkit-text-fill-color: white !important;
+    caret-color: white !important;
+
+    /* Prevent the background from extending under the border */
+    background-clip: padding-box !important;
+  }
 }

@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+
+# Prevent crawling of auth and API routes
+Disallow: /api/
+Disallow: /login
+Disallow: /register
+Disallow: /tournament/join/
+
+# Sitemap
+Sitemap: https://sushi-counter.ydns.eu/sitemap.xml

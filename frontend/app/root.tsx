@@ -5,11 +5,14 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useLocation,
 } from "react-router";
 
 import type { Route } from "./+types/root";
 import "./styles/root.css";
 import { AuthProvider } from "./context/AuthContext";
+import { GoogleOAuthProvider } from "@react-oauth/google";
+import { APP_CONSTANTS } from "./utils/constants";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -24,21 +27,45 @@ export const links: Route.LinksFunction = () => [
   },
 ];
 
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
+
+if (!GOOGLE_CLIENT_ID && import.meta.env.DEV) {
+  console.warn("VITE_GOOGLE_CLIENT_ID is not defined in your .env file. Google Login will not work and may show 403 errors.");
+}
+
 // This is the main Document component that wraps the entire app
 export default function Document() {
+  const location = useLocation();
+  const canonicalUrl = `${APP_CONSTANTS.legalDetails.websiteUrl}${location.pathname === "/" ? "" : location.pathname}`;
+
   return (
     <html lang="en">
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" href="favicon.svg" />
+        <meta name="theme-color" content="#1a1a1a" />
+        <meta name="robots" content="index, follow" />
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="Sushi Counter" />
+        <meta property="og:locale" content="en_US" />
+        <meta property="og:url" content={canonicalUrl} />
+        <meta property="og:image" content={`${APP_CONSTANTS.legalDetails.websiteUrl}/og-image.png`} />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Sushi Counter" />
+        <meta name="twitter:description" content="Track how many sushi pieces you eat, view statistics, and compete in tournaments with friends." />
+        <meta name="twitter:image" content={`${APP_CONSTANTS.legalDetails.websiteUrl}/og-image.png`} />
+        <link rel="icon" href="/favicon.svg" />
+        <link rel="manifest" href="/manifest.json" />
+        <link rel="canonical" href={canonicalUrl} />
         <Meta />
         <Links />
       </head>
-      <body>
-        <AuthProvider>
-          <Outlet />
-        </AuthProvider>
+      <body className="h-dvh flex flex-col">
+        <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+          <AuthProvider>
+            <Outlet />
+          </AuthProvider>
+        </GoogleOAuthProvider>
         <ScrollRestoration />
         <Scripts />
       </body>
@@ -52,7 +79,7 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   let stack: string | undefined;
 
   if (isRouteErrorResponse(error)) {
-    message = error.status === 404 ? "404" : "Error";
+    message = error.status === 404 ? "Error 404" : "Error";
     details =
       error.status === 404
         ? "The requested page could not be found."
@@ -67,14 +94,17 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>{message} - Sushi Counter</title>
+        <meta name="robots" content="noindex, nofollow" />
         <link rel="icon" href="/favicon.svg" />
+        <link rel="manifest" href="/manifest.json" />
         <Meta />
         <Links />
       </head>
       <body>
-        <main className="min-h-screen items-center justify-center flex flex-col">
+        <main className="min-h-dvh items-center justify-center flex flex-col p-8">
           <h1 className="font-bold text-4xl p-4">{message}</h1>
-          <p className="text-2xl p-4">{details}</p>
+          <p className="text-2xl p-4 text-center">{details}</p>
           {stack && (
             <pre className="w-full p-4 overflow-x-auto">
               <code>{stack}</code>

@@ -11,7 +11,7 @@ class WebSocketService {
     private isConnected: boolean = false;
     private eventCallbacks: Record<string, Function[]> = {};
 
-    // Método para obtener la instancia singleton del servicio
+    // Method to get the singleton instance of the service
     public static getInstance(): WebSocketService {
         if (!WebSocketService.instance) {
             WebSocketService.instance = new WebSocketService();
@@ -19,99 +19,113 @@ class WebSocketService {
         return WebSocketService.instance;
     }
 
-    // Conectar al servidor WebSocket
+    // Connect to the WebSocket server
     public connect() {
         if (this.socket && this.socket.connected) {
-            console.log("Ya estás conectado al WebSocket.");
+            console.log("Already connected to WebSocket.");
             return;
         }
 
-        const SOCKET_URL = import.meta.env.DEV ? 'localhost:4000' : 'juacac.ydns.eu';
-        const SOCKET_PATH = import.meta.env.DEV ? '/socket.io' : '/sushi-counter/socket.io';
+        const SOCKET_URL = import.meta.env.DEV ? 'http://localhost:50541' : window.location.origin;
+        const SOCKET_PATH = '/socket.io';
         let wsToken = sessionStorage.getItem('wsToken');
 
-        // Si no hay token en sessionStorage, nos conectamos sin él y luego el servidor nos enviará uno.
+        // If no token in sessionStorage, we connect without it and then the server will send us one.
         const queryParams: any = {};
         if (wsToken) {
             queryParams.wsToken = wsToken;
         }
 
-        // Configuración de conexión con Socket.IO
+        // Socket.IO connection configuration
+        console.log(`[WS] Attempting to connect to ${SOCKET_URL} with path ${SOCKET_PATH}`);
         this.socket = io(SOCKET_URL, {
-            path: SOCKET_PATH, // 👈 debe coincidir con el del servidor
-            query: queryParams,  // Aquí estamos pasando el wsToken al servidor (si existe)
+            path: SOCKET_PATH, // 👈 must match the server's path
+            query: queryParams,  // Passing wsToken to the server if it exists
             reconnection: true,
             reconnectionAttempts: 5,
             reconnectionDelay: 1000,
             reconnectionDelayMax: 5000,
+            transports: ['websocket', 'polling'], // Force websocket attempt first
         });
 
-        // Cuando nos conectamos, el servidor nos envía un nuevo wsToken
+        // When connected, the server sends a new wsToken
         this.socket.on('connected', (data: { wsToken: string }) => {
-            // console.log('Conexión exitosa, wsToken:', data.wsToken);
-            sessionStorage.setItem('wsToken', data.wsToken);  // Guardamos el wsToken en sessionStorage
+            console.log('[WS] "connected" event received. New wsToken:', data.wsToken);
+            sessionStorage.setItem('wsToken', data.wsToken);  // Save wsToken in sessionStorage
         });
 
         this.socket.on('connect', () => {
-            // console.log('Conectado a WebSocket');
+            console.log('[WS] Connection established successfully. ID:', this.socket?.id);
             this.isConnected = true;
         });
 
         this.socket.on('connect_error', (error: Error) => {
-            console.error('Error de conexión WebSocket: ', error);
+            console.error('[WS] Connection error:', error.message, error);
         });
 
         this.socket.on('disconnect', (reason: string) => {
-            console.log('Desconectado del WebSocket. Razón: ', reason);
+            console.log('[WS] Disconnected. Reason:', reason);
             this.isConnected = false;
         });
 
         this.socket.on('reconnect', (attemptNumber: number) => {
-            console.log(`Reconectado al WebSocket. Intento #${attemptNumber}`);
+            console.log(`Reconnected to WebSocket. Attempt #${attemptNumber}`);
         });
 
         this.socket.on('reconnect_error', (error: Error) => {
-            console.error('Error al intentar reconectar: ', error);
+            console.error('Error while attempting to reconnect: ', error);
         });
 
         this.socket.on('reconnect_attempt', (attemptNumber: number) => {
-            console.log(`Intentando reconectar al WebSocket. Intento #${attemptNumber}`);
+            console.log(`Attempting to reconnect to WebSocket. Attempt #${attemptNumber}`);
         });
     }
 
-    // Desconectar el WebSocket
+    // Disconnect the WebSocket
     public disconnect() {
         if (this.socket) {
             this.socket.disconnect();
-            console.log('WebSocket desconectado');
+            console.log('WebSocket disconnected');
             this.isConnected = false;
         }
     }
 
-    // Enviar un mensaje a través del WebSocket
+    // Send a message through the WebSocket
     public sendMessage(event: string, message: WebSocketEvent) {
         if (this.socket && this.socket.connected) {
             this.socket.emit(event, message);
         } else {
-            console.warn("No hay conexión activa.");
+            console.warn("No active connection.");
         }
     }
 
-    // Escuchar un evento desde el servidor WebSocket
+    // Listen to an event from the WebSocket server
     public listenToEvent(event: string, callback: (data: any) => void) {
         if (!this.eventCallbacks[event]) {
             this.eventCallbacks[event] = [];
+            
+            // Register the socket listener ONLY once per event
+            if (this.socket) {
+                this.socket.on(event, (data) => {
+                    this.eventCallbacks[event].forEach(cb => cb(data));
+                });
+            }
         }
-        this.eventCallbacks[event].push(callback);
-
-        if (this.socket) {
-            this.socket.on(event, (data) => {
-                this.eventCallbacks[event].forEach(cb => cb(data));
-            });
+        
+        // Add callback to the list if not already present
+        if (!this.eventCallbacks[event].includes(callback)) {
+            this.eventCallbacks[event].push(callback);
         }
     }
 
-    // Verificar si está conectado al WebSocket
+    // Method to stop listening to an event
+    public stopListening(event: string, callback: (data: any) => void) {
+        if (this.eventCallbacks[event]) {
+            this.eventCallbacks[event] = this.eventCallbacks[event].filter(cb => cb !== callback);
+        }
+    }
+
+    // Check if connected to the WebSocket
     public getConnectionStatus(): boolean {
         return this.isConnected;
     }

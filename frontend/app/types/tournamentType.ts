@@ -3,6 +3,7 @@ export interface Participant {
   userName: string
   tournamentId: string;
   sushiCount: number;
+  status: string;
 }
 
 export interface Tournament {

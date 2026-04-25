@@ -5,3 +5,6 @@ package-lock.json
 # React Router
 /.react-router/
 /build/
+.env
+.env.*
+!.env.example
