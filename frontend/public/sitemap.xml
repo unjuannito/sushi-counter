@@ -2,37 +2,30 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://sushi-counter.ydns.eu/</loc>
-    <changefreq>weekly</changefreq>
-    <priority>1.0</priority>
+    <lastmod>2026-05-06</lastmod>
   </url>
   <url>
-    <loc>https://sushi-counter.ydns.eu/calendar</loc>
-    <changefreq>daily</changefreq>
-    <priority>0.8</priority>
+    <loc>https://sushi-counter.ydns.eu/calendar/</loc>
+    <lastmod>2026-05-06</lastmod>
   </url>
   <url>
-    <loc>https://sushi-counter.ydns.eu/tournaments</loc>
-    <changefreq>daily</changefreq>
-    <priority>0.8</priority>
+    <loc>https://sushi-counter.ydns.eu/tournaments/</loc>
+    <lastmod>2026-05-06</lastmod>
   </url>
   <url>
-    <loc>https://sushi-counter.ydns.eu/statistics</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
+    <loc>https://sushi-counter.ydns.eu/statistics/</loc>
+    <lastmod>2026-05-06</lastmod>
   </url>
   <url>
-    <loc>https://sushi-counter.ydns.eu/legal-notice</loc>
-    <changefreq>yearly</changefreq>
-    <priority>0.2</priority>
+    <loc>https://sushi-counter.ydns.eu/legal-notice/</loc>
+    <lastmod>2026-05-06</lastmod>
   </url>
   <url>
-    <loc>https://sushi-counter.ydns.eu/privacy-policy</loc>
-    <changefreq>yearly</changefreq>
-    <priority>0.2</priority>
+    <loc>https://sushi-counter.ydns.eu/privacy-policy/</loc>
+    <lastmod>2026-05-06</lastmod>
   </url>
   <url>
-    <loc>https://sushi-counter.ydns.eu/cookies-policy</loc>
-    <changefreq>yearly</changefreq>
-    <priority>0.2</priority>
+    <loc>https://sushi-counter.ydns.eu/cookies-policy/</loc>
+    <lastmod>2026-05-06</lastmod>
   </url>
 </urlset>
