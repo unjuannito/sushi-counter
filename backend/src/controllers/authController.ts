@@ -7,6 +7,7 @@ import bcrypt from "bcryptjs";
 import { generateToken, generateRefreshToken, verifyRefreshToken } from "../utils/auth";
 import { OAuth2Client } from "google-auth-library";
 import { config } from "../config/config";
+import "../config/loadEnv";
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
