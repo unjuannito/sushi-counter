@@ -43,7 +43,7 @@ export default function Document() {
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta name="theme-color" content="#1a1a1a" />
+        <meta name="theme-color" content="#000000" />
         <meta name="robots" content="index, follow" />
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="Sushi Counter" />
@@ -54,7 +54,10 @@ export default function Document() {
         <meta name="twitter:title" content="Sushi Counter" />
         <meta name="twitter:description" content="Track how many sushi pieces you eat, view statistics, and compete in tournaments with friends." />
         <meta name="twitter:image" content={`${APP_CONSTANTS.legalDetails.websiteUrl}/og-image.png`} />
-        <link rel="icon" href="/favicon.svg" />
+        <link rel="icon" href="/favicon.ico?v=2" sizes="any" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=2" />
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png?v=2" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=2" />
         <link rel="manifest" href="/manifest.json" />
         <link rel="canonical" href={canonicalUrl} />
         <Meta />
@@ -96,7 +99,10 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>{message} - Sushi Counter</title>
         <meta name="robots" content="noindex, nofollow" />
-        <link rel="icon" href="/favicon.svg" />
+        <link rel="icon" href="/favicon.ico?v=2" sizes="any" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=2" />
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png?v=2" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=2" />
         <link rel="manifest" href="/manifest.json" />
         <Meta />
         <Links />
