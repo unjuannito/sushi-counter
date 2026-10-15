@@ -1,0 +1,14 @@
+services:
+  sushi-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "50541:3000"
+    volumes:
+      - ./data:/app/data
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATABASE_URL: /app/data/database.sqlite
