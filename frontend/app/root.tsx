@@ -78,7 +78,7 @@ export default function Document() {
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   let message = "Oops!";
-  let details = "An unexpected error occurred.";
+  let details = `An unexpected error occurred.\n${error instanceof Error ? error.message : String(error)}`;
   let stack: string | undefined;
 
   if (isRouteErrorResponse(error)) {

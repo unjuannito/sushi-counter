@@ -5,6 +5,3 @@
 *.sqlite-journal
 *.sqlite-shm
 *.sqlite-wal
-.env
-.env.*
-!.env.example

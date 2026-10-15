@@ -4,7 +4,7 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
+    "dev": "node --watch -r ts-node/register/transpile-only src/server.ts",
     "build": "tsc && node -e \"const fs=require('fs'); fs.mkdirSync('dist/db', {recursive:true}); fs.copyFileSync('src/db/schema.sql', 'dist/db/schema.sql')\"",
     "start": "node dist/server.js",
     "db:migrate": "ts-node src/scripts/migrate_all.ts"
@@ -39,7 +39,10 @@
     "@types/node": "^24.3.3",
     "@types/ws": "^8.18.1",
     "ts-node": "^10.9.2",
-    "ts-node-dev": "^2.0.0",
     "typescript": "^5.9.2"
+  },
+  "allowScripts": {
+    "better-sqlite3@12.11.1": true,
+    "sqlite3@6.0.1": true
   }
 }

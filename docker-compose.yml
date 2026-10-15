@@ -3,12 +3,15 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
     restart: always
     ports:
       - "50541:3000"
     volumes:
-      - ./data:/app/data
+      - ./data:/app/data:Z,U
+    env_file:
+      - .env
     environment:
       NODE_ENV: production
       PORT: 3000
-      DATABASE_URL: /app/data/database.sqlite

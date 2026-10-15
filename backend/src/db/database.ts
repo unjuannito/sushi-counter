@@ -1,7 +1,16 @@
 import Database from 'better-sqlite3';
+import fs from 'fs';
 import path from 'path';
+import '../config/loadEnv';
 
-const dbPath = path.resolve(process.env.DATABASE_URL || path.resolve(__dirname, '../../database.sqlite'));
+const projectRoot = path.resolve(__dirname, '../../../');
+const configuredDbPath = process.env.DATABASE_URL;
+const dbPath = configuredDbPath
+  ? path.isAbsolute(configuredDbPath)
+    ? configuredDbPath
+    : path.resolve(projectRoot, configuredDbPath)
+  : path.resolve(__dirname, '../../database.sqlite');
+fs.mkdirSync(path.dirname(dbPath), { recursive: true });
 const db = new Database(dbPath);
 
 db.pragma('foreign_keys = ON');
