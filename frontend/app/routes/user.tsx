@@ -328,15 +328,15 @@ export default function User() {
       <section className="flex flex-col gap-4 w-full p-6 sm:p-8 border border-white/10 rounded-2xl bg-white/5 backdrop-blur-sm mt-2">
         <h2 className="text-xl font-bold m-0 border-b border-white/10 pb-4">Legal & Privacy</h2>
         <div className="flex flex-col gap-3 mt-2">
-          <Link to="/legal-notice" className="text-gray-300 hover:text-white transition-colors bg-white/5 px-4 py-3 rounded-lg flex justify-between items-center group">
+          <Link to="/legal-notice" state={{ returnTo: "/user" }} className="text-gray-300 hover:text-white transition-colors bg-white/5 px-4 py-3 rounded-lg flex justify-between items-center group">
             <span>Legal Notice</span>
             <span className="text-gray-500 group-hover:translate-x-1 transition-transform">→</span>
           </Link>
-          <Link to="/privacy-policy" className="text-gray-300 hover:text-white transition-colors bg-white/5 px-4 py-3 rounded-lg flex justify-between items-center group">
+          <Link to="/privacy-policy" state={{ returnTo: "/user" }} className="text-gray-300 hover:text-white transition-colors bg-white/5 px-4 py-3 rounded-lg flex justify-between items-center group">
             <span>Privacy Policy</span>
             <span className="text-gray-500 group-hover:translate-x-1 transition-transform">→</span>
           </Link>
-          <Link to="/cookies-policy" className="text-gray-300 hover:text-white transition-colors bg-white/5 px-4 py-3 rounded-lg flex justify-between items-center group">
+          <Link to="/cookies-policy" state={{ returnTo: "/user" }} className="text-gray-300 hover:text-white transition-colors bg-white/5 px-4 py-3 rounded-lg flex justify-between items-center group">
             <span>Cookies Policy</span>
             <span className="text-gray-500 group-hover:translate-x-1 transition-transform">→</span>
           </Link>
