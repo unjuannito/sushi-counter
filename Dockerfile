@@ -23,7 +23,7 @@ FROM node:20-alpine AS production
 WORKDIR /app
 ENV NODE_ENV=production
 
-RUN apk add --no-cache dumb-init su-exec
+RUN apk add --no-cache dumb-init su-exec font-dejavu
 RUN apk add --no-cache --virtual .build-deps python3 make g++ linux-headers
 
 COPY backend/package*.json ./backend/

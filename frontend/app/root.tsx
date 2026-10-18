@@ -43,6 +43,7 @@ function DocumentContent() {
   const { language } = useLanguage();
   const canonicalPath = location.pathname === "/" ? "" : location.pathname.replace(/\/+$/, "");
   const canonicalUrl = `${APP_CONSTANTS.legalDetails.websiteUrl}${canonicalPath}`;
+  const isTournament = /^\/tournament\/(?:join\/)?[^/]+$/.test(location.pathname);
 
   return (
     <html lang={language}>
@@ -53,13 +54,16 @@ function DocumentContent() {
         <meta name="theme-color" content="#000000" />
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="Sushi Counter" />
-        <meta property="og:locale" content="en_US" />
+        <meta property="og:locale" content="es_ES" />
         <meta property="og:url" content={canonicalUrl} />
-        <meta property="og:image" content={`${APP_CONSTANTS.legalDetails.websiteUrl}/og-image.png`} />
+        {!isTournament && <meta property="og:image" content={`${APP_CONSTANTS.legalDetails.websiteUrl}/share/home.png`} />}
+        {!isTournament && <meta property="og:image:width" content="1200" />}
+        {!isTournament && <meta property="og:image:height" content="630" />}
+        {!isTournament && <meta property="og:image:alt" content="Sushi Counter: cada pieza cuenta" />}
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Sushi Counter" />
-        <meta name="twitter:description" content="Track how many sushi pieces you eat, view statistics, and compete in tournaments with friends." />
-        <meta name="twitter:image" content={`${APP_CONSTANTS.legalDetails.websiteUrl}/og-image.png`} />
+        {!isTournament && <meta name="twitter:title" content="Sushi Counter | Cada pieza cuenta" />}
+        {!isTournament && <meta name="twitter:description" content="Cuenta tu sushi y compite con tus amigos." />}
+        {!isTournament && <meta name="twitter:image" content={`${APP_CONSTANTS.legalDetails.websiteUrl}/share/home.png`} />}
         <link rel="icon" href="/favicon.ico?v=2" sizes="any" />
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=2" />
         <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png?v=2" />
