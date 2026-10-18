@@ -10,6 +10,7 @@ export function meta({ }: Route.MetaArgs) {
         { name: "description", content: "Join or create sushi eating tournaments. Compete with friends in real-time to see who can eat the most sushi!" },
         { property: "og:title", content: "Sushi Tournaments - Sushi Counter" },
         { property: "og:description", content: "Compete with friends in sushi eating tournaments. Track scores in real-time!" },
+        { name: "robots", content: "noindex, nofollow" },
     ];
 }
 

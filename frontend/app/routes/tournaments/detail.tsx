@@ -17,6 +17,7 @@ export function meta({ }: Route.MetaArgs) {
     { name: "description", content: "View live rankings, participants, and status for this sushi eating tournament." },
     { property: "og:title", content: "Sushi Tournament Live Rankings" },
     { property: "og:description", content: "Check out who is winning this sushi eating tournament!" },
+    { name: "robots", content: "noindex, nofollow" },
   ];
 }
 

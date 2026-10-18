@@ -10,6 +10,7 @@ export function meta({ }: Route.MetaArgs) {
     { name: "keywords", content: "sushi statistics, eating habits, food stats, sushi tracker analytics" },
     { property: "og:title", content: "Your Sushi Statistics - Sushi Counter" },
     { property: "og:description", content: "Explore detailed sushi eating statistics: totals, trends, records, and streaks." },
+    { name: "robots", content: "noindex, nofollow" },
   ];
 }
 

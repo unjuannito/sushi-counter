@@ -12,6 +12,7 @@ export function meta({ }: Route.MetaArgs) {
     { name: "description", content: "Browse your sushi eating calendar month by month. See daily totals, tournament medals, and track your sushi consumption history." },
     { property: "og:title", content: "Sushi Calendar - Sushi Counter" },
     { property: "og:description", content: "Browse your sushi eating calendar and track daily consumption history." },
+    { name: "robots", content: "noindex, nofollow" },
   ];
 }
 export default function Calendar() {

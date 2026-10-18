@@ -41,7 +41,8 @@ export default function Document() {
 function DocumentContent() {
   const location = useLocation();
   const { language } = useLanguage();
-  const canonicalUrl = `${APP_CONSTANTS.legalDetails.websiteUrl}${location.pathname === "/" ? "" : location.pathname}`;
+  const canonicalPath = location.pathname === "/" ? "" : location.pathname.replace(/\/+$/, "");
+  const canonicalUrl = `${APP_CONSTANTS.legalDetails.websiteUrl}${canonicalPath}`;
 
   return (
     <html lang={language}>
@@ -49,7 +50,6 @@ function DocumentContent() {
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="theme-color" content="#000000" />
-        <meta name="robots" content="index, follow" />
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="Sushi Counter" />
         <meta property="og:locale" content="en_US" />
