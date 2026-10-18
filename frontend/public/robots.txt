@@ -1,11 +1,8 @@
 User-agent: *
 Allow: /
 
-# Prevent crawling of auth and API routes
+# Keep private pages crawlable so search engines can read their page-level noindex directives.
 Disallow: /api/
-Disallow: /login
-Disallow: /register
-Disallow: /tournament/join/
 
 # Sitemap
 Sitemap: https://sushi-counter.jcanas.es/sitemap.xml
