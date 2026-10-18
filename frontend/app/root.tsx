@@ -49,6 +49,7 @@ function DocumentContent() {
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="google-site-verification" content="7mTnHXL8CC9_FRsPkkdDtvn3YwlTlfX1KUNR7iO_ASU" />
         <meta name="theme-color" content="#000000" />
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="Sushi Counter" />
