@@ -4,13 +4,14 @@ import { useUserTournaments } from "~/hooks/useUserTournaments";
 import { useAuth } from "~/hooks/useAuth";
 import type { Route } from './+types/join';
 import loadingIcon from "~/assets/icons/ui/rotate.svg"
+import { loadTournamentShare, tournamentMeta } from "~/utils/tournamentShare";
 
-export function meta({ }: Route.MetaArgs) {
-  return [
-    { title: "Joining Sushi Tournament - Sushi Counter" },
-    { name: "description", content: "You are being redirected to join a sushi eating tournament." },
-    { name: "robots", content: "noindex, nofollow" },
-  ];
+export async function loader({ request, params }: Route.LoaderArgs) {
+  return loadTournamentShare(request, params.id);
+}
+
+export function meta({ data, params }: Route.MetaArgs) {
+  return tournamentMeta(data, params.id);
 }
 
 

@@ -7,6 +7,7 @@ import { router as apiRouter } from "./routes/index";
 import { csrfMiddleware } from "./middleware/csrfMiddleware";
 import compression from "compression";
 import { createRequestHandler } from "@react-router/express";
+import { shareRouter } from "./shareCards";
 
 export async function createApp() {
   const app = express();
@@ -45,6 +46,9 @@ export async function createApp() {
   // Middleware para leer JSON
   app.use("/api", express.json()); // middleware solo para API
   app.use("/api", apiRouter); // Las rutas API se manejan aquí.
+
+  // Public share data and PNG previews must work without an account or JavaScript.
+  app.use("/share", shareRouter);
 
   // --- Catch-all para React Router SSR ---
   const clientPath = path.resolve(__dirname, "../../frontend/build/client");

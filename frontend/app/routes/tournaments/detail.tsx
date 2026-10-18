@@ -10,15 +10,14 @@ import { useAuth } from '~/hooks/useAuth';
 import TournamentShare from "~/components/tournaments/TournamentShare";
 import loadingIcon from "~/assets/icons/ui/rotate.svg"
 import type { Route } from './+types/detail';
+import { loadTournamentShare, tournamentMeta } from '~/utils/tournamentShare';
 
-export function meta({ }: Route.MetaArgs) {
-  return [
-    { title: "Tournament Details - Sushi Counter" },
-    { name: "description", content: "View live rankings, participants, and status for this sushi eating tournament." },
-    { property: "og:title", content: "Sushi Tournament Live Rankings" },
-    { property: "og:description", content: "Check out who is winning this sushi eating tournament!" },
-    { name: "robots", content: "noindex, nofollow" },
-  ];
+export async function loader({ request, params }: Route.LoaderArgs) {
+  return loadTournamentShare(request, params.id);
+}
+
+export function meta({ data, params }: Route.MetaArgs) {
+  return tournamentMeta(data, params.id);
 }
 
 
