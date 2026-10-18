@@ -1,9 +1,8 @@
-import { use, useEffect, useState } from "react";
+import { Link } from "react-router";
 import type { Route } from "./+types/index";
 import upArrow from '../assets/icons/ui/chevron-up.svg'
 import downArrow from '../assets/icons/ui/chevron-down.svg'
 import niamNiam from '../assets/niam-niam.png'
-import { useUserTournaments } from "~/hooks/useUserTournaments";
 import useCounter from "~/hooks/useCounter";
 
 export function meta({ }: Route.MetaArgs) {
@@ -21,22 +20,42 @@ export default function Index() {
   const { count, modifyCounter } = useCounter();
 
   return (
-    <main className="flex-1 w-full max-w-[400px] mx-auto flex flex-col gap-4 p-4 justify-center items-center">
-      <h1 className="text-center m-0 text-6xl font-bold my-8">Sushi Counter</h1>
-      <img
-        src={niamNiam} alt="A man eating sushi, very happy"
-        className='w-[65%] h-auto cursor-pointer self-center'
-        onClick={() => modifyCounter(1)}
-      />
-      <p className="text-2xl font-bold self-center align-self-center" aria-live="polite" aria-label={`Current sushi count: ${count}`}>{count}</p>
-      <div className="flex flex-row justify-center gap-16">
-        <button type="button" onClick={() => modifyCounter(1)} className="w-12 h-12 p-0 border-none bg-transparent cursor-pointer flex items-center justify-center" aria-label="Add one sushi">
-          <img src={upArrow} alt="Add one sushi" className="w-10 h-auto" />
-        </button>
-        <button type="button" onClick={() => modifyCounter(count == 0 ? 0 : -1)} className="w-12 h-12 p-0 border-none bg-transparent cursor-pointer flex items-center justify-center" aria-label="Remove one sushi">
-          <img src={downArrow} alt="Remove one sushi" className="w-10 h-auto" />
-        </button>
-      </div>
+    <main className="flex-1 w-full max-w-2xl mx-auto flex flex-col gap-8 p-4 pb-8 items-center">
+      <section className="w-full max-w-[400px] flex flex-col gap-4 items-center">
+        <h1 className="text-center m-0 text-6xl font-bold my-8">Sushi Counter</h1>
+        <img
+          src={niamNiam} alt="A man eating sushi, very happy"
+          className='w-[65%] h-auto cursor-pointer self-center'
+          onClick={() => modifyCounter(1)}
+        />
+        <p className="text-2xl font-bold self-center align-self-center" aria-live="polite" aria-label={`Current sushi count: ${count}`}>{count}</p>
+        <div className="flex flex-row justify-center gap-16">
+          <button type="button" onClick={() => modifyCounter(1)} className="w-12 h-12 p-0 border-none bg-transparent cursor-pointer flex items-center justify-center" aria-label="Add one sushi">
+            <img src={upArrow} alt="Add one sushi" className="w-10 h-auto" />
+          </button>
+          <button type="button" onClick={() => modifyCounter(count == 0 ? 0 : -1)} className="w-12 h-12 p-0 border-none bg-transparent cursor-pointer flex items-center justify-center" aria-label="Remove one sushi">
+            <img src={downArrow} alt="Remove one sushi" className="w-10 h-auto" />
+          </button>
+        </div>
+      </section>
+
+      <section className="w-full rounded-xl border border-gray-700 bg-[#292929] p-5 text-gray-300 select-text">
+        <h2 className="text-xl font-semibold text-white">Track your sushi, one piece at a time</h2>
+        <p className="mt-3">
+          Sushi Counter lets you count the sushi pieces you eat. You can use the counter above without an account.
+          Sign in to save your meals, see them on a calendar, review your statistics, and join sushi-eating tournaments with friends.
+        </p>
+        <p className="mt-3">
+          Google sign-in is available to create or access your account. You can also use email and password.
+        </p>
+        <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2">
+          <Link to="/login">Sign in</Link>
+          <Link to="/register">Create an account</Link>
+          <Link to="/privacy-policy">Privacy Policy</Link>
+          <Link to="/legal-notice">Legal Notice</Link>
+          <Link to="/cookies-policy">Cookies Policy</Link>
+        </div>
+      </section>
     </main>
 
   )
