@@ -22,7 +22,6 @@ class WebSocketService {
     // Connect to the WebSocket server
     public connect() {
         if (this.socket && this.socket.connected) {
-            console.log("Already connected to WebSocket.");
             return;
         }
 
@@ -37,7 +36,6 @@ class WebSocketService {
         }
 
         // Socket.IO connection configuration
-        console.log(`[WS] Attempting to connect to ${SOCKET_URL} with path ${SOCKET_PATH}`);
         this.socket = io(SOCKET_URL, {
             path: SOCKET_PATH, // 👈 must match the server's path
             query: queryParams,  // Passing wsToken to the server if it exists
@@ -50,34 +48,27 @@ class WebSocketService {
 
         // When connected, the server sends a new wsToken
         this.socket.on('connected', (data: { wsToken: string }) => {
-            console.log('[WS] "connected" event received. New wsToken:', data.wsToken);
             sessionStorage.setItem('wsToken', data.wsToken);  // Save wsToken in sessionStorage
         });
 
         this.socket.on('connect', () => {
-            console.log('[WS] Connection established successfully. ID:', this.socket?.id);
             this.isConnected = true;
         });
 
         this.socket.on('connect_error', (error: Error) => {
-            console.error('[WS] Connection error:', error.message, error);
         });
 
         this.socket.on('disconnect', (reason: string) => {
-            console.log('[WS] Disconnected. Reason:', reason);
             this.isConnected = false;
         });
 
         this.socket.on('reconnect', (attemptNumber: number) => {
-            console.log(`Reconnected to WebSocket. Attempt #${attemptNumber}`);
         });
 
         this.socket.on('reconnect_error', (error: Error) => {
-            console.error('Error while attempting to reconnect: ', error);
         });
 
         this.socket.on('reconnect_attempt', (attemptNumber: number) => {
-            console.log(`Attempting to reconnect to WebSocket. Attempt #${attemptNumber}`);
         });
     }
 
@@ -85,7 +76,6 @@ class WebSocketService {
     public disconnect() {
         if (this.socket) {
             this.socket.disconnect();
-            console.log('WebSocket disconnected');
             this.isConnected = false;
         }
     }
@@ -95,7 +85,6 @@ class WebSocketService {
         if (this.socket && this.socket.connected) {
             this.socket.emit(event, message);
         } else {
-            console.warn("No active connection.");
         }
     }
 

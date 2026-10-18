@@ -7,7 +7,7 @@ import trash from "~/assets/icons/ui/trash.svg"
 import check from "~/assets/icons/ui/check.svg"
 import redo from "~/assets/icons/ui/rotate-right.svg"
 import { useAuth } from '~/hooks/useAuth';
-import linkIcon from "~/assets/icons/ui/link.svg"
+import TournamentShare from "~/components/tournaments/TournamentShare";
 import loadingIcon from "~/assets/icons/ui/rotate.svg"
 import type { Route } from './+types/detail';
 
@@ -48,21 +48,6 @@ function Tournament() {
     updateStatus(currentTournament.id, newStatus);
   }
 
-  const handleCopyInviteLink = async (id: string) => {
-    const hostname = window.location.hostname;
-    const port = window.location.port ? `:${window.location.port}` : ''; // Check if port exists and add it
-    const url = `${hostname}${port}/tournament/join/${id}`;
-    console.log(id)
-    try {
-      // Copy the link to clipboard
-      await navigator.clipboard.writeText(url);
-      alert('Link copied to clipboard!');
-    } catch (error) {
-      console.error('Error during copy to clipboard:', error);
-      alert('Error during copy to clipboard: ' + error);
-    }
-  }
-
   if (loading) {
     return (
       <>
@@ -82,9 +67,7 @@ function Tournament() {
       </h2>
       <menu className='grid grid-cols-2 gap-4 p-3 '>
         <span className='font-semibold justify-self-center'>Owner: {currentTournament?.ownerName} </span>
-        <span className='flex flex-row items-center gap-2 font-semibold justify-self-center cursor-pointer' onClick={() => handleCopyInviteLink(currentTournament?.id || '')}>
-          <img src={linkIcon} alt="Invite" className='invert h-auto w-6' /> Invite
-        </span>
+        {currentTournament && <TournamentShare tournamentId={currentTournament.id} tournamentName={formatDateTime(currentTournament.createdAt)} />}
         <span className="font-semibold justify-self-center">{currentTournament?.status === 'open' ? '🟢 Active' : '🟠 Finished'}</span>
         <span className='font-semibold justify-self-center cursor-pointer' onClick={handleExitTournament}>Exit tournament</span>
         {isOwner() &&

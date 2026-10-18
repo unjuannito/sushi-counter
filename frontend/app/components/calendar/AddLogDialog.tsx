@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { useCalendar } from "~/hooks/useCalendar";
 import DialogComponent from "~/components/DialogComponent";
+import { useLanguage } from "~/context/LanguageContext";
 
 export default function AddLogDialog({ open, setShowAddLogDialog, day, upsertLog }: { open: boolean, setShowAddLogDialog: (open: boolean) => void, day: string, upsertLog: (sushiCount: number, createdAt: Date, updatedAt: Date) => Promise<void> }) {
+    const { t } = useLanguage();
 
     const handleSaveLog = (event: React.FormEvent) => {
         event.preventDefault();
@@ -21,20 +23,20 @@ export default function AddLogDialog({ open, setShowAddLogDialog, day, upsertLog
     return (
         <DialogComponent isOpen={open} onClose={() => setShowAddLogDialog(false)} className="p-6">
             <form onSubmit={handleSaveLog} className="flex flex-col gap-4">
-                <h2 className="text-2xl font-bold text-center mb-2">Add Sushi</h2>
+                <h2 className="text-2xl font-bold text-center mb-2">{t('Add Sushi')}</h2>
                 <div className="flex flex-col gap-2">
-                    <label className="text-sm text-gray-400">Number of pieces:</label>
+                    <label className="text-sm text-gray-400">{t('Number of pieces:')}</label>
                     <input
                         type="number"
                         name="sushiCount"
                         required
                         min={1}
                         className="bg-[#3a3a3a] border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="e.g. 8"
+                        placeholder={t('e.g. 8')}
                     />
                 </div>
                 <div className="flex flex-col gap-2">
-                    <label className="text-sm text-gray-400">Time:</label>
+                    <label className="text-sm text-gray-400">{t('Time:')}</label>
                     <input
                         type="time"
                         name="when"
@@ -44,14 +46,14 @@ export default function AddLogDialog({ open, setShowAddLogDialog, day, upsertLog
                 </div>
                 <div className="flex flex-col gap-2 mt-4">
                     <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition-colors">
-                        Save Log
+                        {t('Save Log')}
                     </button>
                     <button
                         type="button"
                         onClick={() => setShowAddLogDialog(false)}
                         className="text-gray-400 hover:text-white transition-colors py-2"
                     >
-                        Cancel
+                        {t('Cancel')}
                     </button>
                 </div>
             </form>

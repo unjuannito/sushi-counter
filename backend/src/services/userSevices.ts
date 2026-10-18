@@ -85,6 +85,5 @@ export const logLoginActivity = async (userId: string | null, status: 'success' 
             [id, userId, status, ip, userAgent]
         );
     } catch (err: any) {
-        console.error('Error logging login activity:', err.message);
     }
 };

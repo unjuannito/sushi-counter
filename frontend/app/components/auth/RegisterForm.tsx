@@ -3,6 +3,7 @@ import atIcon from "../../assets/icons/auth/at.svg";
 import lockIcon from "../../assets/icons/auth/lock.svg";
 import userPlusIcon from "../../assets/icons/auth/user-plus.svg";
 import googleIcon from "../../assets/icons/social/google.svg";
+import { useLanguage } from "~/context/LanguageContext";
 
 interface RegisterFormProps {
     onGoogleLoginClick: () => void;
@@ -13,14 +14,15 @@ export default function RegisterForm({
     onGoogleLoginClick,
     error
 }: RegisterFormProps) {
+    const { t } = useLanguage();
     return (
         <div className="flex flex-col gap-8 w-full">
             <div className="flex flex-col items-center gap-2 text-center">
                 <h1 className="text-4xl font-black tracking-tight text-white m-0">
-                    Create Account
+                    {t('Create Account')}
                 </h1>
                 <p className="text-[#888] text-sm font-medium max-w-[300px]">
-                    Join the sushi eating competition and track your progress.
+                    {t('Join the sushi eating competition and track your progress.')}
                 </p>
             </div>
 
@@ -38,7 +40,7 @@ export default function RegisterForm({
                             name="name"
                             className="w-full bg-transparent border-b border-white/10 p-4 pl-8 text-white placeholder:text-white/20 focus:outline-none focus:border-white transition-colors"
                             type="text"
-                            placeholder="Full Name"
+                            placeholder={t('Full Name')}
                             required
                         />
                     </div>
@@ -49,7 +51,7 @@ export default function RegisterForm({
                             name="email"
                             className="w-full bg-transparent border-b border-white/10 p-4 pl-8 text-white placeholder:text-white/20 focus:outline-none focus:border-white transition-colors"
                             type="email"
-                            placeholder="Email address"
+                            placeholder={t('Email address')}
                             required
                         />
                     </div>
@@ -60,7 +62,7 @@ export default function RegisterForm({
                             name="password"
                             className="w-full bg-transparent border-b border-white/10 p-4 pl-8 text-white placeholder:text-white/20 focus:outline-none focus:border-white transition-colors"
                             type="password"
-                            placeholder="Password"
+                            placeholder={t('Password')}
                             required
                         />
                     </div>
@@ -71,12 +73,12 @@ export default function RegisterForm({
                         className="w-full py-4 rounded-full bg-white text-black font-bold text-base hover:bg-[#ddd] active:scale-[0.98] transition-all cursor-pointer shadow-[0_0_20px_rgba(255,255,255,0.1)]"
                         type="submit"
                     >
-                        Get Started
+                        {t('Get Started')}
                     </button>
 
                     <div className="flex items-center gap-4 py-2">
                         <div className="h-px flex-1 bg-white/10" />
-                        <span className="text-[10px] font-bold text-white/30 uppercase tracking-widest">OR</span>
+                        <span className="text-[10px] font-bold text-white/30 uppercase tracking-widest">{t('OR')}</span>
                         <div className="h-px flex-1 bg-white/10" />
                     </div>
 
@@ -86,26 +88,26 @@ export default function RegisterForm({
                         onClick={onGoogleLoginClick}
                     >
                         <img src={googleIcon} width="18" height="18" alt="Google" className="brightness-110" />
-                        Sign up with Google
+                        {t('Sign up with Google')}
                     </button>
                 </div>
             </div>
 
             <div className="flex flex-col gap-4 items-center">
                 <p className="text-sm text-[#888]">
-                    Already have an account?{" "}
+                    {t('Already have an account?')}{" "}
                     <Link
                         to="/login"
                         className="text-white font-bold hover:underline transition-all"
                     >
-                        Sign in
+                        {t('Sign in')}
                     </Link>
                 </p>
                 <Link
                     to="/"
                     className="text-[#666] text-xs font-bold hover:text-white transition-colors uppercase tracking-widest"
                 >
-                    Continue as Guest
+                    {t('Continue as Guest')}
                 </Link>
             </div>
         </div>

@@ -21,10 +21,8 @@ async function boot() {
 
     // Escuchar en puerto configurado
     server.listen(config.port, () => {
-      console.log(`🚀 Servidor escuchando en http://localhost:${config.port}/`);
     });
   } catch (error) {
-    console.error("❌ Critical server boot error:", error);
     process.exit(1);
   }
 }

@@ -1,9 +1,8 @@
-import { useAuth } from "~/hooks/useAuth";
 import { useUserTournaments } from "~/hooks/useUserTournaments";
 import { formatDateTime } from "~/utils/date";
 import { useNavigate } from "react-router";
 import type { Route } from './+types/list';
-import linkIcon from "~/assets/icons/ui/link.svg"
+import TournamentShare from "~/components/tournaments/TournamentShare";
 
 export function meta({ }: Route.MetaArgs) {
     return [
@@ -25,21 +24,6 @@ export default function Tournaments() {
     const handleClearError = () => {
         if (setError) setError(null);
     };
-
-    const handleCopyInviteLink = async (id: string) => {
-        const hostname = window.location.hostname;
-        const port = window.location.port ? `:${window.location.port}` : ''; // Verifica si hay puerto y lo agrega
-        const url = `${hostname}${port}/tournament/join/${id}`;
-
-        try {
-            // Copia el enlace al portapapeles
-            await navigator.clipboard.writeText(url);
-            alert('Link copied to clipboard!');
-        } catch (error) {
-            console.error('Error during copy to clipboard:', error);
-            alert('Error during copy to clipboard: ' + error);
-        }
-    }
 
     return (
         <main className="flex-1 w-full max-w-[400px] mx-auto flex flex-col gap-4 p-4 items-center">
@@ -65,9 +49,7 @@ export default function Tournaments() {
                                 <span className="text-[5.9xl] font-bold px-4">{tournament.status === 'open' ? '🟢 Active' : '🟠 Finished'}</span>
                                 <menu className='grid grid-cols-2 gap-4 px-3 '>
                                     <span className='font-semibold justify-self-center'>Owner: {tournament.ownerName} </span>
-                                    <span className='flex flex-row items-center gap-2 font-semibold justify-self-center cursor-pointer' onClick={(event) => { event.stopPropagation(); handleCopyInviteLink(tournament?.id || '') }}>
-                                        <img src={linkIcon} alt="Invite" className='invert h-auto w-6' /> Invite
-                                    </span>
+                                    <div onClick={(event) => event.stopPropagation()}><TournamentShare tournamentId={tournament.id} tournamentName={formatDateTime(tournament.createdAt)} /></div>
                                 </menu>
                             </article>
                         ))

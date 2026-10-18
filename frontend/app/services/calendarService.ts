@@ -11,7 +11,6 @@ export class CalendarService extends ApiService {
                 return { success: false, errorMessage: response.errorMessage };
             }
         } catch (error) {
-            console.error("Error fetching calendar logs:", error);
             return { success: false, errorMessage: "Error fetching calendar logs" };
         }
     }
@@ -25,7 +24,6 @@ export class CalendarService extends ApiService {
                 return { success: false, errorMessage: response.errorMessage };
             }
         } catch (error) {
-            console.error("Error fetching day logs:", error);
             return { success: false, errorMessage: "Error fetching day logs" };
         }
     }
@@ -39,7 +37,6 @@ export class CalendarService extends ApiService {
                 return { success: false, errorMessage: response.errorMessage };
             }
         } catch (error) {
-            console.error("Error fetching month logs:", error);
             return { success: false, errorMessage: "Error fetching month logs" };
         }
     }
@@ -49,7 +46,6 @@ export class CalendarService extends ApiService {
             const response: Response = await this.delete(`/calendar/logs/${id}`);
             return { success: response.success, errorMessage: response.errorMessage };
         } catch (error) {
-            console.error("Error deleting log:", error);
             return { success: false, errorMessage: "Error deleting log" };
         }
     }
@@ -64,7 +60,6 @@ export class CalendarService extends ApiService {
                 return { success: false, errorMessage: response.errorMessage };
             }
         } catch (error) {
-            console.error("Error upserting calendar log:", error);
             return { success: false, errorMessage: "Error upserting calendar log" };
         }
     }

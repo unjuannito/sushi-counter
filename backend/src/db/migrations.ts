@@ -13,13 +13,10 @@ export const runMigrations = () => {
     } catch (e: any) {
       if (e.message.includes('no such column')) {
         db.exec("ALTER TABLE users ADD COLUMN deletion_requested_at TEXT");
-        console.log("Migration: added deletion_requested_at to users");
       }
     }
     
-    console.log('Migrations executed successfully');
   } catch (error) {
-    console.error('Error running migrations:', error);
     throw error;
   }
 };

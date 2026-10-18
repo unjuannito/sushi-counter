@@ -71,7 +71,6 @@ export class ApiService {
                                 return this.axiosInstance(originalRequest);
                             }
                         } catch (refreshError) {
-                            console.error("Token refresh failed:", refreshError);
                         }
                     }
 
