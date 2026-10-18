@@ -8,4 +8,4 @@ Disallow: /register
 Disallow: /tournament/join/
 
 # Sitemap
-Sitemap: https://sushi-counter.ydns.eu/sitemap.xml
+Sitemap: https://sushi-counter.jcanas.es/sitemap.xml

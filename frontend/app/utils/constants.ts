@@ -17,13 +17,13 @@ export const APP_CONSTANTS = {
 
         // Contact Information
         address: "",
-        email: "sushi.counter.project@gmail.com",
+        email: "soporte@jcanas.es",
 
         // Other details
-        websiteUrl: "https://sushi-counter.ydns.eu",
+        websiteUrl: "https://sushi-counter.jcanas.es",
         registryData: "",
 
         // Last updated date
-        lastUpdated: "April 2, 2026",
+        lastUpdated: "October 18, 2026",
     }
 };
