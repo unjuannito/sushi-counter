@@ -38,7 +38,10 @@ export default function Layout() {
     // We only prompt for auth when trying to access protected content.
   }, [user, showAuthRequired, loading, location.pathname])
 
-  if (loading) {
+  // Public pages must be present in the initial HTML, including for crawlers
+  // that do not run JavaScript or wait for the session check to finish.
+  const publicRoutes = ["/", "/legal-notice", "/privacy-policy", "/cookies-policy"];
+  if (loading && !publicRoutes.includes(location.pathname)) {
     return <main className="flex-1 w-full overflow-y-auto flex justify-center items-center p-0 text-[1.5rem] font-bold bg-[#1a1a1a]">Loading...</main>;
   }
 
