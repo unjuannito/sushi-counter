@@ -74,9 +74,9 @@ export default function Index() {
         <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2">
           <Link to="/login">Sign in</Link>
           <Link to="/register">Create an account</Link>
-          <Link to="/privacy-policy">Privacy Policy</Link>
-          <Link to="/legal-notice">Legal Notice</Link>
-          <Link to="/cookies-policy">Cookies Policy</Link>
+          <Link to="/privacy-policy" state={{ returnTo: "/" }}>Privacy Policy</Link>
+          <Link to="/legal-notice" state={{ returnTo: "/" }}>Legal Notice</Link>
+          <Link to="/cookies-policy" state={{ returnTo: "/" }}>Cookies Policy</Link>
         </div>
       </section>}
     </main>
