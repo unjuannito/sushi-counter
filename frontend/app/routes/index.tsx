@@ -35,7 +35,7 @@ export default function Index() {
   };
 
   return (
-    <main className="flex-1 w-full max-w-2xl mx-auto flex flex-col gap-8 p-4 pb-8 items-center">
+    <main className="flex-1 w-full max-w-2xl mx-auto flex flex-col justify-center gap-8 p-4 pb-8 items-center">
       <section className="w-full max-w-[400px] flex flex-col gap-4 items-center">
         <h1 className="text-center m-0 text-6xl font-bold my-8">Sushi Counter</h1>
         <img
