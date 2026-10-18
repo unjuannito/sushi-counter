@@ -20,8 +20,7 @@ async function boot() {
     initScheduler();
 
     // Escuchar en puerto configurado
-    server.listen(config.port, () => {
-    });
+    server.listen(config.port);
   } catch (error) {
     process.exit(1);
   }

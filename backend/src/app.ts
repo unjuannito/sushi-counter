@@ -53,7 +53,6 @@ export async function createApp() {
   // Servir archivos estáticos
   if (fs.existsSync(clientPath)) {
     app.use(express.static(clientPath, { index: false, etag: true }));
-  } else {
   }
 
   // Manejador de React Router

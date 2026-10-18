@@ -9,9 +9,7 @@ export const initScheduler = () => {
                 WHERE deletion_requested_at IS NOT NULL 
                 AND (julianday('now') - julianday(deletion_requested_at)) >= ?
             `;
-            const [result] = await pool.query(sql, [config.accountDeletionDays]);
-            if (result && result.changes > 0) {
-            }
+            await pool.query(sql, [config.accountDeletionDays]);
         } catch (error) {
         }
     };

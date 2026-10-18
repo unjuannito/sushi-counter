@@ -55,20 +55,8 @@ class WebSocketService {
             this.isConnected = true;
         });
 
-        this.socket.on('connect_error', (error: Error) => {
-        });
-
-        this.socket.on('disconnect', (reason: string) => {
+        this.socket.on('disconnect', () => {
             this.isConnected = false;
-        });
-
-        this.socket.on('reconnect', (attemptNumber: number) => {
-        });
-
-        this.socket.on('reconnect_error', (error: Error) => {
-        });
-
-        this.socket.on('reconnect_attempt', (attemptNumber: number) => {
         });
     }
 

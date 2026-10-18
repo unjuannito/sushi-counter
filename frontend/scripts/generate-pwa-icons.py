@@ -60,8 +60,6 @@ def main() -> None:
     resized(master, 32).save(PUBLIC / "favicon-32.png", "PNG", optimize=True)
     resized(master, 16).save(PUBLIC / "favicon-16.png", "PNG", optimize=True)
 
-    print(f"Generated {len(PNG_SIZES)} PWA PNGs in {ICONS}")
-    print(f"Generated favicon.ico with sizes: {', '.join(map(str, ICO_SIZES))}")
 
 
 if __name__ == "__main__":

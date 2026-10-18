@@ -18,19 +18,14 @@ const updateDb = () => {
     for (const col of columns) {
       try {
         db.exec(`ALTER TABLE users ADD COLUMN ${col.name} ${col.type}`);
-      } catch (err: any) {
-        if (err.message.includes('duplicate column name')) {
-        } else {
-        }
-      }
+      } catch {}
     }
 
     // Create unique indexes
     try {
       db.exec(`CREATE UNIQUE INDEX IF NOT EXISTS idx_users_email ON users(email) WHERE email IS NOT NULL`);
       db.exec(`CREATE UNIQUE INDEX IF NOT EXISTS idx_users_google_id ON users(google_id) WHERE google_id IS NOT NULL`);
-    } catch (err: any) {
-    }
+    } catch {}
 
     // Create login_activity table if it doesn't exist
     db.exec(`
@@ -49,23 +44,19 @@ const updateDb = () => {
     try {
       db.exec(`UPDATE tournaments SET created_at = CURRENT_TIMESTAMP WHERE created_at IS NULL OR created_at = ''`);
       db.exec(`UPDATE tournaments SET status = 'open' WHERE status IS NULL OR status = ''`);
-    } catch (err: any) {
-    }
+    } catch {}
 
     // Fix null sushi_count in participants
     try {
       db.exec(`UPDATE participants SET sushi_count = 0 WHERE sushi_count IS NULL`);
-    } catch (err: any) {
-    }
+    } catch {}
 
     // Ensure foreign keys are enabled in the database for the future
     try {
       db.pragma('foreign_keys = ON');
-    } catch (err: any) {
-    }
+    } catch {}
 
-  } catch (error) {
-  }
+  } catch {}
 };
 
 updateDb();
