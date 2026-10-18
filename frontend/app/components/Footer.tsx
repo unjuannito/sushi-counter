@@ -25,6 +25,11 @@ export default function Footer() {
                     <img src={userImg} alt="User" className="text-white w-[1.5em] h-auto" />
                 </Link>
             </nav>
+            <nav aria-label="Legal" className="flex justify-center gap-4 px-4 pb-2 text-xs">
+                <Link to="/privacy-policy">Privacy</Link>
+                <Link to="/legal-notice">Legal notice</Link>
+                <Link to="/cookies-policy">Cookies</Link>
+            </nav>
         </footer>
     );
 }
