@@ -25,7 +25,6 @@ export default function useCounter() {
                 const timeSinceLastUpdate = now.getTime() - lastUpdate.getTime();
 
                 if (timeSinceLastUpdate > APP_CONSTANTS.NEW_SESSION_THRESHOLD_MS) {
-                    console.log("New session threshold exceeded, resetting counter");
                     const newCreatedAt = new Date();
                     const newUpdatedAt = new Date();
                     setCount(0);
@@ -73,7 +72,6 @@ export default function useCounter() {
 
     const callServices = (newCount: number, newCreatedAt: Date, newUpdatedAt: Date) => {
         const timeSinceLastUpdate = newUpdatedAt.getTime() - (new Date(updatedAt)).getTime();
-        console.log("timeSinceLastUpdate", timeSinceLastUpdate);
 
         // If a long time has passed (> 3h) or if we are starting a new session (it was at 0 and now there is sushi)
         // But we only update createdAt if APP_CONSTANTS.SHORT_SESSION_THRESHOLD_MS has passed since the last change,
@@ -82,7 +80,6 @@ export default function useCounter() {
         const isNewSessionFromZero = (oldCountRef.current === 0 && newCount > 0) && (timeSinceLastUpdate > APP_CONSTANTS.SHORT_SESSION_THRESHOLD_MS);
 
         if (isNewSessionAfterTimeout || isNewSessionFromZero) {
-            console.log("Starting new session (threshold reached)");
             setCreatedAt(newUpdatedAt);
             newCreatedAt = newUpdatedAt;
         }

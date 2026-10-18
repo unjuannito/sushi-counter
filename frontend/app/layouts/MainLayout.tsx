@@ -6,9 +6,11 @@ import AuthRequiredDialog from "~/components/auth/AuthRequiredDialog";
 import { useAuth } from "~/hooks/useAuth";
 import WebSocketService from '~/services/webSocketService'; // Importar WebSocketService
 import CookieBanner from "~/components/legal/CookieBanner";
+import { useLanguage } from "~/context/LanguageContext";
 
 // This is the main layout for most pages
 export default function Layout() {
+  const { t } = useLanguage();
   const { user, loading } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
@@ -31,7 +33,7 @@ export default function Layout() {
   const publicRoutes = ["/", "/legal-notice", "/privacy-policy", "/cookies-policy"];
   const isPublicRoute = publicRoutes.includes(location.pathname);
   if (loading && !isPublicRoute) {
-    return <main className="flex-1 w-full overflow-y-auto flex justify-center items-center p-0 text-[1.5rem] font-bold bg-[#1a1a1a]">Loading...</main>;
+    return <main className="flex-1 w-full overflow-y-auto flex justify-center items-center p-0 text-[1.5rem] font-bold bg-[#1a1a1a]">{t('Loading...')}</main>;
   }
 
   const handleCancelAuthRequired = () => {

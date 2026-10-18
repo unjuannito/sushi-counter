@@ -22,7 +22,6 @@ else
     const Database = require("./backend/node_modules/better-sqlite3");
     const source = new Database(process.env.DATABASE_URL, { readonly: true });
     source.backup(process.argv[1]).then(() => source.close()).catch((error) => {
-      console.error(error);
       process.exit(1);
     });
   ' "${TEMP_BACKUP}"

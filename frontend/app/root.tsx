@@ -13,6 +13,7 @@ import "./styles/root.css";
 import { AuthProvider } from "./context/AuthContext";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { APP_CONSTANTS } from "./utils/constants";
+import { LanguageProvider, useLanguage } from "./context/LanguageContext";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -30,16 +31,20 @@ export const links: Route.LinksFunction = () => [
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
 
 if (!GOOGLE_CLIENT_ID && import.meta.env.DEV) {
-  console.warn("VITE_GOOGLE_CLIENT_ID is not defined in your .env file. Google Login will not work and may show 403 errors.");
 }
 
 // This is the main Document component that wraps the entire app
 export default function Document() {
+  return <LanguageProvider><DocumentContent /></LanguageProvider>;
+}
+
+function DocumentContent() {
   const location = useLocation();
+  const { language } = useLanguage();
   const canonicalUrl = `${APP_CONSTANTS.legalDetails.websiteUrl}${location.pathname === "/" ? "" : location.pathname}`;
 
   return (
-    <html lang="en">
+    <html lang={language}>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />

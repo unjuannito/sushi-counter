@@ -26,7 +26,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                         logout();
                     }
                 } catch (error) {
-                    console.error("Error initializing auth:", error);
                     logout();
                 }
             }
@@ -95,7 +94,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 setUser(response.user as User);
             }
         } catch (error) {
-            console.error("Error refreshing user:", error);
         }
     };
 

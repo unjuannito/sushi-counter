@@ -168,41 +168,33 @@ export const googleLogin = async (req: Request, res: Response) => {
 
   try {
     let payload;
-    console.log("Google login attempt with credential length:", credential?.length);
     
     // Check if it's an access token (from implicit flow/useGoogleLogin) or id_token
     if (credential.length > 500) { 
          try {
-            console.log("Attempting to verify as ID Token...");
             const ticket = await client.verifyIdToken({
             idToken: credential,
             audience: process.env.GOOGLE_CLIENT_ID,
             });
             payload = ticket.getPayload();
-            console.log("ID Token verified successfully");
          } catch(e) {
-            console.log("ID Token verification failed, trying as access token...");
             // Fallback to userInfo endpoint if verifyIdToken fails (might be access_token)
             client.setCredentials({ access_token: credential });
             const userInfoRes = await client.request<any>({
                 url: 'https://www.googleapis.com/oauth2/v3/userinfo'
             });
             payload = userInfoRes.data;
-            console.log("User info fetched with long token");
          }
     } else {
          // Assume access token
-        console.log("Treating as access token, fetching user info...");
         client.setCredentials({ access_token: credential });
         const userInfoRes = await client.request<any>({
             url: 'https://www.googleapis.com/oauth2/v3/userinfo'
         });
         payload = userInfoRes.data;
-        console.log("User info fetched successfully");
     }
 
     if (!payload) {
-        console.error("No payload retrieved from Google token");
         return res.json({ success: false, errorMessage: "Invalid Google token" });
     }
 
@@ -463,7 +455,6 @@ export const forgotPassword = async (req: Request, res: Response) => {
     );
 
     // In a real app, send email here. For now, we return it in the response for testing purposes (or just log it)
-    console.log(`Password reset token for ${email}: ${resetToken}`);
 
     return res.json({
       success: true,

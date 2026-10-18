@@ -2,6 +2,7 @@ import { Link } from "react-router";
 import atIcon from "../../assets/icons/auth/at.svg";
 import lockIcon from "../../assets/icons/auth/lock.svg";
 import googleIcon from "../../assets/icons/social/google.svg";
+import { useLanguage } from "~/context/LanguageContext";
 
 interface LoginFormProps {
     onGoogleLoginClick: () => void;
@@ -14,14 +15,15 @@ export default function LoginForm({
     handleGuest,
     error
 }: LoginFormProps) {
+    const { t } = useLanguage();
     return (
         <div className="flex flex-col gap-8 w-full">
             <div className="flex flex-col items-center gap-2 text-center">
                 <h1 className="text-4xl font-black tracking-tight text-white m-0">
-                    Welcome Back
+                    {t('Welcome Back')}
                 </h1>
                 <p className="text-[#888] text-sm font-medium max-w-[280px]">
-                    Count your sushi plates and compete with friends.
+                    {t('Count your sushi plates and compete with friends.')}
                 </p>
             </div>
 
@@ -39,7 +41,7 @@ export default function LoginForm({
                             name="email"
                             className="w-full bg-transparent border-b border-white/10 p-4 pl-8 text-white placeholder:text-white/20 focus:outline-none focus:border-white transition-colors"
                             type="email"
-                            placeholder="Email address"
+                            placeholder={t('Email address')}
                             required
                         />
                     </div>
@@ -50,7 +52,7 @@ export default function LoginForm({
                             name="password"
                             className="w-full bg-transparent border-b border-white/10 p-4 pl-8 text-white placeholder:text-white/20 focus:outline-none focus:border-white transition-colors"
                             type="password"
-                            placeholder="Password"
+                            placeholder={t('Password')}
                             required
                         />
                     </div>
@@ -61,12 +63,12 @@ export default function LoginForm({
                         className="w-full py-4 rounded-full bg-white text-black font-bold text-base hover:bg-[#ddd] active:scale-[0.98] transition-all cursor-pointer shadow-[0_0_20px_rgba(255,255,255,0.1)]"
                         type="submit"
                     >
-                        Sign In
+                        {t('Sign In')}
                     </button>
 
                     <div className="flex items-center gap-4 py-2">
                         <div className="h-px flex-1 bg-white/10" />
-                        <span className="text-[10px] font-bold text-white/30 uppercase tracking-widest">OR</span>
+                        <span className="text-[10px] font-bold text-white/30 uppercase tracking-widest">{t('OR')}</span>
                         <div className="h-px flex-1 bg-white/10" />
                     </div>
 
@@ -76,19 +78,19 @@ export default function LoginForm({
                         onClick={onGoogleLoginClick}
                     >
                         <img src={googleIcon} width="18" height="18" alt="Google" className="brightness-110" />
-                        Continue with Google
+                        {t('Continue with Google')}
                     </button>
                 </div>
             </div>
 
             <div className="flex flex-col gap-4 items-center mt-4">
                 <p className="text-sm text-[#888]">
-                    Don't have an account?{" "}
+                    {t("Don't have an account?")}{" "}
                     <Link
                         to="/register"
                         className="text-white font-bold hover:underline transition-all"
                     >
-                        Create one
+                        {t('Create one')}
                     </Link>
                 </p>
                 <button
@@ -96,7 +98,7 @@ export default function LoginForm({
                     className="text-[#666] text-xs font-bold hover:text-white transition-colors uppercase tracking-widest cursor-pointer bg-transparent border-none p-0"
                     onClick={handleGuest}
                 >
-                    Continue as Guest
+                    {t('Continue as Guest')}
                 </button>
             </div>
         </div>

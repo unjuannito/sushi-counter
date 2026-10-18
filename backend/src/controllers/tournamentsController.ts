@@ -98,7 +98,6 @@ export const joinTournament = async (req: Request, res: Response) => {
       return res.json(resAddParticipant);
     }
 
-    console.log(`[Tournaments] User ${userId} joined tournament ${tournamentId}`);
     notifyClients('join');
 
     return res.json({
@@ -244,7 +243,6 @@ export const updateStatus = async (req: Request, res: Response) => {
       [status, id]
     );
 
-    console.log(`[Tournaments] Status updated for tournament ${id} to ${status}`);
     notifyClients('update');
 
     return res.json({
@@ -282,7 +280,6 @@ export const updateCount = async (req: Request, res: Response) => {
       [sushiCount, userId]
     );
 
-    console.log(`[Tournaments] Count updated for user ${userId} to ${sushiCount}`);
     notifyClients('update');
 
     return res.json({
@@ -339,7 +336,6 @@ export const deleteTournament = async (req: Request, res: Response) => {
       WHERE id = ? AND status = 'open' AND owner_id = ?
     `, [id, userId]);
 
-    console.log(`[Tournaments] Tournament ${id} deleted by owner ${userId}`);
     notifyClients('delete');
 
     return res.json({

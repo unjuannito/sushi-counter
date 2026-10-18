@@ -32,7 +32,6 @@ export const query = async <T = any>(sql: string, params: any[] = []): Promise<[
       return [result as any, null];
     }
   } catch (error) {
-    console.error('Database error:', error);
     throw error;
   }
 };

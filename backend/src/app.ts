@@ -52,10 +52,7 @@ export async function createApp() {
 
   // Servir archivos estáticos
   if (fs.existsSync(clientPath)) {
-    console.log(`[info] Sirviendo archivos estáticos desde: ${clientPath}`);
     app.use(express.static(clientPath, { index: false, etag: true }));
-  } else {
-    console.warn(`[warn] Carpeta de build de frontend no encontrada en: ${clientPath}`);
   }
 
   // Manejador de React Router
@@ -75,7 +72,6 @@ export async function createApp() {
       const handler = createRequestHandler({ build });
       return handler(req, res, next);
     } catch (error) {
-      console.error("[error] Fallo al cargar el build del servidor de React Router:", error);
       res.status(500).send("Error interno del servidor (React Router Build no encontrado)");
     }
   });

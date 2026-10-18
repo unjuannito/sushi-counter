@@ -63,9 +63,7 @@ export default function Day() {
             const createdAtDate = Math.trunc((new Date(formattedCreatedAt).getTime()) / 10000);
             const parsedCreatedAtDate = Math.trunc((new Date(parsed.createdAt).getTime()) / 10000);
 
-            console.log("Comparing dates", parsedCreatedAtDate, createdAtDate);
             if (parsedCreatedAtDate === createdAtDate) {
-                console.log("Resetting local sushi counter to 0");
                 parsed.count = 0;
                 localStorage.setItem("sushiCounter", JSON.stringify(parsed));
             }

@@ -25,12 +25,10 @@ export function useUserTournaments() {
         service.getActiveUserTournaments()
             .then((response) => {
                 if (!response.success) {
-                    console.log('Error response:', response);
                     setError(response.errorMessage || 'Error fetching tournaments');
                     setLoading(false);
                     return;
                 }
-                console.log('Fetched tournaments:', response.tournaments);
                 setTournaments(response.tournaments || []);
                 setLoading(false);
             })
@@ -45,7 +43,6 @@ export function useUserTournaments() {
         if (currentTournament) {
             const updated = tournaments.find(t => t.id === currentTournament.id);
             if (updated) {
-                console.log(`[WS Hook] Updating currentTournament (ID: ${currentTournament.id}) after tournaments change`);
                 setCurrentTournament(updated);
             }
         }
@@ -62,8 +59,6 @@ export function useUserTournaments() {
 
         // Listener for the 'update' event (or the event sent by the WS)
         const handleUpdateMessage = (event: string, message: any) => {
-            console.log(`[WS Hook] Event "${event}" received. Data:`, message);
-            console.log('[WS Hook] Forcing tournament reload...');
             setReloading(prev => prev + 1);
         };
 
@@ -71,14 +66,12 @@ export function useUserTournaments() {
         const onJoin = (data: any) => handleUpdateMessage('join', data);
         const onDelete = (data: any) => handleUpdateMessage('delete', data);
 
-        console.log('[WS Hook] Registering listeners for "update", "join", "delete"');
         webSocketService.listenToEvent('update', onUpdate);
         webSocketService.listenToEvent('join', onJoin);
         webSocketService.listenToEvent('delete', onDelete);
 
         // Cleanup: remove listener on unmount
         return () => {
-            console.log('[WS Hook] Cleaning up listeners');
             webSocketService.stopListening('update', onUpdate);
             webSocketService.stopListening('join', onJoin);
             webSocketService.stopListening('delete', onDelete);
@@ -139,7 +132,6 @@ export function useUserTournaments() {
         if (!user) return { success: false, errorMessage: "User not authenticated" };
         service.updateSushiCount(newCounter)
         // .then((response) => {
-        //     console.log(response)
         // })
     };
 
