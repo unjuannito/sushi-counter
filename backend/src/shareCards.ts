@@ -35,11 +35,15 @@ async function getTournament(id: string): Promise<ShareTournament | null> {
   return { id, owner: rows[0].owner, status: rows[0].status, participants };
 }
 
-const emoji = fs.readFileSync(path.join(__dirname, "assets/sushi-emoji.png")).toString("base64");
+const sushiEmoji = fs.readFileSync(path.join(__dirname, "assets/sushi-noto.svg")).toString("base64");
+const classicSushiEmoji = fs.readFileSync(path.join(__dirname, "assets/sushi-emoji.png")).toString("base64");
+const brandMark = fs.readFileSync(path.join(__dirname, "assets/sushi-counter-mark.svg")).toString("base64");
 const sushi = `
   <circle cx="1006" cy="332" r="190" fill="#24231f" stroke="#514b41" stroke-width="2"/>
   <circle cx="1006" cy="332" r="155" fill="#302d27"/>
-  <image href="data:image/png;base64,${emoji}" x="864" y="187" width="284" height="284"/>
+  <image href="data:image/svg+xml;base64,${sushiEmoji}" x="860" y="205" width="132" height="132"/>
+  <image href="data:image/svg+xml;base64,${sushiEmoji}" x="1020" y="205" width="132" height="132"/>
+  <image href="data:image/png;base64,${classicSushiEmoji}" x="940" y="346" width="132" height="132"/>
   <circle cx="1156" cy="179" r="17" fill="#9eae77"/><circle cx="867" cy="434" r="12" fill="#9eae77"/>`;
 
 function frame(content: string) {
@@ -47,9 +51,8 @@ function frame(content: string) {
   <rect width="1200" height="630" fill="#171717"/>
   <circle cx="1065" cy="76" r="315" fill="#25231f"/><circle cx="1114" cy="610" r="240" fill="#20231e"/>
   <path d="M0 1h1200M0 629h1200" stroke="#31312e" stroke-width="2"/>
-  <rect x="66" y="55" width="43" height="43" rx="14" fill="#fb715a"/>
-  <circle cx="87.5" cy="76.5" r="12" fill="#f6ead8"/><circle cx="87.5" cy="76.5" r="6" fill="#fb715a"/>
-  <text x="124" y="86" fill="#f6f0e7" font-family="DejaVu Sans, sans-serif" font-weight="bold" font-size="29">sushi counter</text>
+  <image href="data:image/svg+xml;base64,${brandMark}" x="66" y="55" width="43" height="43"/>
+  <text x="124" y="85" fill="#f6f0e7" font-family="DejaVu Sans, sans-serif" font-weight="900" font-size="29" letter-spacing="1">SUSHI COUNTER</text>
   <text x="66" y="591" fill="#aaa9a3" font-family="DejaVu Sans, sans-serif" font-size="22">sushi-counter.jcanas.es</text>
   ${content}</svg>`;
 }
