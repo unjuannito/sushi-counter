@@ -47,7 +47,7 @@ export default function DialogComponent({
 
     return (
         <dialog
-            className={`fixed inset-0 bg-[#2a2a2a] text-white rounded-3xl justify-self-center self-center backdrop:bg-black/60 backdrop:backdrop-blur-sm max-w-[90dvw] max-h-[90dvh] overflow-hidden z-50 border border-white/10 shadow-2xl ${isOpen ? 'flex flex-col' : 'hidden'} ${className}`}
+            className={`fixed inset-0 bg-[#2d2b26] text-[#f6f0e7] rounded-3xl justify-self-center self-center backdrop:bg-black/70 backdrop:backdrop-blur-sm max-w-[90dvw] max-h-[90dvh] overflow-hidden z-50 border border-[#62594d] shadow-2xl ${isOpen ? 'flex flex-col' : 'hidden'} ${className}`}
             onClick={handleBackdropClick}
             ref={dialogRef as React.RefObject<HTMLDialogElement>}
             onClose={handleClose}

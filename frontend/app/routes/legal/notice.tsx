@@ -22,8 +22,8 @@ export default function LegalNotice() {
               {APP_CONSTANTS.legalDetails.commercialName && <li><strong>Commercial Name:</strong> {APP_CONSTANTS.legalDetails.commercialName}</li>}
               {APP_CONSTANTS.legalDetails.vatId && <li><strong>VAT/Tax ID:</strong> {APP_CONSTANTS.legalDetails.vatId}</li>}
               {APP_CONSTANTS.legalDetails.address && <li><strong>Address:</strong> {APP_CONSTANTS.legalDetails.address}</li>}
-              <li><strong>Email:</strong> <a href={`mailto:${APP_CONSTANTS.legalDetails.email}`} className="text-[#646cff] hover:text-[#535bf2]">{APP_CONSTANTS.legalDetails.email}</a></li>
-              <li><strong>Website:</strong> <a href={APP_CONSTANTS.legalDetails.websiteUrl} className="text-[#646cff] hover:text-[#535bf2]">{APP_CONSTANTS.legalDetails.websiteUrl}</a></li>
+              <li><strong>Email:</strong> <a href={`mailto:${APP_CONSTANTS.legalDetails.email}`}>{APP_CONSTANTS.legalDetails.email}</a></li>
+              <li><strong>Website:</strong> <a href={APP_CONSTANTS.legalDetails.websiteUrl}>{APP_CONSTANTS.legalDetails.websiteUrl}</a></li>
               {APP_CONSTANTS.legalDetails.registryData && <li><strong>Registry Data:</strong> {APP_CONSTANTS.legalDetails.registryData}</li>}
             </ul>
           </section>
@@ -54,6 +54,11 @@ export default function LegalNotice() {
             <p>
               {APP_CONSTANTS.legalDetails.companyName} is not responsible, in any case, for damages of any nature that could cause, but not limited to: errors or omissions in the contents, lack of availability of the portal or the transmission of viruses or malicious or harmful programs in the contents, despite having adopted all the necessary technological measures to prevent it.
             </p>
+          </section>
+
+          <section>
+            <h2 className="text-xl font-semibold mb-3 text-white">Emoji artwork</h2>
+            <p>The sushi emoji used in share images is adapted from <a href="https://github.com/jdecked/twemoji" target="_blank" rel="noopener noreferrer">Twemoji</a> and licensed under <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a>.</p>
           </section>
 
           <p className="text-xs text-gray-500 mt-8 pt-4 border-t border-gray-800">

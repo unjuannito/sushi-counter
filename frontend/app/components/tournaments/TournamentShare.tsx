@@ -54,9 +54,9 @@ export default function TournamentShare({ tournamentId, tournamentName }: { tour
   };
 
   return (
-    <div className="justify-self-center text-center">
-      <button type="button" className="flex flex-row items-center gap-2 font-semibold" onClick={handleShare}>
-        <img src={linkIcon} alt="" className="invert h-auto w-6" />
+    <div className="pointer-events-auto justify-self-center text-center">
+      <button type="button" className="secondary-button text-sm" onClick={handleShare}>
+        <img src={linkIcon} alt="" className="invert h-auto w-4" />
         {copied ? t('Copied!') : isMobile ? t('Share invite') : t('Copy link')}
       </button>
       {copied && <span role="status" className="sr-only">{t('Invite link copied to clipboard.')}</span>}

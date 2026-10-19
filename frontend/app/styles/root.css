@@ -1,104 +1,112 @@
 @import "tailwindcss";
 
-@theme {
-  --animate-dialog-appear: dialogAppear 0.2s ease-out forwards;
-
-  @keyframes dialogAppear {
-    from {
-      opacity: 0;
-      transform: translate(-50%, -48%) scale(0.96);
-    }
-
-    to {
-      opacity: 1;
-      transform: translate(-50%, -50%) scale(1);
-    }
+:root {
+  color-scheme: dark;
+  --ink: #171717;
+  --surface: #26241f;
+  --surface-raised: #302d27;
+  --line: #49443c;
+  --cream: #f6f0e7;
+  --muted: #aaa69e;
+  --coral: #fb715a;
+  --coral-hover: #ff8a72;
+}
+@layer base {
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html { min-width: 320px; background: var(--ink); }
+  body {
+    margin: 0;
+    min-width: 320px;
+    min-height: 100dvh;
+    overflow-x: hidden;
+    background: radial-gradient(circle at 82% 6%, #302920 0, transparent 27rem), var(--ink);
+    color: var(--cream);
+    font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--coral); text-decoration: none; }
+  a:hover { color: var(--coral-hover); }
+  button { cursor: pointer; }
+  button:disabled { cursor: not-allowed; }
+  :focus-visible { outline: 2px solid var(--coral); outline-offset: 3px; }
+  ::selection { background: var(--coral); color: var(--ink); }
+  input, textarea, select { user-select: text; }
+  input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:focus {
+    color-scheme: dark !important;
+    -webkit-text-fill-color: var(--cream) !important;
+    caret-color: var(--cream) !important;
+    clip-path: inset(0 round 14px);
   }
 }
 
-@layer base {
-  body {
-    margin: 0;
-    padding: 0;
+@layer components {
+  .app-header { width: 100%; border-bottom: 1px solid #ffffff0e; background: #171717dc; backdrop-filter: blur(18px); }
+  .app-header-inner { width: min(100%, 1100px); height: 74px; padding: 0 24px; margin: auto; display: flex; align-items: center; justify-content: space-between; }
+  .brand-mark { width: 36px; height: 36px; display: block; flex: none; object-fit: contain; }
+  .brand-wordmark { color: var(--cream); font-size: 1.7rem; line-height: 1.05; font-weight: 800; letter-spacing: -.045em; }
+  .brand-kicker { color: var(--muted); font-size: .68rem; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; }
+  .page-shell { width: min(100%, 1100px); margin: 0 auto; padding: 38px 24px 48px; }
+  .page-shell.calendar-page-shell { flex: 0 0 auto; margin: auto; padding-block: 0; }
+  .tournaments-create-bar { display: none; }
+  .page-heading { margin: 0; color: var(--cream); font-size: clamp(2.35rem, 6vw, 4.25rem); font-weight: 800; letter-spacing: -.065em; line-height: 1.06; text-align: left; }
+  .eyebrow { color: var(--coral); font-size: .76rem; font-weight: 800; letter-spacing: .22em; text-transform: uppercase; }
+  .muted-copy { color: var(--muted); line-height: 1.6; }
+  .surface-card { background: linear-gradient(155deg, #2d2b26, #24231f); border: 1px solid var(--line); border-radius: 24px; box-shadow: 0 18px 60px #00000018; }
+  .surface-card-soft { background: #ffffff08; border: 1px solid #ffffff16; border-radius: 18px; }
+  .primary-button { min-height: 48px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 22px; background: var(--coral); color: var(--ink); border: 1px solid var(--coral); border-radius: 999px; font-weight: 800; transition: background .2s, transform .2s; }
+  .primary-button:hover { background: var(--coral-hover); color: var(--ink); transform: translateY(-2px); }
+  .secondary-button { min-height: 46px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 20px; background: #ffffff0a; color: var(--cream); border: 1px solid var(--line); border-radius: 999px; font-weight: 700; transition: background .2s, border-color .2s; }
+  .secondary-button:hover { background: #ffffff15; border-color: #776e61; color: var(--cream); }
+  .field-control { width: 100%; padding: 14px 16px; background: #1b1b19; color: var(--cream); border: 1px solid var(--line); border-radius: 14px; outline: none; }
+  .field-control:focus { border-color: var(--coral); box-shadow: 0 0 0 3px #fb715a25; }
+  .app-page { width: min(100%, 760px); margin: 0 auto; padding: 32px 20px 48px; }
+  .app-page > h1 { margin: 0 0 24px; font-size: clamp(2.5rem, 7vw, 4rem); letter-spacing: -.06em; text-align: left; }
+  .app-page section:not(.danger-zone), .app-page article { border-color: var(--line); }
+  .profile-page { width: min(100%, 1040px); display: flex; flex-direction: column; gap: 20px; padding: 32px 24px 48px; }
+  .profile-intro { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
+  .profile-intro .page-heading { margin: 0; }
+  .profile-layout { display: grid; grid-template-columns: minmax(0, 1fr); align-items: start; gap: 20px; }
+  .profile-column { display: flex; min-width: 0; flex-direction: column; gap: 20px; }
+  .profile-panel { min-width: 0; padding: clamp(20px, 2.5vw, 30px); border: 1px solid var(--line); border-radius: 24px; background: linear-gradient(155deg, #2d2b26, #24231f); box-shadow: 0 18px 60px #00000018; }
+  .profile-value { overflow-wrap: anywhere; }
+  .profile-feedback { width: 100%; }
+  .profile-logout { background: #fb715a08; }
+}
+
+@media (min-width: 820px) {
+  .profile-layout { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+  .profile-layout--editing > .profile-column { display: contents; }
+  .profile-layout--editing { grid-template-areas: "info info" "linked language" "legal legal"; }
+  .profile-layout--editing .profile-info { grid-area: info; }
+  .profile-layout--editing .profile-linked { grid-area: linked; }
+  .profile-layout--editing .profile-language { grid-area: language; }
+  .profile-layout--editing .profile-legal { grid-area: legal; }
+}
+
+@media (max-width: 640px) {
+  .app-header-inner { height: 60px; padding: 0 18px; }
+  .brand-mark { width: 32px; height: 32px; }
+  .brand-wordmark { font-size: 1.55rem; line-height: 1.2; }
+  .page-shell { padding: 26px 18px 36px; }
+  .page-shell.calendar-page-shell { padding-inline: 18px; }
+  .profile-page { gap: 16px; padding: 26px 18px 40px; }
+  .profile-layout, .profile-column { gap: 16px; }
+  .profile-danger { padding: 20px; }
+}
+
+@media (max-width: 639px) {
+  .page-shell.tournaments-page-shell { padding-bottom: 140px; }
+  .tournaments-create-bar {
+    position: fixed;
+    z-index: 40;
+    right: 0;
+    bottom: calc(72px + env(safe-area-inset-bottom));
+    left: 0;
     display: flex;
-    flex-direction: column;
-    place-items: center;
-    min-width: 100dvw;
-    min-height: 100vh;
-    min-height: 100dvh;
-    height: 100vh;
-    height: 100dvh;
-    overflow-x: hidden;
-    font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-    line-height: 1.5;
-    font-weight: 400;
-    color: rgba(255, 255, 255, 0.87);
-    background-color: #222222;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+    justify-content: center;
+    padding: 20px 18px 12px;
+    background: linear-gradient(0deg, #1b1b1b 35%, #1b1b1bed 68%, #1b1b1b00 100%);
+    pointer-events: none;
   }
-
-  a {
-    font-weight: 500;
-    color: #646cff;
-    text-decoration: inherit;
-    transition: color 0.2s;
-  }
-
-  a:hover {
-    color: #535bf2;
-  }
-
-  * {
-    -webkit-tap-highlight-color: transparent;
-    -webkit-touch-callout: none;
-    user-select: none;
-    -webkit-user-select: none;
-  }
-
-  input,
-  textarea {
-    user-select: text;
-    -webkit-user-select: text;
-  }
-
-  h1 {
-    font-size: 3.2em;
-    line-height: 1.1;
-    text-align: center;
-  }
-
-  /* --- Professional solution for autofill artifacts in Chrome --- */
-
-  :root {
-    --input-border-radius: 10px;
-  }
-
-  input:-webkit-autofill,
-  input:-webkit-autofill:hover,
-  input:-webkit-autofill:focus,
-  input:-webkit-autofill:active {
-    /*
-       1. TECHNICAL CAUSE:
-       Chrome applies the autofill background through an internal layer of the User Agent (UA)
-       that renders independently of the normal CSS background flow.
-       This layer does not always respect the 'clipping path' of the element's border-radius,
-       causing visual artifacts at the corners.
-    */
-
-    /* 2. IMPLEMENTATION WITHOUT BOX-SHADOW OR TRANSITION HACKS: */
-
-    /* Force the browser to use its dark palette for autofill */
-    color-scheme: dark !important;
-
-    /* Manual clipping of the autofill layer to remove corner artifacts */
-    clip-path: inset(0 round var(--input-border-radius));
-
-    /* Ensure text and cursor visibility */
-    -webkit-text-fill-color: white !important;
-    caret-color: white !important;
-
-    /* Prevent the background from extending under the border */
-    background-clip: padding-box !important;
-  }
+  .tournaments-create-bar > button { width: min(100%, 520px); pointer-events: auto; }
 }

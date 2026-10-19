@@ -1,9 +1,8 @@
 import { useState, useEffect } from "react";
-import { useSearchParams, useNavigate, Link } from "react-router";
+import { useSearchParams, useNavigate } from "react-router";
 import { useGoogleLogin } from "@react-oauth/google";
 import { useAuth } from "~/hooks/useAuth";
 import LoginForm from "~/components/auth/LoginForm";
-import sushiIcon from "~/assets/niam-niam.png"; // Reusing the sushi image for branding
 import type { Route } from "./+types/login";
 
 export function meta({ }: Route.MetaArgs) {
@@ -66,7 +65,7 @@ export default function Login() {
     };
 
     return (
-        <main className="flex-1 w-full max-w-[400px] mx-auto flex flex-col gap-4 p-4 justify-center">
+        <main className="app-page flex max-w-[480px]! flex-1 flex-col justify-center py-10!">
             <form onSubmit={handleSubmit}>
                 <LoginForm
                     onGoogleLoginClick={() => googleLoginAction()}
