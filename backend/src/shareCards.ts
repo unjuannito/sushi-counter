@@ -5,6 +5,7 @@ import path from "path";
 import { pool } from "./db/db";
 
 type ShareParticipant = { name: string; count: number };
+export type ShareLanguage = "es" | "en";
 type ShareTournament = {
   id: string;
   owner: string;
@@ -57,13 +58,28 @@ function frame(content: string) {
   ${content}</svg>`;
 }
 
-export function homeCard() {
-  return frame(`<text x="66" y="203" fill="#fb715a" font-family="DejaVu Sans, sans-serif" font-size="23" font-weight="bold" letter-spacing="5">COME · CUENTA · COMPITE</text>
-  <text x="62" y="305" fill="#f6f0e7" font-family="DejaVu Sans, sans-serif" font-size="72" font-weight="bold">Cada pieza</text>
-  <text x="62" y="392" fill="#f6f0e7" font-family="DejaVu Sans, sans-serif" font-size="72" font-weight="bold">cuenta.</text>
-  <text x="66" y="457" fill="#c2bfb8" font-family="DejaVu Sans, sans-serif" font-size="27">Cuenta tu sushi. Reta a tus amigos.</text>
+export function homeCard(language: ShareLanguage = "es") {
+  const copy = language === "en"
+    ? {
+        slogan: "EAT · COUNT · COMPETE",
+        titleTop: "Every piece",
+        titleBottom: "counts.",
+        description: "Track your sushi. Challenge your friends.",
+        button: "Start counting  →",
+      }
+    : {
+        slogan: "COME · CUENTA · COMPITE",
+        titleTop: "Cada pieza",
+        titleBottom: "cuenta.",
+        description: "Cuenta tu sushi. Reta a tus amigos.",
+        button: "Empieza a contar  →",
+      };
+  return frame(`<text x="66" y="203" fill="#fb715a" font-family="DejaVu Sans, sans-serif" font-size="23" font-weight="bold" letter-spacing="5">${copy.slogan}</text>
+  <text x="62" y="305" fill="#f6f0e7" font-family="DejaVu Sans, sans-serif" font-size="72" font-weight="bold">${copy.titleTop}</text>
+  <text x="62" y="392" fill="#f6f0e7" font-family="DejaVu Sans, sans-serif" font-size="72" font-weight="bold">${copy.titleBottom}</text>
+  <text x="66" y="457" fill="#c2bfb8" font-family="DejaVu Sans, sans-serif" font-size="27">${copy.description}</text>
   <rect x="66" y="493" width="294" height="52" rx="26" fill="#fb715a"/>
-  <text x="96" y="528" fill="#171717" font-family="DejaVu Sans, sans-serif" font-size="23" font-weight="bold">Empieza a contar  →</text>
+  <text x="96" y="528" fill="#171717" font-family="DejaVu Sans, sans-serif" font-size="23" font-weight="bold">${copy.button}</text>
   ${sushi}`);
 }
 
@@ -89,8 +105,9 @@ export function tournamentCard(tournament: ShareTournament) {
 
 export const shareRouter = Router();
 
-shareRouter.get("/home.png", async (_req, res) => {
-  const image = await sharp(Buffer.from(homeCard())).png().toBuffer();
+shareRouter.get("/home.png", async (req, res) => {
+  const language: ShareLanguage = req.query.lang === "en" ? "en" : "es";
+  const image = await sharp(Buffer.from(homeCard(language))).png().toBuffer();
   res.type("png").set("Cache-Control", "public, max-age=86400").send(image);
 });
 
