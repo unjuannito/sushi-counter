@@ -1,5 +1,7 @@
 import { Router } from "express";
 import sharp from "sharp";
+import fs from "fs";
+import path from "path";
 import { pool } from "./db/db";
 
 type ShareParticipant = { name: string; count: number };
@@ -33,22 +35,24 @@ async function getTournament(id: string): Promise<ShareTournament | null> {
   return { id, owner: rows[0].owner, status: rows[0].status, participants };
 }
 
+const sushiEmoji = fs.readFileSync(path.join(__dirname, "assets/sushi-noto.svg")).toString("base64");
+const classicSushiEmoji = fs.readFileSync(path.join(__dirname, "assets/sushi-emoji.png")).toString("base64");
+const brandMark = fs.readFileSync(path.join(__dirname, "assets/sushi-counter-mark.svg")).toString("base64");
 const sushi = `
-  <ellipse cx="1006" cy="333" rx="165" ry="178" fill="#262626" stroke="#52504a" stroke-width="3"/>
-  <ellipse cx="1006" cy="333" rx="140" ry="151" fill="#34312c"/>
-  <g transform="translate(941 251) rotate(-18)"><rect x="0" y="0" width="110" height="72" rx="30" fill="#f5edda"/><rect x="25" y="15" width="60" height="42" rx="20" fill="#fb715a"/><path d="M35 36h40" stroke="#ffc6ad" stroke-width="8" stroke-linecap="round"/></g>
-  <g transform="translate(901 347) rotate(22)"><rect x="0" y="0" width="110" height="72" rx="30" fill="#f5edda"/><rect x="25" y="15" width="60" height="42" rx="20" fill="#fb715a"/><path d="M35 36h40" stroke="#ffc6ad" stroke-width="8" stroke-linecap="round"/></g>
-  <g transform="translate(1028 343) rotate(-12)"><rect x="0" y="0" width="110" height="72" rx="30" fill="#f5edda"/><rect x="25" y="15" width="60" height="42" rx="20" fill="#fb715a"/><path d="M35 36h40" stroke="#ffc6ad" stroke-width="8" stroke-linecap="round"/></g>
-  <circle cx="1093" cy="245" r="13" fill="#9eae77"/><circle cx="895" cy="287" r="9" fill="#9eae77"/>`;
+  <circle cx="1006" cy="332" r="190" fill="#24231f" stroke="#514b41" stroke-width="2"/>
+  <circle cx="1006" cy="332" r="155" fill="#302d27"/>
+  <image href="data:image/svg+xml;base64,${sushiEmoji}" x="860" y="205" width="132" height="132"/>
+  <image href="data:image/svg+xml;base64,${sushiEmoji}" x="1020" y="205" width="132" height="132"/>
+  <image href="data:image/png;base64,${classicSushiEmoji}" x="940" y="346" width="132" height="132"/>
+  <circle cx="1156" cy="179" r="17" fill="#9eae77"/><circle cx="867" cy="434" r="12" fill="#9eae77"/>`;
 
 function frame(content: string) {
   return `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
   <rect width="1200" height="630" fill="#171717"/>
   <circle cx="1065" cy="76" r="315" fill="#25231f"/><circle cx="1114" cy="610" r="240" fill="#20231e"/>
   <path d="M0 1h1200M0 629h1200" stroke="#31312e" stroke-width="2"/>
-  <rect x="66" y="55" width="43" height="43" rx="14" fill="#fb715a"/>
-  <circle cx="87.5" cy="76.5" r="12" fill="#f6ead8"/><circle cx="87.5" cy="76.5" r="6" fill="#fb715a"/>
-  <text x="124" y="86" fill="#f6f0e7" font-family="DejaVu Sans, sans-serif" font-weight="bold" font-size="29">sushi counter</text>
+  <image href="data:image/svg+xml;base64,${brandMark}" x="66" y="55" width="43" height="43"/>
+  <text x="124" y="85" fill="#f6f0e7" font-family="DejaVu Sans, sans-serif" font-weight="900" font-size="29" letter-spacing="1">SUSHI COUNTER</text>
   <text x="66" y="591" fill="#aaa9a3" font-family="DejaVu Sans, sans-serif" font-size="22">sushi-counter.jcanas.es</text>
   ${content}</svg>`;
 }
@@ -69,7 +73,7 @@ export function tournamentCard(tournament: ShareTournament) {
     <rect x="748" y="${242 + i * 92}" width="394" height="76" rx="17" fill="#34322d"/>
     <circle cx="788" cy="${280 + i * 92}" r="23" fill="${i === 0 ? "#fb715a" : "#59554b"}"/>
     <text x="781" y="${288 + i * 92}" fill="#fff6eb" font-family="DejaVu Sans, sans-serif" font-size="22" font-weight="bold">${i + 1}</text>
-  <text x="827" y="${289 + i * 92}" fill="#f6f0e7" font-family="DejaVu Sans, sans-serif" font-size="24" font-weight="bold">${short(participant.name, 10)}</text>
+    <text x="827" y="${289 + i * 92}" fill="#f6f0e7" font-family="DejaVu Sans, sans-serif" font-size="24" font-weight="bold">${short(participant.name, 10)}</text>
     <text x="1121" y="${289 + i * 92}" text-anchor="end" fill="#fb715a" font-family="DejaVu Sans, sans-serif" font-size="24" font-weight="bold">${participant.count}</text>`).join("");
   return frame(`<text x="66" y="195" fill="#fb715a" font-family="DejaVu Sans, sans-serif" font-size="23" font-weight="bold" letter-spacing="5">TORNEO DE SUSHI</text>
   <text x="62" y="285" fill="#f6f0e7" font-family="DejaVu Sans, sans-serif" font-size="66" font-weight="bold">El torneo de</text>

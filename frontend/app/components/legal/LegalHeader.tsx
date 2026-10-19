@@ -6,10 +6,10 @@ export default function LegalHeader() {
   const returnTo = location.state?.returnTo === "/user" ? "/user" : "/";
 
   return (
-    <header className="w-full flex items-center p-4 border-b border-white/10 sticky top-0 bg-[#222222]/90 backdrop-blur-md z-10">
+    <header className="sticky top-0 z-10 flex w-full items-center border-b border-[#49443c] bg-[#211f1b]/90 p-4 backdrop-blur-md">
       <button 
         onClick={() => navigate(returnTo, { replace: true })}
-        className="text-gray-300 hover:text-white flex items-center gap-2 hover:bg-white/10 px-4 py-2 rounded-xl transition-colors font-medium"
+        className="secondary-button gap-2 text-sm"
       >
         <span className="text-2xl leading-none -mt-1">←</span>
         <span>{returnTo === "/user" ? "Back to Profile" : "Back to Home"}</span>

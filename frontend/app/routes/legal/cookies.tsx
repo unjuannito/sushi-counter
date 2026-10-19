@@ -42,10 +42,10 @@ export default function CookiesPolicy() {
             At any time you may exercise your right to deactivate or eliminate cookies from this website. Depending on your web browser, the way to do this is different:
           </p>
           <ul className="list-disc pl-6 mt-2 space-y-1">
-            <li><a href="https://support.google.com/chrome/answer/95647?hl=en" target="_blank" rel="noopener noreferrer" className="text-[#646cff] hover:text-[#535bf2]">Google Chrome</a></li>
-            <li><a href="https://support.mozilla.org/en-US/kb/enhanced-tracking-protection-firefox-desktop" target="_blank" rel="noopener noreferrer" className="text-[#646cff] hover:text-[#535bf2]">Mozilla Firefox</a></li>
-            <li><a href="https://support.apple.com/en-us/guide/safari/sfri11471/mac" target="_blank" rel="noopener noreferrer" className="text-[#646cff] hover:text-[#535bf2]">Safari</a></li>
-            <li><a href="https://support.microsoft.com/en-us/microsoft-edge/delete-cookies-in-microsoft-edge-63947406-40ac-c3b8-57b9-2a946a29ae09" target="_blank" rel="noopener noreferrer" className="text-[#646cff] hover:text-[#535bf2]">Microsoft Edge</a></li>
+            <li><a href="https://support.google.com/chrome/answer/95647?hl=en" target="_blank" rel="noopener noreferrer" className="text-[#fb715a] hover:text-[#ff8a72]">Google Chrome</a></li>
+            <li><a href="https://support.mozilla.org/en-US/kb/enhanced-tracking-protection-firefox-desktop" target="_blank" rel="noopener noreferrer" className="text-[#fb715a] hover:text-[#ff8a72]">Mozilla Firefox</a></li>
+            <li><a href="https://support.apple.com/en-us/guide/safari/sfri11471/mac" target="_blank" rel="noopener noreferrer" className="text-[#fb715a] hover:text-[#ff8a72]">Safari</a></li>
+            <li><a href="https://support.microsoft.com/en-us/microsoft-edge/delete-cookies-in-microsoft-edge-63947406-40ac-c3b8-57b9-2a946a29ae09" target="_blank" rel="noopener noreferrer" className="text-[#fb715a] hover:text-[#ff8a72]">Microsoft Edge</a></li>
           </ul>
         </section>
         

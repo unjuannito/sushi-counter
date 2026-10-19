@@ -1,12 +1,14 @@
 import { useCalendar } from "~/hooks/useCalendar";
 import type { Route } from './+types/day';
-import { APP_CONSTANTS } from "~/utils/constants";
 import { useNavigate, useParams } from "react-router";
 import AddLogDialog from "~/components/calendar/AddLogDialog";
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { formatDateTime } from "~/utils/date";
-import type { Logs } from "~/types/calendarType";
 import deleteIcon from "~/assets/icons/ui/trash.svg";
+import { useLanguage } from "~/context/LanguageContext";
+import { useAuth } from "~/hooks/useAuth";
+import { useUserTournamentHistory } from "~/hooks/useUserTournamentHistory";
+import { getLocalDateKey, getPlaceLabel, getTournamentPlace } from "~/utils/tournamentHistory";
 
 export function meta({ }: Route.MetaArgs) {
     return [
@@ -19,12 +21,17 @@ export function meta({ }: Route.MetaArgs) {
 export default function Day() {
     const { day = "" } = useParams();
     const navigate = useNavigate();
+    const { t, language } = useLanguage();
+    const { user } = useAuth();
 
     const parts = day.split("-");
     const [dayPart, monthPart, yearPart] = parts;
 
     const { logs, error, upsertLog, deleteLog, fetchLogsByDay } = useCalendar();
     const [showAddLogDialog, setShowAddLogDialog] = useState(false);
+    const tournaments = useUserTournamentHistory();
+    const dayDateKey = `${yearPart}-${String(Number(monthPart)).padStart(2, '0')}-${String(Number(dayPart)).padStart(2, '0')}`;
+    const tournamentsForDay = tournaments.filter((tournament) => getLocalDateKey(tournament.createdAt) === dayDateKey);
 
     useEffect(() => {
         if (parts.length !== 3) {
@@ -71,40 +78,51 @@ export default function Day() {
     };
 
     return (
-        <main className="flex-1 w-full max-w-[400px] mx-auto flex flex-col gap-4 p-4 items-center">
+        <main className="min-h-0 w-full flex-1 overflow-y-auto">
+          <div className="page-shell max-w-[760px]!">
             <AddLogDialog open={showAddLogDialog} setShowAddLogDialog={setShowAddLogDialog} day={day} upsertLog={upsertLog} />
-            <h1 className="text-center m-0 text-6xl font-bold my-8 mb-1">
-                {dayPart}<br />
-                {APP_CONSTANTS.MONTHS[Number(monthPart) - 1]}
-                <br />
-                {yearPart}
-            </h1>
-            <article className="flex flex-col gap-4 w-full overflow-y-auto p-2">
-                {logs.length === 0 && <p className="text-center text-xl font-medium text-white/50">No sushi eaten this day.</p>}
+            <span className="eyebrow">{t('Calendar')}</span>
+            <h1 className="page-heading mt-3 capitalize">{dayPart} {new Intl.DateTimeFormat(language === 'es' ? 'es-ES' : 'en-US', { month: 'long' }).format(new Date(Number(yearPart), Number(monthPart) - 1, 1))}</h1>
+            <p className="muted-copy mb-7 mt-2">{yearPart} · {t('A little history of your sushi.')}</p>
+            <div className="flex flex-col gap-3">
+                {logs.length === 0 && <p className="surface-card p-8 text-center text-[#aaa69e]">{t('No sushi eaten this day.')}</p>}
                 {
-                    logs.sort((a, b) => a.createdAt.localeCompare(b.createdAt)).map((log) => (
+                    [...logs].sort((a, b) => a.createdAt.localeCompare(b.createdAt)).map((log) => (
                         <article key={log.id}
-                            className="grid grid-cols-[10fr_4fr_1fr] gap-2 p-4 border border-white/10 rounded-xl bg-white/5 items-center"
+                            className="surface-card flex items-center gap-3 p-4 sm:p-5"
                         >
-                            <span className="text-xl font-bold text-left justify-self-start">
-                                {formatDateTime(log.createdAt)}                                </span>
-                            <span className="text-xl font-medium text-center">
+                            <span className="min-w-0 flex-1 truncate font-semibold text-[#f6f0e7]">
+                                {formatDateTime(log.createdAt)}</span>
+                            <span className="whitespace-nowrap text-lg font-bold text-[#fb715a]">
                                 {log.sushiCount} 🍣
                             </span>
-
-                            <img src={deleteIcon} alt="Delete log" onClick={() => handleDeleteLog(log.id, log.createdAt)}
-                                className=" h-full w-auto cursor-pointer"
-                            />
+                            <button type="button" onClick={() => handleDeleteLog(log.id, log.createdAt)} aria-label="Delete log" className="grid h-10 w-10 shrink-0 place-items-center rounded-full hover:bg-white/10"><img src={deleteIcon} alt="" className="h-5 w-5 invert opacity-70" /></button>
                         </article>
                     ))
                 }
+                {tournamentsForDay.map((tournament) => {
+                    const place = getTournamentPlace(tournament, user?.id);
+                    const medal = place === 1 ? '🥇' : place === 2 ? '🥈' : place === 3 ? '🥉' : '🏆';
+                    return (
+                        <article key={tournament.id} className="surface-card flex items-center gap-4 p-4 sm:p-5">
+                            <span className="text-2xl" aria-hidden="true">{medal}</span>
+                            <div className="min-w-0 flex-1">
+                                <h2 className="font-bold text-[#f6f0e7]">{t('Tournament')}</h2>
+                                <p className="muted-copy mt-1 text-sm">
+                                    {place !== null ? getPlaceLabel(place, language) : language === 'es' ? 'Participaste' : 'Participated'}
+                                    {' · '}{tournament.participants.length} {t('Participants').toLowerCase()}
+                                </p>
+                            </div>
+                        </article>
+                    );
+                })}
                 <button onClick={() => setShowAddLogDialog(true)}
-                    className="p-2 border border-white/10 rounded-xl bg-white/5 text-center text-xl font-bold text-white"
+                    className="primary-button mt-4 self-start"
                 >
-                    Add Log
+                    + {t('Add Sushi')}
                 </button>
-
-            </article>
+            </div>
+          </div>
         </main>
     );
 }

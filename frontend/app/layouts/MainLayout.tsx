@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Outlet, useLocation, useNavigate } from "react-router";
+import { Link, Outlet, useLocation, useNavigate } from "react-router";
 import Footer from "~/components/Footer";
 // import LoginDialog from "~/components/LoginDialog";
 import AuthRequiredDialog from "~/components/auth/AuthRequiredDialog";
@@ -7,6 +7,7 @@ import { useAuth } from "~/hooks/useAuth";
 import WebSocketService from '~/services/webSocketService'; // Importar WebSocketService
 import CookieBanner from "~/components/legal/CookieBanner";
 import { useLanguage } from "~/context/LanguageContext";
+import sushiIcon from "../assets/icons/ui/sushi.svg";
 
 // This is the main layout for most pages
 export default function Layout() {
@@ -40,9 +41,22 @@ export default function Layout() {
     navigate("/"); // Redirect to index
   };
 
+  const header = (
+    <header className="app-header shrink-0">
+      <div className="app-header-inner">
+        <Link to="/" className="flex items-center gap-3" aria-label="Sushi Counter">
+          <img src={sushiIcon} alt="" className="brand-mark" aria-hidden="true" />
+          <span className="brand-wordmark">Sushi Counter</span>
+        </Link>
+        <span className="brand-kicker hidden sm:block">{t('Count every piece')}</span>
+      </div>
+    </header>
+  );
+
   if (!loading && !user && !isPublicRoute) {
     return (
       <>
+        {header}
         <AuthRequiredDialog isOpen onCancel={handleCancelAuthRequired} />
         <CookieBanner />
         <Footer />
@@ -52,6 +66,7 @@ export default function Layout() {
 
   return (
     <>
+      {header}
       <Outlet />
       <CookieBanner />
       <Footer />

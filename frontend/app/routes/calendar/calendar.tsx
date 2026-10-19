@@ -1,11 +1,12 @@
 import { useCalendar } from "~/hooks/useCalendar";
 import type { Route } from './+types/calendar';
-import { APP_CONSTANTS } from "~/utils/constants";
 import { useNavigate, useParams } from "react-router";
 import ChangeMonth from "~/components/calendar/ChangeMonth";
 import { useState, useEffect } from "react";
-import { useUserTournaments } from "~/hooks/useUserTournaments";
+import { useUserTournamentHistory } from "~/hooks/useUserTournamentHistory";
 import { useAuth } from "~/hooks/useAuth";
+import { useLanguage } from "~/context/LanguageContext";
+import { getLocalDateKey, getPlaceLabel, getTournamentPlace } from "~/utils/tournamentHistory";
 export function meta({ }: Route.MetaArgs) {
   return [
     { title: "Sushi Calendar - Sushi Counter" },
@@ -18,6 +19,8 @@ export function meta({ }: Route.MetaArgs) {
 export default function Calendar() {
   const navigate = useNavigate();
   const { month } = useParams();
+  const now = new Date();
+  const maxMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
 
   // Parse month param YYYY-MM
   const getInitialMonth = () => {
@@ -27,14 +30,16 @@ export default function Calendar() {
     const year = Number(parts[0]);
     const monthNum = Number(parts[1]);
     if (isNaN(year) || isNaN(monthNum) || monthNum < 1 || monthNum > 12) return undefined;
+    if (`${year}-${String(monthNum).padStart(2, '0')}` > maxMonth) return undefined;
     return { year, month: monthNum };
   };
 
   const initialMonth = getInitialMonth();
   const { currentMonth, logs, changeMonth, fetchLogsByMonth } = useCalendar(initialMonth);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const { tournaments } = useUserTournaments();
+  const tournaments = useUserTournamentHistory();
   const { user } = useAuth();
+  const { t, language } = useLanguage();
 
   // Initial fetch
   useEffect(() => {
@@ -60,6 +65,14 @@ export default function Calendar() {
         return;
       }
 
+      const requestedMonth = `${yearNum}-${String(monthNum).padStart(2, '0')}`;
+      const today = new Date();
+      const latestAllowedMonth = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
+      if (requestedMonth > latestAllowedMonth) {
+        navigate(`/calendar/${latestAllowedMonth}`, { replace: true });
+        return;
+      }
+
       if (monthNum !== currentMonth.month || yearNum !== currentMonth.year) {
         changeMonth(month);
       }
@@ -73,6 +86,10 @@ export default function Calendar() {
   }, [month, changeMonth, currentMonth.month, currentMonth.year, navigate]);
 
   const daysInMonth = new Date(currentMonth.year, currentMonth.month, 0).getDate();
+  const firstWeekday = (new Date(currentMonth.year, currentMonth.month - 1, 1).getDay() + 6) % 7;
+  const weekRows = Math.ceil((firstWeekday + daysInMonth) / 7);
+  const monthLabel = new Intl.DateTimeFormat(language === 'es' ? 'es-ES' : 'en-US', { month: 'long' }).format(new Date(currentMonth.year, currentMonth.month - 1, 1));
+  const selectedMonth = `${currentMonth.year}-${String(currentMonth.month).padStart(2, '0')}`;
 
   const handlePrevMonth = () => {
     let newMonth = currentMonth.month - 1;
@@ -85,6 +102,7 @@ export default function Calendar() {
   };
 
   const handleNextMonth = () => {
+    if (selectedMonth >= maxMonth) return;
     let newMonth = currentMonth.month + 1;
     let newYear = currentMonth.year;
     if (newMonth === 13) {
@@ -95,20 +113,27 @@ export default function Calendar() {
   };
 
   return (
-    <main className="flex-1 w-full max-w-[400px] mx-auto flex flex-col gap-4 p-4">
-      <ChangeMonth open={isDialogOpen} changeMonth={(m: string) => navigate(`/calendar/${m}`)} setIsDialogOpen={setIsDialogOpen} />
-      <div className="flex items-center justify-between my-8">
-        <button type="button" aria-label="Previous month" className="bg-none border-none text-[2rem] cursor-pointer px-4 text-white hover:text-[#646cff]" onClick={handlePrevMonth}>◀</button>
-        <span></span>
-        <h1 className="text-center m-0 font-bold cursor-pointer" onClick={() => setIsDialogOpen(true)} aria-label="Change month">
-          {APP_CONSTANTS.MONTHS[currentMonth.month - 1]}<br />
-          {currentMonth.year}
-          <span className="p-2 text-[2rem] cursor-pointer" aria-hidden="true">▼</span>
-        </h1>
-        <button type="button" aria-label="Next month" className="bg-none border-none text-[2rem] cursor-pointer px-4 text-white hover:text-[#646cff]" onClick={handleNextMonth} >▶</button>
+    <main className="flex min-h-0 w-full flex-1 flex-col overflow-y-auto">
+      <div className={`page-shell calendar-page-shell ${weekRows === 6 ? 'max-w-[720px]!' : 'max-w-[820px]!'}`}>
+      <ChangeMonth open={isDialogOpen} maxMonth={maxMonth} changeMonth={(m: string) => navigate(`/calendar/${m > maxMonth ? maxMonth : m}`)} setIsDialogOpen={setIsDialogOpen} />
+      <span className="eyebrow">{t('A little history of your sushi.')}</span>
+      <div className="mb-8 mt-3 flex items-end justify-between gap-4">
+        <div>
+          <h1 className="page-heading capitalize">{monthLabel}</h1>
+          <button type="button" className="muted-copy mt-2 text-sm hover:text-[#fb715a]" onClick={() => setIsDialogOpen(true)} aria-label="Change month">{currentMonth.year} · {t('Change Month')} ▾</button>
+        </div>
+        <div className="flex gap-2">
+          <button type="button" aria-label="Previous month" className="secondary-button h-11 w-11 p-0! text-xl" onClick={handlePrevMonth}>‹</button>
+          <button type="button" aria-label="Next month" disabled={selectedMonth >= maxMonth} className="secondary-button h-11 w-11 p-0! text-xl disabled:cursor-not-allowed disabled:opacity-35" onClick={handleNextMonth}>›</button>
+        </div>
       </div>
 
-      <article className="grid grid-cols-7 gap-2 flex-1">
+      <div className="surface-card p-3 sm:p-6">
+      <div className="mb-3 grid grid-cols-7 gap-1 text-center text-[11px] font-bold uppercase tracking-widest text-[#a9a49a] sm:gap-2">
+        {(language === 'es' ? ['Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa', 'Do'] : ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su']).map((dayName, i) => <span key={i}>{dayName}</span>)}
+      </div>
+      <div className="grid grid-cols-7 gap-1 sm:gap-2">
+        {Array.from({ length: firstWeekday }, (_, i) => <span key={`blank-${i}`} aria-hidden="true" />)}
         {[...Array(daysInMonth)].map((_, index) => {
           const actualLogs = logs.filter(log => {
             // Ensure we handle the date string format "YYYY-MM-DD HH:mm:ss" correctly
@@ -120,35 +145,28 @@ export default function Calendar() {
           });
           const totalSushi = actualLogs.reduce((sum, log) => sum + log.sushiCount, 0);
 
-          // Get all tournaments to check if the user ranked top 3 on this day
-          // Show 🥇, 🥈, or 🥉 if ranked. Show 🏆 if participated.
-          // Checked via useUserTournaments hook.
-
-          // Check if there was any tournament on this day
-          const tournamentsInThisDay = tournaments.filter(tournament => {
-            const tournamentDate = new Date(tournament.createdAt);
-            return tournamentDate.getDate() === index + 1 && tournamentDate.getMonth() === currentMonth.month - 1 && tournamentDate.getFullYear() === currentMonth.year;
-          });
+          const calendarDate = `${currentMonth.year}-${String(currentMonth.month).padStart(2, '0')}-${String(index + 1).padStart(2, '0')}`;
+          const tournamentsInThisDay = tournaments.filter(tournament => getLocalDateKey(tournament.createdAt) === calendarDate);
 
           let bestPosition = 0;
-          if (tournamentsInThisDay.length > 0) {
-            tournamentsInThisDay.forEach(tournament => {
-              const orderedParticipants = tournament.participants.sort((a, b) => b.sushiCount - a.sushiCount);
-              // Find the user's position relative to others
-              const userPosition = orderedParticipants.findIndex(player => player.userId === user?.id) + 1;
-              if (userPosition > 0) {
-                bestPosition = bestPosition === 0 ? userPosition : Math.min(bestPosition, userPosition);
-              }
-            });
-          }
+          tournamentsInThisDay.forEach(tournament => {
+            const place = getTournamentPlace(tournament, user?.id);
+            if (place !== null) bestPosition = bestPosition === 0 ? place : Math.min(bestPosition, place);
+          });
+          const placeLabel = bestPosition > 0 ? getPlaceLabel(bestPosition, language) : '';
           return (
-            <article key={index} onClick={() => navigate(`/calendar/day/${String(index + 1).padStart(2, '0')}-${String(currentMonth.month).padStart(2, '0')}-${currentMonth.year}`)} className={`border border-[#ccc] p-[5px] text-center flex flex-col flex-grow items-center overflow-hidden ${currentMonth.month === new Date().getMonth() + 1 && index + 1 === new Date().getDate() && currentMonth.year === new Date().getFullYear() ? 'bg-[#007bff] text-white' : ''}`}>
-              <span className="self-start text-[0.7rem] text-[#999]">{index + 1}</span>
-              <span className={`p-[5px] mt-[5px] text-[1rem] w-full overflow-hidden text-ellipsis text-[#ccc] font-light ${totalSushi > 0 ? 'font-bold text-white' : ''}`}>{totalSushi}</span>
-              <span> {bestPosition > 0 ? bestPosition === 1 ? '🥇' : bestPosition === 2 ? '🥈' : bestPosition === 3 ? '🥉' : '🏆' : ''}</span>
-            </article>)
+            <button type="button" key={index} onClick={() => navigate(`/calendar/day/${String(index + 1).padStart(2, '0')}-${String(currentMonth.month).padStart(2, '0')}-${currentMonth.year}`)} aria-label={`${index + 1} ${monthLabel}: ${totalSushi} ${t('Pieces of sushi')}${placeLabel ? `, ${placeLabel}` : ''}`} className={`flex aspect-square min-w-0 flex-col items-center justify-between overflow-hidden rounded-xl border p-1 sm:p-3 ${currentMonth.month === new Date().getMonth() + 1 && index + 1 === new Date().getDate() && currentMonth.year === new Date().getFullYear() ? 'border-[#fb715a] bg-[#fb715a24]' : 'border-[#49443c] bg-[#ffffff08] hover:bg-[#ffffff14]'}`}>
+              <span className="self-start text-[10px] font-semibold leading-none text-[#aaa69e] sm:text-[11px]">{index + 1}</span>
+              <span className="flex w-full min-w-0 items-center justify-between gap-0.5 leading-none">
+                <span className={`text-xs font-bold sm:text-xl ${totalSushi > 0 ? 'text-[#fb715a]' : 'text-[#6f6a61]'}`}>{totalSushi > 0 ? totalSushi : '·'}</span>
+                {bestPosition > 0 && <span aria-hidden="true" className="shrink-0 text-[11px] leading-none sm:text-base">{bestPosition === 1 ? '🥇' : bestPosition === 2 ? '🥈' : bestPosition === 3 ? '🥉' : '🏆'}</span>}
+              </span>
+            </button>)
         })}
-      </article>
+      </div>
+      </div>
+
+      </div>
     </main>
 
   );

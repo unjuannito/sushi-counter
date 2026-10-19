@@ -4,7 +4,7 @@ import CookieBanner from "~/components/legal/CookieBanner";
 
 export default function LegalLayout() {
   return (
-    <div className="flex flex-col w-full min-h-dvh bg-[#222222]">
+    <div className="flex min-h-dvh w-full flex-col bg-[#171717]">
       <LegalHeader />
       <main className="flex-1 w-full flex justify-center">
         <Outlet />

@@ -171,25 +171,22 @@ export default function User() {
   }
 
   return (
-    <main className="flex-1 w-full max-w-[400px] mx-auto flex flex-col gap-4 p-4 items-center">
-      <h1 className="text-center m-0 text-6xl font-bold my-8">{t('Your Profile')}</h1>
-
-      <section className="w-full p-5 border border-white/10 rounded-2xl bg-white/5">
-        <label htmlFor="language" className="block font-bold mb-2">{t('Language')}</label>
-        <p className="text-sm text-gray-400 mb-3">{t('Choose the language used across Sushi Counter.')}</p>
-        <select id="language" value={language} onChange={(event) => setLanguage(event.target.value as 'en' | 'es')} className="w-full bg-[#222] border border-white/10 rounded-lg p-3">
-          <option value="en">English</option><option value="es">Español</option>
-        </select>
-      </section>
+    <main className="app-page profile-page min-h-0 flex-1 overflow-y-auto">
+      <div className="profile-intro">
+        <span className="eyebrow">sushi counter</span>
+        <h1 className="page-heading">{t('Your Profile')}</h1>
+      </div>
 
       {message && (
-        <div className={`w-full p-4 rounded-lg text-center font-bold ${message.type === 'success' ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
+        <div className={`profile-feedback p-4 rounded-2xl text-center font-bold ${message.type === 'success' ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
           {message.text}
         </div>
       )}
 
-      <section className="flex flex-col gap-6 w-full p-8 border border-white/10 rounded-2xl bg-white/5 backdrop-blur-sm">
-        <div className="flex justify-between items-center border-b border-white/10 pb-4">
+      <div className={`profile-layout${isEditing ? ' profile-layout--editing' : ''}`}>
+        <div className="profile-column">
+      <section className="profile-panel profile-info flex flex-col gap-6">
+        <div className="flex flex-wrap justify-between items-center gap-3 border-b border-white/10 pb-4">
           <h2 className="text-xl font-bold m-0">{t('User Information')}</h2>
           {!isEditing && (
             <button
@@ -209,7 +206,7 @@ export default function User() {
                 name="name"
                 type="text"
                 defaultValue={user.name}
-                className="bg-white/5 border border-white/10 rounded-lg p-3 outline-none focus:border-white/30"
+                className="field-control"
                 placeholder={t('Your name')}
               />
             </div>
@@ -219,7 +216,7 @@ export default function User() {
                 name="email"
                 type="email"
                 defaultValue={user.email || ""}
-                className="bg-white/5 border border-white/10 rounded-lg p-3 outline-none focus:border-white/30"
+                className="field-control"
                 placeholder="your@email.com"
               />
             </div>
@@ -232,12 +229,12 @@ export default function User() {
 
               <div className="flex flex-col gap-2">
                 <label className="text-sm text-[#aaa]">{t(user.hasPassword ? "New Password" : "Password")}</label>
+                <p className="m-0 text-xs text-white/35">{t('Min. 8 characters, 1 uppercase, 1 number')}</p>
                 <input
                   name="password"
                   type="password"
                   autoComplete="new-password"
-                  className="bg-white/5 border border-white/10 rounded-lg p-3 outline-none focus:border-white/30"
-                  placeholder={t('Min. 8 characters, 1 uppercase, 1 number')}
+                  className="field-control"
                 />
               </div>
 
@@ -247,7 +244,7 @@ export default function User() {
                   name="confirmPassword"
                   type="password"
                   autoComplete="new-password"
-                  className="bg-white/5 border border-white/10 rounded-lg p-3 outline-none focus:border-white/30"
+                  className="field-control"
                   placeholder={t('Confirm new password')}
                 />
               </div>
@@ -269,7 +266,7 @@ export default function User() {
             <div className="flex gap-3 mt-6">
               <button
                 type="submit"
-                className="flex-1 bg-white text-black font-bold py-3 rounded-xl hover:bg-white/90 transition-colors"
+                className="primary-button flex-1"
               >
                 {t('Save Changes')}
               </button>
@@ -286,11 +283,11 @@ export default function User() {
           <div className="flex flex-col gap-4">
             <div className="flex flex-col">
               <span className="text-sm text-[#aaa]">{t('Name')}</span>
-              <span className="text-lg font-medium">{user.name}</span>
+              <span className="profile-value text-lg font-medium">{user.name}</span>
             </div>
             <div className="flex flex-col">
               <span className="text-sm text-[#aaa]">{t('Email')}</span>
-              <span className="text-lg font-medium">{user.email || <em className="text-[#666]">{t('Not set')}</em>}</span>
+              <span className="profile-value text-lg font-medium">{user.email || <em className="text-[#666]">{t('Not set')}</em>}</span>
             </div>
             {user.hasPassword && (
               <div className="flex flex-col">
@@ -302,7 +299,7 @@ export default function User() {
         )}
       </section>
 
-      <section className="flex flex-col gap-6 w-full p-8 border border-white/10 rounded-2xl bg-white/5 backdrop-blur-sm">
+      <section className="profile-panel profile-linked flex flex-col gap-6">
         <h2 className="text-xl font-bold m-0 border-b border-white/10 pb-4">{t('Linked Accounts')}</h2>
 
         <div className="flex items-center justify-between bg-white/5 p-4 rounded-xl border border-white/10 gap-3">
@@ -335,8 +332,18 @@ export default function User() {
           )}
         </div>
       </section>
+        </div>
 
-      <section className="flex flex-col gap-4 w-full p-6 sm:p-8 border border-white/10 rounded-2xl bg-white/5 backdrop-blur-sm mt-2">
+        <div className="profile-column">
+      <section className="profile-panel profile-language">
+        <label htmlFor="language" className="block font-bold mb-2">{t('Language')}</label>
+        <p className="text-sm text-gray-400 mb-3">{t('Choose the language used across Sushi Counter.')}</p>
+        <select id="language" value={language} onChange={(event) => setLanguage(event.target.value as 'en' | 'es')} className="w-full field-control">
+          <option value="en">English</option><option value="es">Español</option>
+        </select>
+      </section>
+
+      <section className="profile-panel profile-legal flex flex-col gap-4">
         <h2 className="text-xl font-bold m-0 border-b border-white/10 pb-4">{t('Legal & Privacy')}</h2>
         <div className="flex flex-col gap-3 mt-2">
           <Link to="/legal-notice" state={{ returnTo: "/user" }} className="text-gray-300 hover:text-white transition-colors bg-white/5 px-4 py-3 rounded-lg flex justify-between items-center group">
@@ -353,8 +360,10 @@ export default function User() {
           </Link>
         </div>
       </section>
+        </div>
+      </div>
 
-      <section className="flex flex-col gap-6 w-full p-8 border border-red-500/20 rounded-2xl bg-red-500/[0.02] backdrop-blur-sm mt-4 transition-all">
+      <section className="profile-danger flex flex-col gap-6 p-6 sm:p-8 border border-red-500/20 rounded-3xl bg-red-500/[0.02]">
         <div className="flex items-center gap-3 border-b border-red-500/10 pb-4">
           <div className="w-1.5 h-6 bg-red-500 rounded-full" />
           <h2 className="text-xl font-bold m-0 text-red-500">{t('Danger Zone')}</h2>
@@ -363,7 +372,7 @@ export default function User() {
         {user!.deletionRequestedAt ? (
           <div className="flex flex-col gap-6 bg-red-500/5 p-6 rounded-xl border border-red-500/20">
             <div className="flex flex-col gap-3">
-              <div className="flex justify-between items-start">
+              <div className="flex flex-wrap justify-between items-start gap-3">
                 <p className="font-bold text-red-500 text-lg">{t('Account Scheduled for Deletion')}</p>
                 <DeletionCountdown requestedAt={user!.deletionRequestedAt!} graceDays={user!.accountDeletionDays || 30} />
               </div>
@@ -426,7 +435,7 @@ export default function User() {
 
       <button
         onClick={logout}
-        className="w-full p-4 border border-red-500/30 text-red-500 rounded-2xl hover:bg-red-500/10 active:scale-[0.98] transition-all font-bold mt-4"
+        className="profile-logout w-full p-4 border border-red-500/30 text-red-500 rounded-2xl hover:bg-red-500/10 active:scale-[0.98] transition-all font-bold"
       >
         {t('Logout')}
       </button>

@@ -1,4 +1,4 @@
-import { Link } from "react-router";
+import { NavLink, useLocation } from "react-router";
 import { useLanguage } from "~/context/LanguageContext";
 import calendarImg from "../assets/icons/ui/calendar.svg";
 import tournamentsImg from "../assets/icons/ui/trophy.svg";
@@ -7,26 +7,26 @@ import statisticsImg from "../assets/icons/ui/chart.svg";
 import userImg from "../assets/icons/ui/user.svg";
 
 export default function Footer() {
-    const { t } = useLanguage();
-    return (
-        <footer className="sticky bottom-0 left-0 w-full border-t border-[#333] bg-[#222222]">
-            <nav className="flex flex-row items-center justify-around w-full mx-auto pt-4 pb-3 px-4 text-[1.6rem] text-[#aaa] max-w-sm">
-                <Link to="/calendar" aria-label={t('View Calendar')} className="hover:opacity-80 transition-opacity">
-                    <img src={calendarImg} alt="Calendar" className="text-white w-[1.5em] h-auto" />
-                </Link>
-                <Link to="/tournaments" aria-label={t('View Tournaments')} className="hover:opacity-80 transition-opacity">
-                    <img src={tournamentsImg} alt="Tournaments" className="text-white w-[1.5em] h-auto" />
-                </Link>
-                <Link to="/" aria-label={t('Home Counter')} className="hover:opacity-80 transition-opacity">
-                    <img src={homeImg} alt="Home" className="text-white w-[1.5em] h-auto" />
-                </Link>
-                <Link to="/statistics" aria-label={t('View Statistics')} className="hover:opacity-80 transition-opacity">
-                    <img src={statisticsImg} alt="Statistics" className="text-white w-[1.5em] h-auto" />
-                </Link>
-                <Link to="/user" aria-label={t('View Profile')} className="hover:opacity-80 transition-opacity">
-                    <img src={userImg} alt="User" className="text-white w-[1.5em] h-auto" />
-                </Link>
-            </nav>
-        </footer>
-    );
+  const { t } = useLanguage();
+  const location = useLocation();
+  const items = [
+    { to: "/calendar", label: t("View Calendar"), short: t("Calendar"), icon: calendarImg },
+    { to: "/tournaments", label: t("View Tournaments"), short: t("Tournaments"), icon: tournamentsImg },
+    { to: "/", label: t("Home Counter"), short: t("Home"), icon: homeImg },
+    { to: "/statistics", label: t("View Statistics"), short: t("Statistics"), icon: statisticsImg },
+    { to: "/user", label: t("View Profile"), short: t("Profile"), icon: userImg },
+  ];
+
+  return (
+    <footer className="relative z-10 w-full shrink-0 border-t border-[#48423a] bg-[#211f1bcf] backdrop-blur-xl">
+      <nav className="mx-auto flex w-full max-w-[720px] items-center justify-around gap-1 px-3 py-2 pb-[max(.5rem,env(safe-area-inset-bottom))]" aria-label="Main navigation">
+        {items.map(({ to, label, short, icon }) => (
+          <NavLink key={to} to={to} end={to === "/"} aria-label={label} className={({ isActive }) => `group flex min-w-0 flex-1 flex-col items-center gap-1 rounded-2xl px-1 py-2 transition-colors ${isActive || (to === '/tournaments' && location.pathname.startsWith('/tournament/')) ? "bg-[#fb715a1c] text-[#fb715a]" : "text-[#a9a49a] hover:bg-white/5 hover:text-[#f6f0e7]"}`}>
+            <img src={icon} alt="" className="h-5 w-5 opacity-75 group-hover:opacity-100" />
+            <span className="truncate text-[10px] font-bold tracking-wide sm:text-xs">{short}</span>
+          </NavLink>
+        ))}
+      </nav>
+    </footer>
+  );
 }
