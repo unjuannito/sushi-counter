@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import type { Route } from './+types/statistics';
 import { CalendarService } from '~/services/calendarService';
 import type { Log } from '~/types/calendarType';
+import { useLanguage } from '~/context/LanguageContext';
 
 export function meta({ }: Route.MetaArgs) {
   return [
@@ -204,8 +205,8 @@ function StatCard({
     <div
       className={`flex flex-col gap-1 p-5 rounded-2xl border transition-all ${
         highlight
-          ? 'bg-white/10 border-white/20 shadow-lg shadow-white/5'
-          : 'bg-white/5 border-white/10'
+          ? 'bg-[#fb715a1e] border-[#fb715a55] shadow-lg shadow-[#fb715a0c]'
+          : 'bg-[#2d2b26] border-[#49443c]'
       }`}
     >
       <div className="flex items-start justify-between gap-2">
@@ -216,7 +217,7 @@ function StatCard({
           </span>
         )}
       </div>
-      <span className="text-2xl font-bold leading-tight mt-1">{value}</span>
+      <span className="mt-1 text-3xl font-bold leading-tight tracking-tight text-[#f6f0e7]">{value}</span>
       <span className="text-sm text-white/40">{label}</span>
       {sub && <span className="text-xs text-white/30 mt-0.5">{sub}</span>}
     </div>
@@ -263,9 +264,9 @@ function BarChart({ data }: { data: { label: string; value: number; isCurrent: b
               <div
                 className={`w-full rounded-t-sm transition-all duration-500 ${
                   d.isCurrent
-                    ? 'bg-white/80'
+                    ? 'bg-[#fb715a]'
                     : d.value > 0
-                    ? 'bg-white/20'
+                    ? 'bg-[#9eae77]'
                     : 'bg-white/5'
                 }`}
                 style={{ height: `${height}%` }}
@@ -288,6 +289,7 @@ function BarChart({ data }: { data: { label: string; value: number; isCurrent: b
 // ─── main page ────────────────────────────────────────────────────────────────
 
 export default function Statistics() {
+  const { t } = useLanguage();
   const [logs, setLogs] = useState<Log[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -310,8 +312,9 @@ export default function Statistics() {
   const currentQuarter = getQuarter(now.getMonth());
 
   return (
-    <main className="flex-1 w-full max-w-[400px] mx-auto flex flex-col gap-6 p-4 pb-10">
-      <h1 className="text-center m-0 text-6xl font-bold my-8">Statistics</h1>
+    <main className="app-page min-h-0 flex-1 overflow-y-auto">
+      <span className="eyebrow">{t('See what you have eaten so far.')}</span>
+      <h1 className="page-heading mb-8 mt-3">{t('Statistics')}</h1>
 
       {/* ── loading ── */}
       {loading && (
@@ -337,11 +340,13 @@ export default function Statistics() {
         <div className="flex flex-col gap-6">
 
           {/* Hero — all time */}
-          <section className="flex flex-col gap-2 p-6 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm text-center">
+          <section className="surface-card flex flex-col gap-2 p-7 text-center">
             <span className="text-5xl">🍣</span>
-            <span className="text-5xl font-bold tracking-tight">{stats.totalAllTime.toLocaleString()}</span>
-            <span className="text-white/40 text-sm">sushi eaten all time</span>
-            <span className="text-white/25 text-xs mt-1">{stats.totalSessions} sessions · {stats.uniqueMonths} active months</span>
+            <span className="text-6xl font-bold tracking-tight text-[#fb715a]">{stats.totalAllTime.toLocaleString()}</span>
+            <span className="text-sm text-[#aaa69e]">{t('sushi eaten all time')}</span>
+            <span className="text-white/25 text-xs mt-1">
+              {stats.totalSessions} {stats.totalSessions === 1 ? 'session' : 'sessions'} · {stats.uniqueMonths} {stats.uniqueMonths === 1 ? 'active month' : 'active months'}
+            </span>
           </section>
 
           {/* Period grid */}
@@ -425,7 +430,7 @@ export default function Statistics() {
 
           {/* Records */}
           {(stats.bestDayCount > 0 || stats.bestMonthCount > 0) && (
-            <section className="flex flex-col gap-3 p-5 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm">
+            <section className="surface-card flex flex-col gap-3 p-5">
               <h2 className="text-xs font-bold uppercase tracking-widest text-white/30 m-0">Personal Records</h2>
               <div className="grid grid-cols-2 gap-3">
                 {stats.bestDayCount > 0 && (
@@ -453,7 +458,7 @@ export default function Statistics() {
           )}
 
           {/* Insights */}
-          <section className="flex flex-col gap-3 p-5 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm">
+          <section className="surface-card flex flex-col gap-3 p-5">
             <h2 className="text-xs font-bold uppercase tracking-widest text-white/30 m-0">Insights</h2>
             <div className="flex flex-col gap-2">
 
@@ -503,7 +508,7 @@ export default function Statistics() {
 
           {/* Chart — only show if at least 2 months have data */}
           {stats.chartData.filter(d => d.value > 0).length >= 2 && (
-            <section className="flex flex-col gap-3 p-5 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm">
+            <section className="surface-card flex flex-col gap-3 p-5">
               <h2 className="text-xs font-bold uppercase tracking-widest text-white/30 m-0">Last 12 months</h2>
               <BarChart data={stats.chartData} />
             </section>

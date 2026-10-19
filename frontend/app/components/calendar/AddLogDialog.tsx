@@ -31,7 +31,7 @@ export default function AddLogDialog({ open, setShowAddLogDialog, day, upsertLog
                         name="sushiCount"
                         required
                         min={1}
-                        className="bg-[#3a3a3a] border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="field-control"
                         placeholder={t('e.g. 8')}
                     />
                 </div>
@@ -41,11 +41,11 @@ export default function AddLogDialog({ open, setShowAddLogDialog, day, upsertLog
                         type="time"
                         name="when"
                         required
-                        className="bg-[#3a3a3a] border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="field-control"
                     />
                 </div>
                 <div className="flex flex-col gap-2 mt-4">
-                    <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition-colors">
+                    <button type="submit" className="primary-button">
                         {t('Save Log')}
                     </button>
                     <button

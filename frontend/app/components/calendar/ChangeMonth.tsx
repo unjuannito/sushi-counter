@@ -1,7 +1,7 @@
 import DialogComponent from "~/components/DialogComponent";
 import { useLanguage } from "~/context/LanguageContext";
 
-export default function ChangeMonth({ open, changeMonth, setIsDialogOpen }: { open: boolean, changeMonth: (month: string) => void, setIsDialogOpen: (open: boolean) => void }) {
+export default function ChangeMonth({ open, maxMonth, changeMonth, setIsDialogOpen }: { open: boolean, maxMonth: string, changeMonth: (month: string) => void, setIsDialogOpen: (open: boolean) => void }) {
     const { t } = useLanguage();
 
     const handleChangeMonth = (event: React.FormEvent<HTMLFormElement>) => {
@@ -24,11 +24,12 @@ export default function ChangeMonth({ open, changeMonth, setIsDialogOpen }: { op
                         type="month"
                         name="month"
                         required
-                        className="p-4 rounded-[10px] border border-[#333] bg-[#252525] text-white w-full box-border"
+                        max={maxMonth}
+                        className="field-control"
                     />
                 </div>
                 <div className="flex flex-col gap-2 mt-4">
-                    <button type="submit" className="bg-[#444] hover:bg-[#555] text-white font-bold py-3 rounded-xl transition-colors">
+                    <button type="submit" className="primary-button">
                         {t('Change Month')}
                     </button>
                     <button
