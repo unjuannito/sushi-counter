@@ -44,6 +44,12 @@ function DocumentContent() {
   const canonicalPath = location.pathname === "/" ? "" : location.pathname.replace(/\/+$/, "");
   const canonicalUrl = `${APP_CONSTANTS.legalDetails.websiteUrl}${canonicalPath}`;
   const isTournament = /^\/tournament\/(?:join\/)?[^/]+$/.test(location.pathname);
+  const shareTitle = language === "es" ? "Sushi Counter | Cada pieza cuenta" : "Sushi Counter | Every piece counts";
+  const shareDescription = language === "es"
+    ? "Cuenta tu sushi y compite con tus amigos."
+    : "Track your sushi and compete with your friends.";
+  const shareImageAlt = language === "es" ? "Sushi Counter: cada pieza cuenta" : "Sushi Counter: every piece counts";
+  const homeShareImage = `${APP_CONSTANTS.legalDetails.websiteUrl}/share/home.png?lang=${language}`;
 
   return (
     <html lang={language}>
@@ -54,16 +60,18 @@ function DocumentContent() {
         <meta name="theme-color" content="#171717" />
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="Sushi Counter" />
-        <meta property="og:locale" content="es_ES" />
+        <meta property="og:locale" content={language === "es" ? "es_ES" : "en_US"} />
         <meta property="og:url" content={canonicalUrl} />
-        {!isTournament && <meta property="og:image" content={`${APP_CONSTANTS.legalDetails.websiteUrl}/share/home.png`} />}
+        {!isTournament && <meta property="og:title" content={shareTitle} />}
+        {!isTournament && <meta property="og:description" content={shareDescription} />}
+        {!isTournament && <meta property="og:image" content={homeShareImage} />}
         {!isTournament && <meta property="og:image:width" content="1200" />}
         {!isTournament && <meta property="og:image:height" content="630" />}
-        {!isTournament && <meta property="og:image:alt" content="Sushi Counter: cada pieza cuenta" />}
+        {!isTournament && <meta property="og:image:alt" content={shareImageAlt} />}
         <meta name="twitter:card" content="summary_large_image" />
-        {!isTournament && <meta name="twitter:title" content="Sushi Counter | Cada pieza cuenta" />}
-        {!isTournament && <meta name="twitter:description" content="Cuenta tu sushi y compite con tus amigos." />}
-        {!isTournament && <meta name="twitter:image" content={`${APP_CONSTANTS.legalDetails.websiteUrl}/share/home.png`} />}
+        {!isTournament && <meta name="twitter:title" content={shareTitle} />}
+        {!isTournament && <meta name="twitter:description" content={shareDescription} />}
+        {!isTournament && <meta name="twitter:image" content={homeShareImage} />}
         <link rel="icon" href="/favicon.ico?v=2" sizes="any" />
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=2" />
         <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png?v=2" />

@@ -9,8 +9,6 @@ export function meta({ }: Route.MetaArgs) {
     { title: "Sushi Counter - Track Your Sushi Consumption" },
     { name: "description", content: "Sushi Counter is a free sushi tracker: count pieces without an account, or sign in to save meals, view your calendar and statistics, and compete with friends." },
     { name: "keywords", content: "sushi counter, sushi tracker, food tracker, sushi log, sushi tournament" },
-    { property: "og:title", content: "Sushi Counter | Cada pieza cuenta" },
-    { property: "og:description", content: "Cuenta tu sushi y compite con tus amigos." },
   ];
 }
 
